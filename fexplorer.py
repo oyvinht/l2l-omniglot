@@ -126,7 +126,8 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = ['Alphabet_of_the_Magi']
-    dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
+    dbs = ['Futurama']
+    # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
     ## Innerloop simulator
@@ -140,7 +141,7 @@ def main():
     step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
     n_random_steps = 5
     n_iteration = 100
-    parameters = RMSPropParameters(learning_rate=0.001,
+    parameters = RMSPropParameters(learning_rate=0.01,
                                    exploration_step_size=step_size,
                                    n_random_steps=n_random_steps,
                                    momentum_decay=0.5,

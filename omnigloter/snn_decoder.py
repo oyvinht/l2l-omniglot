@@ -124,7 +124,7 @@ class Decoder(object):
         fname = "input_spikes_%s__width_%s__nclass_%02d__totalsamples_%010d.npz"%\
                 (db, in_shape[0], nclass, total_fs)
         fname = os.path.join(in_path, fname)
-
+        print(fname)
         if os.path.isfile(fname):
             # try:
                 t_creation_start = time.time()
@@ -139,11 +139,14 @@ class Decoder(object):
                 minutes = (total_t_creation - hours * 3600) // 60
                 seconds = total_t_creation - hours * 3600 - minutes * 60
                 print("\tIt took %d:%d:%05.2f" % (hours, minutes, seconds))
-
+                print(shapes)
+                print(labels)
+                print(len(spikes))
                 return labels, shapes, spikes
             # except:
             #     pass
-
+        else:
+            print("FILE NOT FOUND!!!!!!")
 
         train_fnames = []
         class_dirs = sorted(os.listdir(path))[:nclass]

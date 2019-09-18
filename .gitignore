@@ -1,1 +1,15 @@
 .idea/
+venv3/
+genn/
+pynn_genn/
+L2L/
+L2L-OMNIGLOT/jube_xml/
+L2L-OMNIGLOT/ready_files/
+L2L-OMNIGLOT/results/
+L2L-OMNIGLOT/run-num-test/
+L2L-OMNIGLOT/run_files/
+L2L-OMNIGLOT/trajectories/
+L2L-OMNIGLOT/work/
+L2L-OMNIGLOT/optimizee.bin
+**/__pycache__/
+**/*_CODE/

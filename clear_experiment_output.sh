@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+D=`pwd`/L2L-OMNIGLOT
+
+rm -fr $D/jube_xml $D/ready_files $D/results $D/run-num-test $D/run_files $D/trajectories $D/work $D/optimizee.bin
