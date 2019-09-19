@@ -126,7 +126,8 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = ['Alphabet_of_the_Magi']
-    dbs = ['Futurama']
+    # dbs = ['Futurama']
+    dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 

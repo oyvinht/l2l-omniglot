@@ -96,11 +96,11 @@ class OmniglotOptimizee(Optimizee):
         labels = data['input']['labels']
         end_t = self.sim_params['duration']
         start_t = end_t - n_class * n_test * dt
-        npc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
-        vectors = [np.zeros(n_out) for _ in npc]
-        for c in npc:
-            if len(npc[c]):
-                kv = np.array(list(npc[c].keys()), dtype='int')
+        apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
+        vectors = [np.zeros(n_out) for _ in apc]
+        for c in apc:
+            if len(apc[c]):
+                kv = np.array(list(apc[c].keys()), dtype='int')
                 vectors[c - 1][kv] = 1
 
 
