@@ -11,6 +11,8 @@ from l2l.optimizees.functions import tools as function_tools
 from l2l.optimizees.functions.benchmarked_functions import BenchmarkedFunctions
 # from l2l.optimizers.gridsearch import GridSearchOptimizer, GridSearchParameters
 from l2l.optimizers.gradientdescent.optimizer import GradientDescentOptimizer, RMSPropParameters
+from l2l.optimizers.evolutionstrategies.optimizer import EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
+from l2l.optimizers.evolution import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
 from l2l.paths import Paths
 
 from l2l.logging_tools import create_shared_logger_data, configure_loggers
@@ -25,7 +27,8 @@ from omnigloter import config
 # from pid_mb_rl.optimizer import GradientDescentMultiOptimizer, RMSPropParameters
 
 logger = logging.getLogger("bin.l2l-omniglot")
-
+GRADDESC, EVOSTRAT, GENALG = range(3)
+OPTIMIZER = EVOSTRAT
 
 def main():
     name = "L2L-OMNIGLOT"
@@ -42,9 +45,10 @@ def main():
     env = Environment(trajectory=name, filename=traj_file,
                       file_title="{} data".format(name),
                       comment="{} data".format(name),
-                      add_time=True,
-                      automatic_storing=True,
-                      log_stdout=False,  # Sends stdout to logs
+                      add_time=bool(1),
+                      automatic_storing=bool(1),
+                      log_stdout=bool(0),  # Sends stdout to logs
+                      multiprocessing=bool(1),
                       )
     create_shared_logger_data(logger_names=["bin", "optimizers"],
                               log_levels=["INFO", "INFO"],
@@ -71,22 +75,22 @@ def main():
     # Requested time for the compute resources
     traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:01:00")
     # MPI Processes per node
-    traj.f_add_parameter_to_group("JUBE_params", "ppn", "1")
+    traj.f_add_parameter_to_group("JUBE_params", "ppn", "2")
     # CPU cores per MPI process
-    traj.f_add_parameter_to_group("JUBE_params", "cpu_pp", "1")
+    traj.f_add_parameter_to_group("JUBE_params", "cpu_pp", "2")
     # Threads per process
-    traj.f_add_parameter_to_group("JUBE_params", "threads_pp", "1")
+    traj.f_add_parameter_to_group("JUBE_params", "threads_pp", "2")
     # Type of emails to be sent from the scheduler
     traj.f_add_parameter_to_group("JUBE_params", "mail_mode", "ALL")
     # Email to notify events from the scheduler
-    traj.f_add_parameter_to_group("JUBE_params", "mail_address", "s.diaz@fz-juelich.de")
+    traj.f_add_parameter_to_group("JUBE_params", "mail_address", "g.pineda-garcia@sussex.ac.uk")
     # Error file for the job
     traj.f_add_parameter_to_group("JUBE_params", "err_file", "stderr")
     # Output file for the job
     traj.f_add_parameter_to_group("JUBE_params", "out_file", "stdout")
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
-    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "1")
+    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
     # The execution command
     traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
                                   os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
@@ -126,8 +130,8 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = ['Alphabet_of_the_Magi']
-    # dbs = ['Futurama']
-    dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
+    dbs = ['Futurama']
+    # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
@@ -137,25 +141,56 @@ def main():
     # Prepare optimizee for jube runs
     JUBE_runner.prepare_optimizee(optimizee, paths.root_dir_path)
 
-    ### individuals per optimizee - 1
-    _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
-    step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
-    n_random_steps = 5
-    n_iteration = 100
-    parameters = RMSPropParameters(learning_rate=0.01,
-                                   exploration_step_size=step_size,
-                                   n_random_steps=n_random_steps,
-                                   momentum_decay=0.5,
-                                   n_iteration=n_iteration,
-                                   stop_criterion=np.Inf,
-                                   seed=99)
+    fit_weights = [-1.0, 0.1]
+    if OPTIMIZER == GRADDESC:
+        _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
+        step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
+        n_random_steps = 10
+        n_iteration = 100
 
-    fit_weights = [-1.0]
-    optimizer = GradientDescentOptimizer(traj,
-                                         optimizee_create_individual=optimizee.create_individual,
-                                         optimizee_fitness_weights=fit_weights,
-                                         parameters=parameters,
-                                         optimizee_bounding_func=optimizee.bounding_func)
+        parameters = RMSPropParameters(learning_rate=0.001,
+                                       exploration_step_size=step_size,
+                                       n_random_steps=n_random_steps,
+                                       momentum_decay=0.5,
+                                       n_iteration=n_iteration,
+                                       stop_criterion=np.Inf,
+                                       seed=99)
+
+        optimizer = GradientDescentOptimizer(traj,
+                        optimizee_create_individual=optimizee.create_individual,
+                        optimizee_fitness_weights=fit_weights,
+                        parameters=parameters,
+                        optimizee_bounding_func=optimizee.bounding_func)
+        
+    elif OPTIMIZER == EVOSTRAT:
+        optimizer_seed = 1234
+        parameters = EvolutionStrategiesParameters(
+            learning_rate=0.1,
+            noise_std=1.0,
+            mirrored_sampling_enabled=True,
+            fitness_shaping_enabled=True,
+            pop_size=20,
+            n_iteration=1000,
+            stop_criterion=np.Inf,
+            seed=optimizer_seed)
+
+        optimizer = EvolutionStrategiesOptimizer(
+            traj,
+            optimizee_create_individual=optimizee.create_individual,
+            optimizee_fitness_weights=fit_weights,
+            parameters=parameters,
+            optimizee_bounding_func=optimizee.bounding_func)
+    else:
+        parameters = GeneticAlgorithmParameters(seed=0, popsize=50, CXPB=0.5,
+                                                MUTPB=0.3, NGEN=100, indpb=0.02,
+                                                tournsize=15, matepar=0.5,
+                                                mutpar=1
+                                                )
+
+        optimizer = GeneticAlgorithmOptimizer(traj,
+            optimizee_create_individual=optimizee.create_individual,
+            optimizee_fitness_weights=fit_weights,
+            parameters=parameters)
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?

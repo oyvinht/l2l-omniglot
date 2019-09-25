@@ -13,3 +13,4 @@ L2L-OMNIGLOT/work/
 L2L-OMNIGLOT/optimizee.bin
 **/__pycache__/
 **/*_CODE/
+.ipynb_checkpoints/

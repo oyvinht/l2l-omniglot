@@ -1,3 +1,17 @@
 #!/usr/bin/env bash
-jutil env activate -p chhd34
-module load tmux Python/3.6.8 CUDA NCCL cuDNN unzip git HDF5 JUBE SciPy-Stack h5py scikit 
+module load tmux Python/3.6.8 CUDA NCCL cuDNN unzip git HDF5 JUBE SciPy-Stack h5py scikit
+
+BUDGET=JUWELS_GPUS
+PROJ=chhd34
+jutil env activate -p $PROJ -A $BUDGET
+
+#SBATCH --account=JUWELS_GPUS
+#SBATCH --partition=gpus
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=9
+#SBATCH --gres=gpu:4
+#SBATCH --ntasks-per-node=1
+
+
+
+srun python

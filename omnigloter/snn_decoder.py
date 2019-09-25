@@ -110,7 +110,7 @@ class Decoder(object):
     def get_in_spikes(self, params):
         db = pyrand.choice(params['sim']['database'])
         print(db)
-
+        self._db_name = db
         path = os.path.join(params['sim']['spikes_path'], db)
         nclass = params['sim']['num_classes']
         nsamp = params['sim']['samples_per_class']
@@ -723,6 +723,7 @@ class Decoder(object):
                 'n_zones': nz,
             },
             'params': self.params,
+            'db_name': self._db_name,
 
             # 'analysis':{
             #     'per_class': spk_p_class
