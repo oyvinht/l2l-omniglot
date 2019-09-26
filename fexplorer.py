@@ -161,7 +161,7 @@ def main():
                         optimizee_fitness_weights=fit_weights,
                         parameters=parameters,
                         optimizee_bounding_func=optimizee.bounding_func)
-        
+
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
         parameters = EvolutionStrategiesParameters(
