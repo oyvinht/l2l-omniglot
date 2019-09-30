@@ -29,6 +29,7 @@ from omnigloter import config
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
 OPTIMIZER = EVOSTRAT
+ON_JEWELS = bool(0)
 
 def main():
     name = "L2L-OMNIGLOT"
@@ -75,11 +76,11 @@ def main():
     # Requested time for the compute resources
     traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:01:00")
     # MPI Processes per node
-    traj.f_add_parameter_to_group("JUBE_params", "ppn", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "ppn", "1")
     # CPU cores per MPI process
-    traj.f_add_parameter_to_group("JUBE_params", "cpu_pp", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "cpu_pp", "1")
     # Threads per process
-    traj.f_add_parameter_to_group("JUBE_params", "threads_pp", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "threads_pp", "1")
     # Type of emails to be sent from the scheduler
     traj.f_add_parameter_to_group("JUBE_params", "mail_mode", "ALL")
     # Email to notify events from the scheduler
@@ -92,8 +93,16 @@ def main():
     # MPI Processes per job
     traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
     # The execution command
-    traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
-                                  os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+    if ON_JEWELS:
+        # -N num nodes
+        # -t exec time (mins)
+        # -n num sub-procs
+        traj.f_add_parameter_to_group("JUBE_params", "exec",
+            "srun -t 20 -N 1 --exclusive -n 4 -c 1 --gpus-per-task 1 " + \
+            " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+    else:
+        traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
+                                      os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
 
     # Ready file for a generation
     traj.f_add_parameter_to_group("JUBE_params", "ready_file",
@@ -129,10 +138,23 @@ def main():
     db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d'%config.INPUT_SHAPE[0]
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
+    # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
+    # print(dbs)
+    # dbs = [
+    #     'Mkhedruli_-Georgian-', 'Tagalog', 'Ojibwe_-Canadian_Aboriginal_Syllabics-',
+    #     'Asomtavruli_-Georgian-', 'Balinese', 'Japanese_-katakana-', 'Malay_-Jawi_-_Arabic-',
+    #     'Armenian', 'Burmese_-Myanmar-', 'Arcadian', 'Futurama', 'Cyrillic',
+    #     'Alphabet_of_the_Magi', 'Sanskrit', 'Braille', 'Bengali',
+    #     'Inuktitut_-Canadian_Aboriginal_Syllabics-', 'Syriac_-Estrangelo-', 'Gujarati',
+    #     'Korean', 'Early_Aramaic', 'Japanese_-hiragana-', 'Anglo-Saxon_Futhorc', 'N_Ko',
+    #     'Grantha', 'Tifinagh', 'Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Greek',
+    #     'Hebrew', 'Latin'
+    # ]
+
     # dbs = ['Alphabet_of_the_Magi']
     dbs = ['Futurama']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
-    # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
+
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
     ## Innerloop simulator
@@ -141,7 +163,7 @@ def main():
     # Prepare optimizee for jube runs
     JUBE_runner.prepare_optimizee(optimizee, paths.root_dir_path)
 
-    fit_weights = [-1.0, 0.1]
+    fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
         _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
         step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
@@ -169,7 +191,7 @@ def main():
             noise_std=1.0,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=20,
+            pop_size=9,
             n_iteration=1000,
             stop_criterion=np.Inf,
             seed=optimizer_seed)

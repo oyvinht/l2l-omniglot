@@ -613,6 +613,7 @@ class Decoder(object):
 
             tdeps = {k: ind_par[k] if k in ind_par else config.TIME_DEP_VARS[k] \
                                                     for k in config.TIME_DEP_VARS}
+            print("time deps ", tdeps)
             tdep = getattr(__stdp__, config.TIME_DEP)(**tdeps)
             wdep = getattr(__stdp__, config.WEIGHT_DEP)(ind_par['w_min_mult']*max_w, ind_par['w_max_mult']*max_w)
             stdp = getattr(__stdp__, config.STDP_MECH)(timing_dependence=tdep, weight_dependence=wdep)
