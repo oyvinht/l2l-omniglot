@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-module load tmux Python/3.6.8 CUDA NCCL cuDNN unzip git HDF5 JUBE SciPy-Stack h5py scikit
+#module load tmux Python/3.6.8 CUDA NCCL cuDNN unzip git HDF5 JUBE SciPy-Stack h5py scikit
 
 BUDGET=JUWELS_GPUS
 PROJ=chhd34
