@@ -16,15 +16,21 @@ def post_shape(val, stride, kernel_width):
     return (((val - kernel_width) // stride) + 1)
 
 def randnum(vmin, vmax, div=None, rng=None):
+
     if isinstance(vmin, int):
         return randint_float(vmin, vmax, div, rng)
-
-    return rng.uniform(vmin, vmax)
+    v = rng.uniform(vmin, vmax)
+    # print("RANDNUM: uniform(%s, %s) = %s"%(vmin, vmax, v))
+    return v
 
 def bound(val, num_range):
+
     v = min(max(num_range[0], val), num_range[1])
+    # print("BOUND: (%s, %s, %s) -> %s"%(num_range[0], num_range[1], val, v))
     if np.issubdtype(type(num_range[0]), np.integer):
         v = np.round(v)
+        # print("INT-BOUND %s"%v)
+
     return v
 
 def randint_float(vmin, vmax, div=None, rng=None):

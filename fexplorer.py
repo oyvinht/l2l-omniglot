@@ -163,10 +163,10 @@ def main():
     # Prepare optimizee for jube runs
     JUBE_runner.prepare_optimizee(optimizee, paths.root_dir_path)
 
+    _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
+    step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
     fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
-        _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
-        step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
         n_random_steps = 10
         n_iteration = 100
 
@@ -188,7 +188,7 @@ def main():
         optimizer_seed = 1234
         parameters = EvolutionStrategiesParameters(
             learning_rate=0.1,
-            noise_std=1.0,
+            noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
             pop_size=9,
