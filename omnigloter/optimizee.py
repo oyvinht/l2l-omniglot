@@ -8,7 +8,6 @@ from multiprocessing import Process, Queue
 import time
 import sys
 import os
-from time import sleep
 import logging
 from omnigloter import config, utils, analyse_network as analysis
 from omnigloter.snn_decoder import Decoder
@@ -135,7 +134,7 @@ class OmniglotOptimizee(Optimizee):
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
         if len(diff_class_dots) == 0:
-            print("dots == 0, fitness = ", n_dots)
+            print("dots == 0, fitness = ", 0)
 
             diff_class_norms = []
             diff_class_dots = []
@@ -143,7 +142,7 @@ class OmniglotOptimizee(Optimizee):
             same_class_norms = []
             same_class_dots = []
 
-            diff_class_fitness = n_dots
+            diff_class_fitness = 0#n_dots
             same_class_fitness = 0
 
         else:
@@ -157,8 +156,8 @@ class OmniglotOptimizee(Optimizee):
                 if len(whr):
                     diff_class_dots[whr] = 1.0
 
-            diff_class_fitness = np.sum(diff_class_dots)
-            print("diff_fitness ", diff_class_fitness)
+            diff_class_fitness = n_dots - np.sum(diff_class_dots)
+            print("diff_fitness %s - %s = %s"%(n_dots, np.sum(diff_class_dots), diff_class_fitness))
 
             same_fitnesses = np.asarray([
                 np.sum(same_class_dots[c]) if len(same_class_dots[c]) else 0.0 \
