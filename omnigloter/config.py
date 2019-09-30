@@ -46,7 +46,7 @@ OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.15)
 A_PLUS = (0.1, 0.100000001) if DEBUG else (0.01, 1.0)
 A_MINUS = (0.001, 0.00100000001) if DEBUG else (0.0001, 0.1)
 STD_DEV = (1.0, 1.00000001) if DEBUG else (0.01, 5.0)
-DISPLACE = (0.005, 0.00500000001) if DEBUG else (0.0, 1.0)
+DISPLACE = (0.005, 0.00500000001) if DEBUG else (0.001, 1.0)
 MAX_DT = (80.0, 80.00000001) if DEBUG else (SAMPLE_DT, SAMPLE_DT*2.0)
 W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-2.0, 0.0)
 W_MAX_MULT = (1.2, 1.200000001) if DEBUG else (0.1, 2.0)
@@ -121,7 +121,7 @@ ATTR_STEPS = {
     'mushroom_weight': 0.1,
     'exp_prob': 0.01,
     'out_prob': 0.01,
-    'A_plus': 0.1,
+    'A_plus': 0.001,
     'A_minus': 0.001,
     'std': 0.5,
     'displace': 0.1,
