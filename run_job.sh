@@ -7,11 +7,11 @@ jutil env activate -p $PROJ -A $BUDGET
 
 #SBATCH --account=JUWELS_GPUS
 #SBATCH --partition=gpus
-#SBATCH --nodes=1
+#SBATCH --nodes=5
 #SBATCH --ntasks-per-node=9
 #SBATCH --gres=gpu:4
 #SBATCH --ntasks-per-node=1
 
+source venv3/bin/activate
 
-
-srun python
+python fexplorer.py

@@ -44,10 +44,10 @@ EXPANSION_RANGE = (10, 11) if DEBUG else (10, 11)
 EXP_PROB_RANGE = (0.1, 0.1000001) if DEBUG else (0.05, 0.15)
 OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.15)
 A_PLUS = (0.1, 0.100000001) if DEBUG else (0.01, 1.0)
-A_MINUS = (0.001, 0.00100000001) if DEBUG else (0.0001, 1.0)
+A_MINUS = (0.001, 0.00100000001) if DEBUG else (0.0001, 0.1)
 STD_DEV = (1.0, 1.00000001) if DEBUG else (0.01, 5.0)
 DISPLACE = (0.005, 0.00500000001) if DEBUG else (0.0, 1.0)
-MAX_DT = (80.0, 80.00000001) if DEBUG else (20.0, 100.0)
+MAX_DT = (80.0, 80.00000001) if DEBUG else (SAMPLE_DT, SAMPLE_DT*2.0)
 W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-2.0, 0.0)
 W_MAX_MULT = (1.2, 1.200000001) if DEBUG else (0.1, 2.0)
 CONN_DIST = (15, 16) if DEBUG else (3, 21)
@@ -107,11 +107,11 @@ ATTR_RANGES = {
     'out_prob': OUTPUT_PROB_RANGE,
     'conn_dist': CONN_DIST,
 
-    'a_plus': A_PLUS,
-    'a_minus': A_MINUS,
-    'std_dev': STD_DEV,
+    'A_plus': A_PLUS,
+    # 'A_minus': A_MINUS,
+    # 'std': STD_DEV,
     'displace': DISPLACE,
-    'max_dt': MAX_DT,
+    # 'maxDt': MAX_DT,
     'w_max_mult': W_MAX_MULT,
     'w_min_mult': W_MIN_MULT,
 }
@@ -121,11 +121,11 @@ ATTR_STEPS = {
     'mushroom_weight': 0.1,
     'exp_prob': 0.01,
     'out_prob': 0.01,
-    'a_plus': 0.1,
-    'a_minus': 0.001,
-    'std_dev': 0.5,
+    'A_plus': 0.1,
+    'A_minus': 0.001,
+    'std': 0.5,
     'displace': 0.1,
-    'max_dt': 10.0,
+    'maxDt': 10.0,
     'w_max_mult': 0.5,
     'w_min_mult': 0.5,
     'conn_dist': 10,
@@ -213,7 +213,7 @@ STDP_MECH = 'MySTDPMechanism'
 TIME_DEP = 'MyTemporalDependence'
 TIME_DEP_VARS = {
     "A_plus": 0.10,
-    "A_minus": 0.001,
+    "A_minus": 0.0,
     "mean": 0.0,
     "std": 1.0,
     "displace": 0.005,
