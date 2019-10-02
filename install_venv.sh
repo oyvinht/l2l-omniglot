@@ -11,7 +11,7 @@ SWIG=$BASE/swig
 NVCC=`which nvcc`
 CUDA=`echo $NVCC | sed 's/\/bin\/nvcc//g'`
 INSTALL_SWIG=0
-INSTALL_JUBE=0
+INSTALL_JUBE=1
 
 if [ $INSTALL_SWIG -eq 1 ]
 then
@@ -29,12 +29,16 @@ cd $BASE
 echo $BASE
 echo $VENV
 
-python3 -m venv $VENV
+#python3 -m venv $VENV
 
 printf "\nexport CUDA_PATH=%s\n" $CUDA >> $VENV/bin/activate
 printf "\nexport PATH=\$PATH:%s/bin\n" $SWIG >> $VENV/bin/activate
-printf "\nexport PATH=\$PATH:%s/bin\n" $GENN >> $VENV/bin/activate
-ln -s $BASE/omnigloter $VENV/lib/python3.5/site-packages/
+printf "\nexport PATH=\$PATH:%s/bin\n\n" $GENN >> $VENV/bin/activate
+
+
+PYVER=`ls $VENV/lib/`
+ln -s $BASE/omnigloter $VENV/lib/$PYVER/site-packages/
+
 
 source $VENV/bin/activate
 

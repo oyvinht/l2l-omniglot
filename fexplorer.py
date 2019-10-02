@@ -29,7 +29,7 @@ from omnigloter import config
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
 OPTIMIZER = EVOSTRAT
-ON_JEWELS = bool(0)
+ON_JEWELS = bool(1)
 
 def main():
     name = "L2L-OMNIGLOT"
@@ -98,7 +98,7 @@ def main():
         # -t exec time (mins)
         # -n num sub-procs
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gpus-per-task 1 " + \
+            "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 -A chhd34 " + \
             " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
         traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
