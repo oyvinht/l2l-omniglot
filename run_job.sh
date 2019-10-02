@@ -3,7 +3,7 @@
 
 #BUDGET=JUWELS_GPUS
 PROJ=chhd34
-#jutil env activate -p $PROJ -A $BUDGET
+jutil env activate -p $PROJ #-A $PROJ
 
 #SBATCH --account=$PROJ
 #SBATCH --partition=gpus
