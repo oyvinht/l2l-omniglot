@@ -98,7 +98,7 @@ def main():
         # -t exec time (mins)
         # -n num sub-procs
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 20 -N 1 --exclusive -n 4 -c 1 --gpus-per-task 1 " + \
+            "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gpus-per-task 1 " + \
             " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
         traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
@@ -165,7 +165,7 @@ def main():
 
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
     step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
-    fit_weights = [1.0, 0.1]
+    fit_weights = [-1.0, -0.1] if OPTIMIZER == GRADDESC else [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
         n_random_steps = 10
         n_iteration = 100
