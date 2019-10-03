@@ -1,3 +1,5 @@
+swig/
+swig_tmp/
 .idea/
 venv3/
 genn/

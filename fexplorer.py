@@ -98,7 +98,7 @@ def main():
         # -t exec time (mins)
         # -n num sub-procs
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
+            "srun -t 00:10:00 --ntasks 1 --ntasks-per-node=4 --exclusive -c 1 --gres=gpu:1 -A hhd34 " + \
             " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
         traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
@@ -191,7 +191,7 @@ def main():
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=9,
+            pop_size=2,
             n_iteration=1,
             stop_criterion=np.Inf,
             seed=optimizer_seed)

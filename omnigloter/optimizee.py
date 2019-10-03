@@ -68,7 +68,7 @@ class OmniglotOptimizee(Optimizee):
         # ind_idx = np.random.randint(0, 1000)
         ind_idx = traj.individual.ind_idx
         generation = traj.individual.generation
-        name = 'gen{}_ind{}'.format(generation, ind_idx)
+        name = 'gen{:05d}_ind{:05d}'.format(generation, ind_idx)
         ind_params = {k: getattr(traj.individual, k) for k in ipr}
         print("ind_params:")
         print(ind_params)
