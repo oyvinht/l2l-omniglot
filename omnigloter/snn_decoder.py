@@ -36,6 +36,11 @@ class Decoder(object):
         self.params = params
         self.decode(params)
         logging.info("In Decoder init, %s"%name)
+        if "GPU_DEVICE_ORDINAL" in os.environ:
+            print("\n\n\nGPU_DEVICE_ORDINAL = {}\n\n".format(os.environ["GPU_DEVICE_ORDINAL"]))
+        else:
+            print("\n\n\nGPU_DEVICE_ORDINAL WAS NOT FOUND!\n\n")
+
         # pprint(params)
 
     def decode(self, params):

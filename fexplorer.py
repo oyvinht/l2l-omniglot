@@ -97,9 +97,11 @@ def main():
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
+        # -p gpus --gres=gpu:1 --ntasks=8 --ntasks-per-node=4 --ntasks-per-core=1
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 00:10:00 --ntasks 1 --ntasks-per-node=4 --exclusive -c 1 --gres=gpu:1 -A hhd34 " + \
-            " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+            "srun -t 00:10:00 -c 1 --gres=gpu:1 " + \
+            " -N 1 -n 1 " + \
+            " python " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
         traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
                                       os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
@@ -191,8 +193,8 @@ def main():
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=2,
-            n_iteration=1,
+            pop_size=3,
+            n_iteration=2,
             stop_criterion=np.Inf,
             seed=optimizer_seed)
 
