@@ -99,7 +99,7 @@ def main():
         # -n num sub-procs
         # -p gpus --gres=gpu:1 --ntasks=8 --ntasks-per-node=4 --ntasks-per-core=1
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 00:10:00 -c 1 --gres=gpu:1 " + \
+            "srun -t 00:20:00 -c 1 --gres=gpu:1 " + \
             " -N 1 -n 1 " + \
             " python " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
@@ -189,12 +189,12 @@ def main():
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
         parameters = EvolutionStrategiesParameters(
-            learning_rate=0.1,
+            learning_rate=0.01,
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=3,
-            n_iteration=2,
+            pop_size=9,
+            n_iteration=100,
             stop_criterion=np.Inf,
             seed=optimizer_seed)
 
