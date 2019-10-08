@@ -18,6 +18,7 @@ then
   echo "Installing SWIG"
   git clone https://github.com/swig/swig $SWIG_TMP
   cd $SWIG_TMP
+  git checkout tags/rel-3.0.12
   ./autogen.sh
   ./configure --prefix=$SWIG
   make
