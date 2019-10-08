@@ -20,12 +20,12 @@ from six import iterkeys, iteritems
 
 
 class OmniglotOptimizee(Optimizee):
-    def __init__(self, traj, seed):
+    def __init__(self, traj, seed, gradient_desc=bool(0)):
 
         super().__init__(traj)
         self.seed = np.uint32(seed)
         self.rng = np.random.RandomState(seed=self.seed)
-
+        self.grad_desc = gradient_desc
         self.ind_param_ranges = config.ATTR_RANGES.copy()
         self.sim_params = traj.simulation.params.copy()
 
@@ -68,7 +68,7 @@ class OmniglotOptimizee(Optimizee):
         # ind_idx = np.random.randint(0, 1000)
         ind_idx = traj.individual.ind_idx
         generation = traj.individual.generation
-        name = 'gen{}_ind{}'.format(generation, ind_idx)
+        name = 'gen{:05d}_ind{:05d}'.format(generation, ind_idx)
         ind_params = {k: getattr(traj.individual, k) for k in ipr}
         print("ind_params:")
         print(ind_params)

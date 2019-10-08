@@ -28,8 +28,9 @@ from omnigloter import config
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-OPTIMIZER = EVOSTRAT
-ON_JEWELS = bool(1)
+# OPTIMIZER = EVOSTRAT
+OPTIMIZER = GRADDESC
+ON_JEWELS = bool(0)
 
 def main():
     name = "L2L-OMNIGLOT"
@@ -158,14 +159,15 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
     ## Innerloop simulator
-    optimizee = OmniglotOptimizee(traj, 1234)
+    grad_desc =  OPTIMIZER == GRADDESC
+    optimizee = OmniglotOptimizee(traj, 1234, grad_desc)
 
     # Prepare optimizee for jube runs
     JUBE_runner.prepare_optimizee(optimizee, paths.root_dir_path)
 
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
     step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
-    fit_weights = [-1.0, -0.1] if OPTIMIZER == GRADDESC else [1.0, 0.1]
+    fit_weights = [1.0, 0.1] if OPTIMIZER == GRADDESC else [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
         n_random_steps = 10
         n_iteration = 100
@@ -192,7 +194,7 @@ def main():
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
             pop_size=9,
-            n_iteration=1,
+            n_iteration=1000,
             stop_criterion=np.Inf,
             seed=optimizer_seed)
 

@@ -51,6 +51,7 @@ class Decoder(object):
                   self._network['min_delay'],
                   model_name=self.name,
                   backend=config.BACKEND,
+                  # selected_gpu_id=0,
                 )
 
         logging.info("\tGenerating spikes")
@@ -517,7 +518,7 @@ class Decoder(object):
             for k, pre in self.input_populations().items():
                 projs[k] = sim.Projection(pre, post,
                             sim.FromListConnector(conns[k]),
-                            label='input to mushroom',
+                            label='input to mushroom - {}'.format(k),
                             receptor_type='excitatory')
 
             return projs
