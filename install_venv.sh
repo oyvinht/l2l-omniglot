@@ -12,6 +12,7 @@ NVCC=`which nvcc`
 CUDA=`echo $NVCC | sed 's/\/bin\/nvcc//g'`
 INSTALL_SWIG=0
 INSTALL_JUBE=1
+INSTALL_VENV=1
 
 if [ $INSTALL_SWIG -eq 1 ]
 then
@@ -30,7 +31,11 @@ cd $BASE
 echo $BASE
 echo $VENV
 
-#python3 -m venv $VENV
+if [ $INSTALL_VENV -eq 1 ]
+then
+  python3 -m venv $VENV
+fi
+
 
 printf "\nexport CUDA_PATH=%s\n" $CUDA >> $VENV/bin/activate
 printf "\nexport PATH=\$PATH:%s/bin\n" $SWIG >> $VENV/bin/activate
