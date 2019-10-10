@@ -35,7 +35,8 @@ class OmniglotOptimizee(Optimizee):
 
     def create_individual(self):
         ipr = self.ind_param_ranges
-        return {k: utils.randnum(ipr[k][0], ipr[k][1], rng=self.rng) for k in ipr}
+        return {k: utils.randnum(ipr[k][0], ipr[k][1], rng=self.rng) \
+                    if len(ipr[k]) == 2 else ipr[k][0] for k in ipr}
 
     def bounding_func(self, individual):
         ipr = self.ind_param_ranges
@@ -75,6 +76,7 @@ class OmniglotOptimizee(Optimizee):
         params = {
             'ind': ind_params,
             'sim': self.sim_params,
+            'gen': {'gen': generation, 'ind': ind_idx},
         }
         snn = Decoder(name, params)
         # try:

@@ -50,7 +50,7 @@ def main():
                       add_time=bool(1),
                       automatic_storing=bool(1),
                       log_stdout=bool(0),  # Sends stdout to logs
-                      multiprocessing=bool(1),
+                      multiprocessing=bool(0),
                       )
     create_shared_logger_data(logger_names=["bin", "optimizers"],
                               log_levels=["INFO", "INFO"],
