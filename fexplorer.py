@@ -1,36 +1,28 @@
 import logging.config
 import os
 import sys
+
 sys.path.append('.')
 sys.path.append("./omnigloter")
 import numpy as np
-from glob import glob
-
 from l2l.utils.environment import Environment
-from l2l.optimizees.functions import tools as function_tools
-from l2l.optimizees.functions.benchmarked_functions import BenchmarkedFunctions
-# from l2l.optimizers.gridsearch import GridSearchOptimizer, GridSearchParameters
 from l2l.optimizers.gradientdescent.optimizer import GradientDescentOptimizer, RMSPropParameters
 from l2l.optimizers.evolutionstrategies.optimizer import EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
 from l2l.optimizers.evolution import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
 from l2l.paths import Paths
-
 from l2l.logging_tools import create_shared_logger_data, configure_loggers
-
 from l2l.utils import JUBE_runner
 from l2l import dict_to_list
-
-
-
 from omnigloter.optimizee import OmniglotOptimizee
 from omnigloter import config
-# from pid_mb_rl.optimizer import GradientDescentMultiOptimizer, RMSPropParameters
+
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
 # OPTIMIZER = EVOSTRAT
 OPTIMIZER = GRADDESC
 ON_JEWELS = bool(0)
+
 
 def main():
     name = "L2L-OMNIGLOT"
@@ -99,8 +91,8 @@ def main():
         # -t exec time (mins)
         # -n num sub-procs
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
-            " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+                                      "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
+                                      " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
         traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
                                       os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
@@ -115,10 +107,10 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
-    traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)#ms
-    traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)#ms
-    traj.f_add_parameter_to_group("simulation", 'input_shape', config.INPUT_SHAPE)#rows, cols
-    traj.f_add_parameter_to_group("simulation", 'input_divs', config.INPUT_DIVS)#rows, cols
+    traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
+    traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
+    traj.f_add_parameter_to_group("simulation", 'input_shape', config.INPUT_SHAPE)  # rows, cols
+    traj.f_add_parameter_to_group("simulation", 'input_divs', config.INPUT_DIVS)  # rows, cols
     traj.f_add_parameter_to_group("simulation", 'input_layers', config.N_INPUT_LAYERS)
     traj.f_add_parameter_to_group("simulation", 'num_classes', config.N_CLASSES)
     traj.f_add_parameter_to_group("simulation", 'samples_per_class', config.N_SAMPLES)
@@ -134,9 +126,9 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'prob_noise', config.PROB_NOISE_SAMPLE)
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
 
-
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
-    db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d'%config.INPUT_SHAPE[0]
+    db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d' % \
+              config.INPUT_SHAPE[0]
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
@@ -159,7 +151,7 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
     ## Innerloop simulator
-    grad_desc =  OPTIMIZER == GRADDESC
+    grad_desc = OPTIMIZER == GRADDESC
     optimizee = OmniglotOptimizee(traj, 1234, grad_desc)
 
     # Prepare optimizee for jube runs
@@ -181,10 +173,10 @@ def main():
                                        seed=99)
 
         optimizer = GradientDescentOptimizer(traj,
-                        optimizee_create_individual=optimizee.create_individual,
-                        optimizee_fitness_weights=fit_weights,
-                        parameters=parameters,
-                        optimizee_bounding_func=optimizee.bounding_func)
+                                             optimizee_create_individual=optimizee.create_individual,
+                                             optimizee_fitness_weights=fit_weights,
+                                             parameters=parameters,
+                                             optimizee_bounding_func=optimizee.bounding_func)
 
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
@@ -212,9 +204,9 @@ def main():
                                                 )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
-            optimizee_create_individual=optimizee.create_individual,
-            optimizee_fitness_weights=fit_weights,
-            parameters=parameters)
+                                              optimizee_create_individual=optimizee.create_individual,
+                                              optimizee_fitness_weights=fit_weights,
+                                              parameters=parameters)
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?
