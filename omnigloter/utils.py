@@ -24,8 +24,10 @@ def randnum(vmin, vmax, div=None, rng=None):
     return v
 
 def bound(val, num_range):
-
-    v = min(max(num_range[0], val), num_range[1])
+    if len(num_range) == 1:
+        v = num_range[0]
+    else:
+        v = np.clip(val, num_range[0], num_range[1])
     # print("BOUND: (%s, %s, %s) -> %s"%(num_range[0], num_range[1], val, v))
     if np.issubdtype(type(num_range[0]), np.integer):
         v = np.round(v)

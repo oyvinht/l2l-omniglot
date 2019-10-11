@@ -37,20 +37,20 @@ PROB_NOISE_SAMPLE = 0.1
 KERNEL_W = 7
 N_INPUT_LAYERS = 4
 PAD = KERNEL_W//2
-PI_DIVS_RANGE = (6, 7) if DEBUG else (2, 7)
-STRIDE_RANGE = (2, 3) if DEBUG else (1, KERNEL_W//2 + 1)
-OMEGA_RANGE = (0.5, 1.0)
-EXPANSION_RANGE = (10, 11) if DEBUG else (10, 11)
-EXP_PROB_RANGE = (0.1, 0.1000001) if DEBUG else (0.05, 0.15)
-OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.15)
-A_PLUS = (0.1, 0.100000001) if DEBUG else (0.01, 1.0)
-A_MINUS = (0.001, 0.00100000001) if DEBUG else (0.0001, 0.1)
-STD_DEV = (1.0, 1.00000001) if DEBUG else (0.01, 5.0)
-DISPLACE = (0.005, 0.00500000001) if DEBUG else (0.001, 1.0)
-MAX_DT = (80.0, 80.00000001) if DEBUG else (SAMPLE_DT, SAMPLE_DT*2.0)
-W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-2.0, 0.0)
-W_MAX_MULT = (1.2, 1.200000001) if DEBUG else (0.1, 2.0)
-CONN_DIST = (15, 16) if DEBUG else (3, 21)
+PI_DIVS_RANGE =      (6, 7)          if DEBUG else (2, 7)
+STRIDE_RANGE =       (2, 3)          if DEBUG else (1, KERNEL_W//2 + 1)
+OMEGA_RANGE =        (0.5, 1.0)
+EXPANSION_RANGE =    (10, 11)        if DEBUG else (10, 11)
+EXP_PROB_RANGE =     (0.1, 0.11)     if DEBUG else (0.05, 0.15)
+OUTPUT_PROB_RANGE =  (0.15, 0.151)   if DEBUG else (0.05, 0.15)
+A_PLUS =             (0.1, 0.11)     if DEBUG else (0.01, 1.0)
+A_MINUS =            (0.001, 0.0011) if DEBUG else (0.0001, 0.1)
+STD_DEV =            (1.0, 1.1)      if DEBUG else (0.01, 5.0)
+DISPLACE =           (0.005, 0.0051) if DEBUG else (0.001, 1.0)
+MAX_DT =             (80.0, 80.1)    if DEBUG else (SAMPLE_DT, SAMPLE_DT*2.0)
+W_MIN_MULT =         (0.0, 0.1)      if DEBUG else (-2.0, 0.0)
+W_MAX_MULT =         (1.2,)# 1.21)     if DEBUG else (0.1, 2.0)
+CONN_DIST =          (15, 16)        if DEBUG else (3, 18)
 
 
 GABOR_WEIGHT_RANGE = (2.0, 2.000001) if DEBUG else (1.0, 5.0)
@@ -59,7 +59,7 @@ GABOR_WEIGHT_RANGE = (2.0, 2.000001) if DEBUG else (1.0, 5.0)
 OUT_WEIGHT_RANGE = (2.0, 2.000000001) if DEBUG else (1.0, 5.0)
 # OUT_WEIGHT_RANGE = (1.5, 1.500001) if DEBUG else (0.01, 0.5) ### 64x64
 
-MUSHROOM_WEIGHT_RANGE = (0.2, 0.20000001) if DEBUG else (0.05, 1.0)
+MUSHROOM_WEIGHT_RANGE = (0.2, 0.20000001) if DEBUG else (0.1, 1.0)
 # MUSHROOM_WEIGHT_RANGE = (0.50, 0.500000001) if DEBUG else (0.05, 1.0)
 # MUSHROOM_WEIGHT_RANGE = (0.025, 0.02500001) if DEBUG else (0.05, 1.0) ### for (64,64)
 
