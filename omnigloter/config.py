@@ -52,7 +52,6 @@ W_MIN_MULT =         (0.0, 0.1)      if DEBUG else (-2.0, 0.0)
 W_MAX_MULT =         (1.2,)# 1.21)     if DEBUG else (0.1, 2.0)
 CONN_DIST =          (15, 16)        if DEBUG else (3, 18)
 
-
 GABOR_WEIGHT_RANGE = (2.0, 2.000001) if DEBUG else (1.0, 5.0)
 
 # OUT_WEIGHT_RANGE = (0.1, 0.100000001) if DEBUG else (1.0, 5.0)
