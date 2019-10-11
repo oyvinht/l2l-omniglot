@@ -44,9 +44,9 @@ EXPANSION_RANGE =    (10, 11)        if DEBUG else (10, 11)
 EXP_PROB_RANGE =     (0.1, 0.11)     if DEBUG else (0.05, 0.15)
 OUTPUT_PROB_RANGE =  (0.15, 0.151)   if DEBUG else (0.05, 0.15)
 A_PLUS =             (0.1, 0.11)     if DEBUG else (0.01, 1.0)
-A_MINUS =            (0.001, 0.0011) if DEBUG else (0.0001, 0.1)
+A_MINUS =            (0.001, 0.0011) if DEBUG else (0.001, 0.1)
 STD_DEV =            (1.0, 1.1)      if DEBUG else (0.01, 5.0)
-DISPLACE =           (0.005, 0.0051) if DEBUG else (0.001, 1.0)
+DISPLACE =           (0.0,)#05, 0.0051) if DEBUG else (0.001, 1.0)
 MAX_DT =             (80.0, 80.1)    if DEBUG else (SAMPLE_DT, SAMPLE_DT*2.0)
 W_MIN_MULT =         (0.0, 0.1)      if DEBUG else (-2.0, 0.0)
 W_MAX_MULT =         (1.2,)# 1.21)     if DEBUG else (0.1, 2.0)
@@ -108,9 +108,9 @@ ATTR_RANGES = {
     'conn_dist': CONN_DIST,
 
     'A_plus': A_PLUS,
-    # 'A_minus': A_MINUS,
+    'A_minus': A_MINUS,
     # 'std': STD_DEV,
-    'displace': DISPLACE,
+    # 'displace': DISPLACE,
     # 'maxDt': MAX_DT,
     'w_max_mult': W_MAX_MULT,
     'w_min_mult': W_MIN_MULT,
@@ -121,10 +121,10 @@ ATTR_STEPS = {
     'mushroom_weight': 0.1,
     'exp_prob': 0.01,
     'out_prob': 0.01,
-    'A_plus': 0.001,
-    'A_minus': 0.001,
+    'A_plus': 0.1,
+    'A_minus': 0.1,
     'std': 0.5,
-    'displace': 0.1,
+    'displace': 0.001,
     'maxDt': 10.0,
     'w_max_mult': 0.5,
     'w_min_mult': 0.5,

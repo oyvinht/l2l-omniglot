@@ -28,8 +28,11 @@ from omnigloter import config
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-OPTIMIZER = EVOSTRAT
-ON_JEWELS = bool(1)
+# OPTIMIZER = EVOSTRAT
+# OPTIMIZER = GRADDESC
+OPTIMIZER = GENALG
+ON_JEWELS = bool(0)
+
 
 def main():
     name = "L2L-OMNIGLOT"

@@ -15,8 +15,8 @@ def to_post(val, pad, stride):
 def post_shape(val, stride, kernel_width):
     return (((val - kernel_width) // stride) + 1)
 
-def randnum(vmin, vmax, div=None, rng=None):
 
+def randnum(vmin, vmax, div=None, rng=None):
     if isinstance(vmin, int):
         return randint_float(vmin, vmax, div, rng)
     v = rng.uniform(vmin, vmax)
@@ -35,12 +35,13 @@ def bound(val, num_range):
 
     return v
 
+
 def randint_float(vmin, vmax, div=None, rng=None):
     rand_func = np.random if rng is None else rng
     if div is None:
         return np.float(rng.randint(vmin, vmax))
     else:
-        return np.float(np.floor(np.floor(rng.randint(vmin, vmax)/float(div))*div))
+        return np.float(np.floor(np.floor(rng.randint(vmin, vmax) / float(div)) * div))
 
 
 def compute_num_regions(shape, stride, padding, kernel_shape):
@@ -74,7 +75,7 @@ def n_in_gabor(shape, stride, padding, kernel_shape, num_in_layers, num_pi_divs)
 
 
 def generate_input_vectors(num_vectors, dimension, on_probability, seed=1):
-    n_active = int(on_probability*dimension)
+    n_active = int(on_probability * dimension)
     np.random.seed(seed)
     # vecs = (np.random.uniform(0., 1., (num_vectors, dimension)) <= on_probability).astype('int')
     vecs = np.zeros((num_vectors, dimension))
@@ -88,7 +89,7 @@ def generate_input_vectors(num_vectors, dimension, on_probability, seed=1):
 def generate_samples(input_vectors, num_samples, prob_noise, seed=1, method=None):
     """method='all' means randomly choose indices where we flip 1s and 0s with probability = prob_noise"""
     np.random.seed(seed)
-    
+
     samples = None
 
     for i in range(input_vectors.shape[0]):
@@ -104,7 +105,7 @@ def generate_samples(input_vectors, num_samples, prob_noise, seed=1, method=None
                 indices = np.random.choice(np.where(samp[j] == 0)[0], size=n_flips, replace=False)
                 samp[j, indices] = 1
 
-                #flip ones to zeros
+                # flip ones to zeros
                 indices = np.random.choice(np.where(samp[j] == 1)[0], size=n_flips, replace=False)
                 samp[j, indices] = 0
         else:
@@ -123,20 +124,20 @@ def generate_samples(input_vectors, num_samples, prob_noise, seed=1, method=None
 
 
 def samples_to_spike_times(samples, sample_dt, start_dt, max_rand_dt, seed=1,
-    randomize_samples=False):
+                           randomize_samples=False):
     np.random.seed(seed)
     t = 0
     spike_times = [[] for _ in range(samples.shape[-1])]
     if randomize_samples:
         indices = np.random.choice(np.arange(samples.shape[0]), size=samples.shape[0],
-                    replace=False)
+                                   replace=False)
     else:
         indices = np.arange(samples.shape[0])
 
     for idx in indices:
         samp = samples[idx]
         active = np.where(samp == 1.)[0]
-        ts = t + start_dt + np.random.randint(-max_rand_dt, max_rand_dt+1, size=active.size) 
+        ts = t + start_dt + np.random.randint(-max_rand_dt, max_rand_dt + 1, size=active.size)
         for time_id, neuron_id in enumerate(active):
             if ts[time_id] not in spike_times[neuron_id]:
                 spike_times[neuron_id].append(ts[time_id])
@@ -147,25 +148,26 @@ def samples_to_spike_times(samples, sample_dt, start_dt, max_rand_dt, seed=1,
 
 
 def gain_control_list(input_size, horn_size, max_w, cutoff=0.75):
-    n_cutoff = 15#int(cutoff*horn_size)
-    matrix = np.ones((input_size*horn_size, 4))
+    n_cutoff = 15  # int(cutoff*horn_size)
+    matrix = np.ones((input_size * horn_size, 4))
     matrix[:, 0] = np.repeat(np.arange(input_size), horn_size)
     matrix[:, 1] = np.tile(np.arange(horn_size), input_size)
 
-    matrix[:, 2] = np.tile( max_w / (n_cutoff + 1.0 + np.arange(horn_size)), input_size)
+    matrix[:, 2] = np.tile(max_w / (n_cutoff + 1.0 + np.arange(horn_size)), input_size)
 
     return matrix
+
 
 def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
     n_in = len(in_shapes)
     conns = [[] for _ in range(n_in)]
-    n_per_zone = out_size//num_zones['total']
+    n_per_zone = out_size // num_zones['total']
     zone_idx = 0
     for pre_pop in in_shapes:
         height, width = in_shapes[pre_pop][0], in_shapes[pre_pop][1]
         nrows, ncols = int(num_zones[pre_pop][0]), int(num_zones[pre_pop][1])
         for zr in range(nrows):
-            pre_r = min((1 + zr) * radius, height-1)
+            pre_r = min((1 + zr) * radius, height - 1)
             row_l, row_r = max(0, pre_r - radius), min(height, pre_r + radius + 1)
             for zc in range(ncols):
                 pre_c = min((1 + zc) * radius, width - 1)
@@ -184,18 +186,18 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
                         conns[pre_pop].append((pre_i, post, weight, delay))
 
                 zone_idx += 1
-                sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%"%(100.0*(zone_idx)/num_zones['total']))
+                sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
                 sys.stdout.flush()
-
 
     sys.stdout.write("\n")
     sys.stdout.flush()
     return conns
 
+
 def wta_mush_conn_list(in_shapes, num_zones, out_size, iweight, eweight, delay):
     econns = []
     iconns = []
-    n_per_zone = out_size//num_zones['total']
+    n_per_zone = out_size // num_zones['total']
     zone_idx = 0
     for pre_pop in in_shapes:
         nrows, ncols = int(num_zones[pre_pop][0]), int(num_zones[pre_pop][1])
@@ -208,13 +210,13 @@ def wta_mush_conn_list(in_shapes, num_zones, out_size, iweight, eweight, delay):
                     iconns.append((zone_idx, post, iweight, delay))
 
                 zone_idx += 1
-                sys.stdout.write("\r\tWTA to Mushroom\t%6.2f%%"%(100.0*(zone_idx)/num_zones['total']))
+                sys.stdout.write("\r\tWTA to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
                 sys.stdout.flush()
-
 
     sys.stdout.write("\n")
     sys.stdout.flush()
     return iconns, econns
+
 
 def output_connection_list(kenyon_size, decision_size, prob_active, active_weight,
                            inactive_scaling, seed=1, max_pre=10000):
@@ -227,9 +229,8 @@ def output_connection_list(kenyon_size, decision_size, prob_active, active_weigh
         matrix[:, 1] = np.tile(np.arange(decision_size), n_pre)
     else:
         for i in range(0, n_conns, n_pre):
-            matrix[i:i+n_pre, 0] = np.random.randint(0, kenyon_size, n_pre)
-            matrix[i:i+n_pre, 1] = i//n_pre
-
+            matrix[i:i + n_pre, 0] = np.random.randint(0, kenyon_size, n_pre)
+            matrix[i:i + n_pre, 1] = i // n_pre
 
     np.random.seed(seed)
 
@@ -248,28 +249,28 @@ def output_connection_list(kenyon_size, decision_size, prob_active, active_weigh
 
 
 def load_mnist_spike_file(dataset, digit, index,
-    base_dir="/home/gp283/brainscales-recognition/codebase/images_to_spikes"):
+                          base_dir="/home/gp283/brainscales-recognition/codebase/images_to_spikes"):
     if dataset not in ['train', 't10k']:
         dataset = 'train'
 
     return sorted(glob.glob(
-            os.path.join(base_dir, "mnist-db/spikes", dataset, str(digit), '*.npz')))[index]
+        os.path.join(base_dir, "mnist-db/spikes", dataset, str(digit), '*.npz')))[index]
 
 
 def load_omniglot_spike_file(dataset, character, index,
-    base_dir="/home/gp283/brainscales-recognition/codebase/images_to_spikes"):
+                             base_dir="/home/gp283/brainscales-recognition/codebase/images_to_spikes"):
     datasets = ['Alphabet_of_the_Magi', 'Cyrillic', 'Gujarati', 'Japanese_-katakana-',
-        'Sanskrit', 'Japanese_-hiragana-', 'Korean', 'Malay_-Jawi_-_Arabic-', 'Balinese',
-        'Latin', 'Mkhedruli_-Georgian-', 'Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Grantha',
-        'Asomtavruli_-Georgian-', 'Burmese_-Myanmar-', 'Armenian', 'Bengali', 'Anglo-Saxon_Futhorc',
-        'Tifinagh', 'Ojibwe_-Canadian_Aboriginal_Syllabics-', 'Braille', 'Greek', 'Tagalog',
-        'N_Ko', 'Early_Aramaic', 'Arcadian', 'Inuktitut_-Canadian_Aboriginal_Syllabics-', 'Futurama',
-        'Hebrew', 'Syriac_-Estrangelo-']
+                'Sanskrit', 'Japanese_-hiragana-', 'Korean', 'Malay_-Jawi_-_Arabic-', 'Balinese',
+                'Latin', 'Mkhedruli_-Georgian-', 'Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Grantha',
+                'Asomtavruli_-Georgian-', 'Burmese_-Myanmar-', 'Armenian', 'Bengali', 'Anglo-Saxon_Futhorc',
+                'Tifinagh', 'Ojibwe_-Canadian_Aboriginal_Syllabics-', 'Braille', 'Greek', 'Tagalog',
+                'N_Ko', 'Early_Aramaic', 'Arcadian', 'Inuktitut_-Canadian_Aboriginal_Syllabics-', 'Futurama',
+                'Hebrew', 'Syriac_-Estrangelo-']
     if dataset not in datasets:
         raise Exception('Dataset not found!')
-    char = "character%02d"%character
+    char = "character%02d" % character
     return sorted(glob.glob(
-            os.path.join(base_dir, "omniglot/spikes", dataset, char, '*.npz')))[index]
+        os.path.join(base_dir, "omniglot/spikes", dataset, char, '*.npz')))[index]
 
 
 def pre_indices_per_region(pre_shape, pad, stride, kernel_shape):
@@ -291,8 +292,8 @@ def pre_indices_per_region(pre_shape, pad, stride, kernel_shape):
                 for k_c in range(-hk[WIDTH], hk[WIDTH] + 1, 1):
                     pre_r, pre_c = _r + k_r, _c + k_c
                     outbound = pre_r < 0 or pre_c < 0 or \
-                                pre_r >= pre_shape[HEIGHT] or \
-                                pre_c >= pre_shape[WIDTH]
+                               pre_r >= pre_shape[HEIGHT] or \
+                               pre_c >= pre_shape[WIDTH]
 
                     pre = None if outbound else (pre_r * pre_shape[WIDTH] + pre_c)
                     clist.append(pre)
@@ -317,7 +318,7 @@ def prob_conn_from_list(pre_post_pairs, n_per_post, probability, weight, delay, 
                         continue
 
                     post = post_base * n_per_post + i
-                    conns.append([pre, post, weight*weight_off_mult, delay])
+                    conns.append([pre, post, weight * weight_off_mult, delay])
 
     return np.array(conns)
 
@@ -363,7 +364,7 @@ def gabor_connect_list(pre_indices, gabor_params, delay=1.0, w_mult=1.0):
     shape = gabor_params['shape']
 
     kernels = [gabor_kernel({'shape': shape, 'omega': o, 'theta': t})
-                                        for o in omegas for t in thetas]
+               for o in omegas for t in thetas]
 
     conns = []
     for ki, k in enumerate(kernels):
@@ -400,7 +401,7 @@ def split_spikes(spikes, n_types):
 
 
 def div_index(orig_index, orig_shape, divs):
-    w = orig_shape[1] // divs[1]  + int(orig_shape[1]%divs[1] > 0)
+    w = orig_shape[1] // divs[1] + int(orig_shape[1] % divs[1] > 0)
     r = (orig_index // orig_shape[1])
     r = int(r / float(divs[0]))
     c = (orig_index % orig_shape[1])
@@ -409,9 +410,9 @@ def div_index(orig_index, orig_shape, divs):
 
 
 def reduce_spike_place(spikes, shape, divs):
-    fshape = [shape[0]//divs[0] + int(shape[0]%divs[0] > 0),
-              shape[1]//divs[1] + int(shape[1]%divs[1] > 0)]
-    fspikes = [[] for _ in range(fshape[0]*fshape[1])]
+    fshape = [shape[0] // divs[0] + int(shape[0] % divs[0] > 0),
+              shape[1] // divs[1] + int(shape[1] % divs[1] > 0)]
+    fspikes = [[] for _ in range(fshape[0] * fshape[1])]
     for pre, times in enumerate(spikes):
         fpre = div_index(pre, shape, divs)
         fspikes[fpre] += times
@@ -437,7 +438,7 @@ def scaled_pre_templates(pre_shape, pad, stride, kernel_shape, divs):
                     dr[c] = list(_scaled)
                 d[r] = dr
 
-            pre_indices.append(d) 
+            pre_indices.append(d)
 
     return pre_indices
 
@@ -448,6 +449,7 @@ def append_spikes(source, added, dt):
             continue
         source[i][:] = sorted(source[i] + (np.array(times) + dt).tolist())
     return source
+
 
 def add_noise(prob, spikes, start_t, end_t):
     on_neurons = [i for i in range(len(spikes)) if len(spikes[i]) > 0]
