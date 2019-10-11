@@ -45,10 +45,10 @@ num_neurons = num_dt
 
 time_dep_vars = {
     "A_plus": 0.10,
-    "A_minus": 0.000001,
+    "A_minus": 0.01,
     "mean": 0.0,
-    "std": 1.0,
-    "displace": 0.005,
+    "std": 2.0,
+    "displace": 0.0000001,
     "maxDt": 80.0,
 }
 

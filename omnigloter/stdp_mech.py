@@ -134,11 +134,15 @@ class MyTemporalDependence(synapses.STDPTimingDependence):
     sim_code = DDTemplate("""
         // std::cout << "pre(" << dt << ")" << std::endl;
         if (dt > 0 && dt <= $(maxDt)){
-            const scalar e = (dt - $(mean))/$(std);
-            const scalar div = 1.0f/(6.283185307179586f * $(std));
-            const scalar update = $(Aplus) * (div * exp(-(e*e)) - $(displace)) - $(Aminus) * ($(I_post) < 0.0f);
-            // std::cout << "pre(" << dt << ") e = " << e << std::endl;
-            // std::cout << "pre(" << dt << ") update = " << update << std::endl;
+            scalar update = 0.0;
+            if (dt <= $(std)){
+                update = $(Aplus) - ( $(displace) * ($(I_post) < 0.0f) );
+                
+            }
+            else{
+                update = -$(Aminus);
+            }
+            
             $${WD_CODE}
         }
         """)
@@ -146,15 +150,43 @@ class MyTemporalDependence(synapses.STDPTimingDependence):
     learn_post_code = DDTemplate("""
         // std::cout << "post(" << dt << ")" << std::endl;
         if (dt > 0 && dt <= $(maxDt)){
-            const scalar e = (dt - $(mean))/$(std);
-            const scalar div = 1.0f/(6.283185307179586f * $(std)); 
-            const scalar update = $(Aplus) * (div * exp(-(e*e)) - $(displace));
-            // std::cout << "post(" << dt << ") e = " << e << std::endl;
-            // std::cout << "post(" << dt << ") update = " << update << std::endl;
+            scalar update = 0.0;
+            if (dt <= $(std)){
+                update = $(Aplus) - ( $(displace) * ($(I_post) < 0.0f) );
+                
+            }
+            else{
+                update = -$(Aminus);
+            }
+
             $${WD_CODE}
         }
         """)
 
+    # sim_code = DDTemplate("""
+    #     // std::cout << "pre(" << dt << ")" << std::endl;
+    #     if (dt > 0 && dt <= $(maxDt)){
+    #         const scalar e = (dt - $(mean))/$(std);
+    #         const scalar div = 1.0f/(6.283185307179586f * $(std));
+    #         const scalar update = $(Aplus) * (div * exp(-(e*e)) - $(displace)) - $(Aminus) * ($(I_post) < 0.0f);
+    #         // std::cout << "pre(" << dt << ") e = " << e << std::endl;
+    #         // std::cout << "pre(" << dt << ") update = " << update << std::endl;
+    #         $${WD_CODE}
+    #     }
+    #     """)
+    #
+    # learn_post_code = DDTemplate("""
+    #     // std::cout << "post(" << dt << ")" << std::endl;
+    #     if (dt > 0 && dt <= $(maxDt)){
+    #         const scalar e = (dt - $(mean))/$(std);
+    #         const scalar div = 1.0f/(6.283185307179586f * $(std));
+    #         const scalar update = $(Aplus) * (div * exp(-(e*e)) - $(displace));
+    #         // std::cout << "post(" << dt << ") e = " << e << std::endl;
+    #         // std::cout << "post(" << dt << ") update = " << update << std::endl;
+    #         $${WD_CODE}
+    #     }
+    #     """)
+    #
     pre_spike_code = """\
         const scalar dt = $(t) - $(sT_pre);
         $(preTrace) = $(preTrace) * exp(-dt) + 1.0;
