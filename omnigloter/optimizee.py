@@ -75,6 +75,7 @@ class OmniglotOptimizee(Optimizee):
         params = {
             'ind': ind_params,
             'sim': self.sim_params,
+            'gen': {'gen': generation, 'ind': ind_idx},
         }
         snn = Decoder(name, params)
         # try:

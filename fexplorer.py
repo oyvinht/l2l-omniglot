@@ -193,8 +193,8 @@ def main():
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=9,
-            n_iteration=100,
+            pop_size=3,
+            n_iteration=10,
             stop_criterion=np.Inf,
             seed=optimizer_seed)
 

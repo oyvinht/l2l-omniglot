@@ -41,6 +41,11 @@ class Decoder(object):
         else:
             print("\n\n\nGPU_DEVICE_ORDINAL WAS NOT FOUND!\n\n")
 
+
+        if "CUDA_VISIBLE_DEVICES" in os.environ:
+            print("\n\n\nCUDA_VISIBLE_DEVICES = {}\n\n".format(os.environ["CUDA_VISIBLE_DEVICES"]))
+        else:
+            print("\n\n\nCUDA_VISIBLE_DEVICES NOT FOUND!!!\n\n")
         # pprint(params)
 
     def decode(self, params):
@@ -56,6 +61,7 @@ class Decoder(object):
                   self._network['min_delay'],
                   model_name=self.name,
                   backend=config.BACKEND,
+                  selected_gpu_id=int(params['gen']['ind']%4)
                 )
 
         logging.info("\tGenerating spikes")
