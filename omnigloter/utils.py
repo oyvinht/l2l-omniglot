@@ -169,14 +169,14 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
         height, width = in_shapes[pre_pop][0], in_shapes[pre_pop][1]
         nrows, ncols = int(num_zones[pre_pop][0]), int(num_zones[pre_pop][1])
         max_dist = min(ncols, nrows) // 2
-        in_rad = np.copy(radius) if radius < max_dist else max_dist
+        _radius = np.copy(radius) if radius < max_dist else max_dist
 
         for zr in range(nrows):
-            pre_r = min(in_rad + zr * radius, height - 1)
-            row_l, row_h = max(0, pre_r - in_rad), min(height, pre_r + in_rad + 1)
+            pre_r = min(_radius + zr * radius, height - 1)
+            row_l, row_h = max(0, pre_r - _radius), min(height, pre_r + _radius)
             for zc in range(ncols):
-                pre_c = min(in_rad + zc * radius, width - 1)
-                col_l, col_h = max(0, pre_c - in_rad), min(height, pre_c + in_rad + 1)
+                pre_c = min(_radius + zc * radius, width - 1)
+                col_l, col_h = max(0, pre_c - _radius), min(height, pre_c + _radius)
                 cols, rows = np.meshgrid(np.arange(col_l, col_h), np.arange(row_l, row_h))
                 n_idx = int(np.round(rows.size * prob))
 
