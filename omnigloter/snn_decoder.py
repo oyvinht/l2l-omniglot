@@ -508,7 +508,7 @@ class Decoder(object):
             prob = params['ind']['exp_prob']
             weight = params['ind']['mushroom_weight']
             delay = 1
-            radius = params['ind']['conn_dist']
+            radius = np.copy(params['ind']['conn_dist'])
             shapes = self.in_shapes
             nz = self.num_zones_mushroom(shapes, radius)
             conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
@@ -516,10 +516,13 @@ class Decoder(object):
             projs = {}
 
             for k, pre in self.input_populations().items():
-                projs[k] = sim.Projection(pre, post,
-                            sim.FromListConnector(conns[k]),
-                            label='input to mushroom - {}'.format(k),
-                            receptor_type='excitatory')
+                if len(conns[k]):
+                    projs[k] = sim.Projection(pre, post,
+                                sim.FromListConnector(conns[k]),
+                                label='input to mushroom - {}'.format(k),
+                                receptor_type='excitatory')
+                else:
+                    projs[k] = None
 
             return projs
 

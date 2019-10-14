@@ -168,21 +168,25 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
     for pre_pop in in_shapes:
         height, width = in_shapes[pre_pop][0], in_shapes[pre_pop][1]
         nrows, ncols = int(num_zones[pre_pop][0]), int(num_zones[pre_pop][1])
+        max_dist = min(ncols, nrows) // 2
+        in_rad = np.copy(radius) if radius < max_dist else max_dist
+
         for zr in range(nrows):
-            pre_r = min((1 + zr) * radius, height - 1)
-            row_l, row_r = max(0, pre_r - radius), min(height, pre_r + radius + 1)
+            pre_r = min(in_rad + zr * radius, height - 1)
+            row_l, row_h = max(0, pre_r - in_rad), min(height, pre_r + in_rad + 1)
             for zc in range(ncols):
-                pre_c = min((1 + zc) * radius, width - 1)
-                col_l, col_r = max(0, pre_c - radius), min(height, pre_c + radius + 1)
-                cols, rows = np.meshgrid(np.arange(col_l, col_r), np.arange(row_l, row_r))
+                pre_c = min(in_rad + zc * radius, width - 1)
+                col_l, col_h = max(0, pre_c - in_rad), min(height, pre_c + in_rad + 1)
+                cols, rows = np.meshgrid(np.arange(col_l, col_h), np.arange(row_l, row_h))
                 n_idx = int(np.round(rows.size * prob))
 
-                start_post = int(zone_idx * n_per_zone)
-                end_post = int(start_post + n_per_zone)
+                start_post = max(0, int(zone_idx * n_per_zone))
+                end_post = min(int(start_post + n_per_zone), out_size)
                 for post in range(start_post, end_post):
                     rand_indices = np.random.choice(rows.size, size=n_idx, replace=False)
                     rand_r = rand_indices // rows.shape[1]
                     rand_c = rand_indices % rows.shape[1]
+
                     pre_indices = rows[rand_r, rand_c] * width + cols[rand_r, rand_c]
                     for pre_i in pre_indices:
                         conns[pre_pop].append((pre_i, post, weight, delay))
