@@ -161,35 +161,56 @@ def gain_control_list(input_size, horn_size, max_w, cutoff=0.75):
 
 
 def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
+    print("in dist_con_list pre shapes {}".format(in_shapes))
+    div = max(in_shapes[0][0]//in_shapes[2][0],
+              in_shapes[0][1]//in_shapes[2][1])
     n_in = len(in_shapes)
     conns = [[] for _ in range(n_in)]
     n_per_zone = out_size // num_zones['total']
     zone_idx = 0
     for pre_pop in in_shapes:
         height, width = in_shapes[pre_pop][0], in_shapes[pre_pop][1]
+        max_pre = width * height
+        # how many rows and columns resulted from dividing in_shape / (2 * radius)
         nrows, ncols = int(num_zones[pre_pop][0]), int(num_zones[pre_pop][1])
-        max_dist = min(ncols, nrows) // 2
-        _radius = np.copy(radius) if radius < max_dist else max_dist
 
+        # select minimum distance (adjust for different in_shapes)
+        _radius = radius if pre_pop < 2 else int(radius//div)
         for zr in range(nrows):
-            pre_r = min(_radius + zr * radius, height - 1)
+            # centre row in terms of in_shape
+            pre_r = min(_radius + zr * 2 * _radius, height - 1)
+            # low and high limits for rows
             row_l, row_h = max(0, pre_r - _radius), min(height, pre_r + _radius)
             for zc in range(ncols):
-                pre_c = min(_radius + zc * radius, width - 1)
-                col_l, col_h = max(0, pre_c - _radius), min(height, pre_c + _radius)
-                cols, rows = np.meshgrid(np.arange(col_l, col_h), np.arange(row_l, row_h))
+                # centre column in terms of in_shape
+                pre_c = min(_radius + zc * 2 * _radius, width - 1)
+                # low and high limits for columns
+                col_l, col_h = max(0, pre_c - _radius), min(width, pre_c + _radius)
+
+                # square grid of coordinates
+                cols, rows = np.meshgrid(np.arange(col_l, col_h,),
+                                         np.arange(row_l, row_h))
+
+                # how many indices to select at random
                 n_idx = int(np.round(rows.size * prob))
 
-                start_post = max(0, int(zone_idx * n_per_zone))
+                # post population partition start and end
+                start_post = int(zone_idx * n_per_zone)
                 end_post = min(int(start_post + n_per_zone), out_size)
+                # choose pre coords sets for each post neuron
                 for post in range(start_post, end_post):
                     rand_indices = np.random.choice(rows.size, size=n_idx, replace=False)
+                    # randomly selected coordinates
                     rand_r = rand_indices // rows.shape[1]
                     rand_c = rand_indices % rows.shape[1]
 
+                    # randomly selected coordinates converted to indices
                     pre_indices = rows[rand_r, rand_c] * width + cols[rand_r, rand_c]
                     for pre_i in pre_indices:
-                        conns[pre_pop].append((pre_i, post, weight, delay))
+                        if pre_i < max_pre:
+                            conns[pre_pop].append((pre_i, post, weight, delay))
+                        else:
+                            print("pre is larger than max ({} >= {})".format(pre_i, max_pre))
 
                 zone_idx += 1
                 sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
