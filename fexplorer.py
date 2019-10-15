@@ -198,9 +198,16 @@ def main():
             parameters=parameters,
             optimizee_bounding_func=optimizee.bounding_func)
     else:
-        parameters = GeneticAlgorithmParameters(seed=0, popsize=50, CXPB=0.5,
-                                                MUTPB=0.3, NGEN=100, indpb=0.02,
-                                                tournsize=15, matepar=0.5,
+        num_generations = 100
+        population_size = 25
+        parameters = GeneticAlgorithmParameters(seed=0,
+                                                popsize=population_size,
+                                                CXPB=0.5,
+                                                MUTPB=0.3,
+                                                NGEN=num_generations,
+                                                indpb=0.02,
+                                                tournsize=15,
+                                                matepar=0.5,
                                                 mutpar=1
                                                 )
 
