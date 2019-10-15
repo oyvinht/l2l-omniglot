@@ -20,8 +20,8 @@ from omnigloter import config
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
 # OPTIMIZER = EVOSTRAT
-# OPTIMIZER = GRADDESC
-OPTIMIZER = GENALG
+OPTIMIZER = GRADDESC
+#OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 
 
@@ -43,7 +43,7 @@ def main():
                       add_time=bool(1),
                       automatic_storing=bool(1),
                       log_stdout=bool(0),  # Sends stdout to logs
-                      multiprocessing=bool(0),
+                      multiprocessing=bool(1),
                       )
     create_shared_logger_data(logger_names=["bin", "optimizers"],
                               log_levels=["INFO", "INFO"],
