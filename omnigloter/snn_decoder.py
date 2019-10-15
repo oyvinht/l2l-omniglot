@@ -526,10 +526,13 @@ class Decoder(object):
             projs = {}
 
             for k, pre in self.input_populations().items():
-                projs[k] = sim.Projection(pre, post,
-                            sim.FromListConnector(conns[k]),
-                            label='input to mushroom',
-                            receptor_type='excitatory')
+                if len(conns[k]):
+                    projs[k] = sim.Projection(pre, post,
+                                sim.FromListConnector(conns[k]),
+                                label='input to mushroom',
+                                receptor_type='excitatory')
+                else:
+                    projs[k] = None
 
             return projs
 

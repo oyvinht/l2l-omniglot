@@ -28,9 +28,9 @@ from omnigloter import config
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-# OPTIMIZER = EVOSTRAT
+OPTIMIZER = EVOSTRAT
 # OPTIMIZER = GRADDESC
-OPTIMIZER = GENALG
+# OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 
 

@@ -117,18 +117,18 @@ ATTR_RANGES = {
 }
 
 ATTR_STEPS = {
-    'out_weight': 2.0,
+    'out_weight': 0.1,
     'mushroom_weight': 0.1,
-    'exp_prob': 0.01,
-    'out_prob': 0.01,
-    'A_plus': 0.1,
-    'A_minus': 0.1,
+    'exp_prob': 0.001,
+    'out_prob': 0.001,
+    'A_plus': 0.01,
+    'A_minus': 0.01,
     'std': 0.5,
     'displace': 0.001,
     'maxDt': 10.0,
-    'w_max_mult': 0.5,
-    'w_min_mult': 0.5,
-    'conn_dist': 10,
+    'w_max_mult': 0.01,
+    'w_min_mult': 0.01,
+    'conn_dist': 5,
 }
 
 # for s in ATTRS:
@@ -213,10 +213,10 @@ STDP_MECH = 'MySTDPMechanism'
 TIME_DEP = 'MyTemporalDependence'
 TIME_DEP_VARS = {
     "A_plus": 0.10,
-    "A_minus": 0.0,
+    "A_minus": 0.01,
     "mean": 0.0,
     "std": 1.0,
-    "displace": 0.005,
+    "displace": 0.0,
     "maxDt": 80.0,
 }
 
