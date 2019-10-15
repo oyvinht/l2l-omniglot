@@ -332,14 +332,17 @@ class Decoder(object):
 
             return p
 
-    def num_zones_mushroom(self, in_shapes, radius):
+    def num_zones_mushroom(self, in_shapes, radius, divs):
         if hasattr(self, 'n_zones'):
             return self.n_zones
 
         total = 0
         nz = {}
         for k in in_shapes:
-            nz[k] = [np.floor(v/float(radius)) for v in in_shapes[k]]
+            d = (1, 1) if k < 2 else divs
+            max_div = max(d[0], d[1])
+            r = max(1.0, (2.0 * radius) // max_div)
+            nz[k] = [max(1.0, v//r) for v in in_shapes[k]]
             total += np.prod(nz[k])
 
         nz['total'] = total
@@ -368,7 +371,8 @@ class Decoder(object):
             # count = int(count * expand * 0.25)
             radius = params['ind']['conn_dist']
             shapes = self.in_shapes
-            nz = self.num_zones_mushroom(shapes, radius)
+            divs = params['sim']['input_divs']
+            nz = self.num_zones_mushroom(shapes, radius, divs)
             count = int(nz['total'])
             neuron_type = getattr(sim, config.INH_MUSHROOM_CLASS)
             p = sim.Population(count, neuron_type, config.INH_MUSHROOM_PARAMS,
@@ -510,7 +514,8 @@ class Decoder(object):
             delay = 1
             radius = np.copy(params['ind']['conn_dist'])
             shapes = self.in_shapes
-            nz = self.num_zones_mushroom(shapes, radius)
+            divs = params['sim']['input_divs']
+            nz = self.num_zones_mushroom(shapes, radius, divs)
             conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
             self._in_to_mush_conns = conns
             projs = {}
@@ -565,7 +570,8 @@ class Decoder(object):
             delay = config.TIMESTEP
             radius = params['ind']['conn_dist']
             shapes = self.in_shapes
-            nz = self.num_zones_mushroom(shapes, radius)
+            divs = params['sim']['input_divs']
+            nz = self.num_zones_mushroom(shapes, radius, divs)
 
             icon, econ = utils.wta_mush_conn_list(shapes, nz, exc.size, iw, ew, config.TIMESTEP)
             prjs['e to i'] = sim.Projection(exc, inh,
@@ -715,8 +721,9 @@ class Decoder(object):
         #                                 records['output'][0]['spikes'],
         #                                 start_t, net['run_time'], dt),
         radius = self.params['ind']['conn_dist']
+        divs = self.params['sim']['input_divs']
         shapes = self.in_shapes
-        nz = self.num_zones_mushroom(shapes, radius)
+        nz = self.num_zones_mushroom(shapes, radius, divs)
 
         data = {
             'recs': records,
