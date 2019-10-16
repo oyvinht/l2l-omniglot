@@ -361,6 +361,7 @@ if bool(ADD_DVDT):
         neuron_defs = _genn_neuron_defs[genn_neuron_name]
         postsyn_defs = _genn_postsyn_defs[genn_postsyn_name]
 
+
     class IF_cond_exp_slow(cells.IF_cond_exp, GeNNStandardCellType):
         default_parameters = {
             'v_rest':          -65.0,  # Resting membrane potential in mV.

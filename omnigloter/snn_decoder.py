@@ -341,7 +341,7 @@ class Decoder(object):
         for k in in_shapes:
             d = (1, 1) if k < 2 else divs
             max_div = max(d[0], d[1])
-            r = max(1.0, (2.0 * radius) // max_div)
+            r = max(1.0, np.round((2.0 * radius) // max_div))
             nz[k] = [max(1.0, v//r) for v in in_shapes[k]]
             total += np.prod(nz[k])
 
