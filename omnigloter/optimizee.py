@@ -79,58 +79,59 @@ class OmniglotOptimizee(Optimizee):
             'gen': {'gen': generation, 'ind': ind_idx},
         }
         snn = Decoder(name, params)
-        # try:
-        data = snn.run_pynn()
-        # except:
-        #     print("error in sim, fitness = ", n_dots)
-        #     return [1.0*n_dots]
+        try:
+            data = snn.run_pynn()
 
-        ### Analyze results
-        dt = self.sim_params['sample_dt']
-        out_spikes = data['recs']['output'][0]['spikes']
-        labels = data['input']['labels']
-        end_t = self.sim_params['duration']
-        start_t = end_t - n_class * n_test * dt
-        apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
+            ### Analyze results
+            dt = self.sim_params['sample_dt']
+            out_spikes = data['recs']['output'][0]['spikes']
+            labels = data['input']['labels']
+            end_t = self.sim_params['duration']
+            start_t = end_t - n_class * n_test * dt
+            apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
-        diff_class_vectors = [np.zeros(n_out) for _ in apc]
-        for c in apc:
-            if len(apc[c]):
-                kv = np.array(list(apc[c].keys()), dtype='int')
-                diff_class_vectors[c - 1][kv] = 1
+            diff_class_vectors = [np.zeros(n_out) for _ in apc]
+            for c in apc:
+                if len(apc[c]):
+                    kv = np.array(list(apc[c].keys()), dtype='int')
+                    diff_class_vectors[c - 1][kv] = 1
 
 
-        diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
-        print("{}\tdiff vectors - norms".format(name))
-        print(diff_class_norms)
+            diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
+            print("{}\tdiff vectors - norms".format(name))
+            print(diff_class_norms)
 
-        diff_class_dots = np.array([np.dot(x, y) / (diff_class_norms[ix] * diff_class_norms[iy]) \
-                                    for ix, x in enumerate(diff_class_vectors) \
-                                    for iy, y in enumerate(diff_class_vectors) if ix > iy])
+            diff_class_dots = np.array([np.dot(x, y) / (diff_class_norms[ix] * diff_class_norms[iy]) \
+                                        for ix, x in enumerate(diff_class_vectors) \
+                                        for iy, y in enumerate(diff_class_vectors) if ix > iy])
 
-        print("{}\tdiff dots".format(name))
-        print(diff_class_dots)
+            print("{}\tdiff dots".format(name))
+            print(diff_class_dots)
 
-        same_class_vectors = {c-1: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
-        for c in ipc:
-            for i, x in enumerate(ipc[c]):
-                for nid in ipc[c][x]:
-                    same_class_vectors[c - 1][i][nid] = 1
+            same_class_vectors = {c-1: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
+            for c in ipc:
+                for i, x in enumerate(ipc[c]):
+                    for nid in ipc[c][x]:
+                        same_class_vectors[c - 1][i][nid] = 1
 
 
-        same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
-                                                    for c in same_class_vectors}
+            same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
+                                                        for c in same_class_vectors}
 
-        print("{}\tsame vectors - norms".format(name))
-        print(same_class_norms)
+            print("{}\tsame vectors - norms".format(name))
+            print(same_class_norms)
 
-        same_class_dots = {c: np.array([np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy]) \
-                                for ix, x in enumerate(same_class_vectors[c]) \
-                                    for iy, y in enumerate(same_class_vectors[c]) if ix > iy]) \
-                                        for c in same_class_vectors}
+            same_class_dots = {c: np.array([np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy]) \
+                                    for ix, x in enumerate(same_class_vectors[c]) \
+                                        for iy, y in enumerate(same_class_vectors[c]) if ix > iy]) \
+                                            for c in same_class_vectors}
 
-        print("{}\tsame dots".format(name))
-        print(same_class_dots)
+            print("{}\tsame dots".format(name))
+            print(same_class_dots)
+
+        except:
+            print("Error in simulation, setting fitness to 0")
+            diff_class_dots = []
 
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
