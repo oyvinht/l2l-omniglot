@@ -214,7 +214,8 @@ def main():
         optimizer = GeneticAlgorithmOptimizer(traj,
                                               optimizee_create_individual=optimizee.create_individual,
                                               optimizee_fitness_weights=fit_weights,
-                                              parameters=parameters)
+                                              parameters=parameters,
+                                              optimizee_bounding_func=optimizee.bounding_func)
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?

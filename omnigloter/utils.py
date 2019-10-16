@@ -161,12 +161,18 @@ def gain_control_list(input_size, horn_size, max_w, cutoff=0.75):
 
 
 def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
-    print("in dist_con_list pre shapes {}".format(in_shapes))
+    print("in dist_con_list")
+    print(" pre shapes {}".format(in_shapes))
+    print(" num zones {}".format(num_zones))
+    print("out size {}".format(out_size))
+    print("radius {}".format(radius))
+    print("prob {}".format(prob))
+
     div = max(in_shapes[0][0]//in_shapes[2][0],
               in_shapes[0][1]//in_shapes[2][1])
     n_in = len(in_shapes)
     conns = [[] for _ in range(n_in)]
-    n_per_zone = out_size // num_zones['total']
+    n_per_zone = int(out_size // num_zones['total'])
     zone_idx = 0
     for pre_pop in in_shapes:
         height, width = in_shapes[pre_pop][0], in_shapes[pre_pop][1]
@@ -175,17 +181,19 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
         nrows, ncols = int(num_zones[pre_pop][0]), int(num_zones[pre_pop][1])
 
         # select minimum distance (adjust for different in_shapes)
-        _radius = radius if pre_pop < 2 else int(radius//div)
+        _radius = np.round( np.round(radius) if pre_pop < 2 else int(np.round(radius)//div) )
+
         for zr in range(nrows):
             # centre row in terms of in_shape
-            pre_r = min(_radius + zr * 2 * _radius, height - 1)
+            pre_r = int( min(_radius + zr * 2 * _radius, height - 1) )
             # low and high limits for rows
-            row_l, row_h = max(0, pre_r - _radius), min(height, pre_r + _radius)
+            row_l, row_h = int(max(0, pre_r - _radius)), int(min(height, pre_r + _radius))
+
             for zc in range(ncols):
                 # centre column in terms of in_shape
-                pre_c = min(_radius + zc * 2 * _radius, width - 1)
+                pre_c = int( min(_radius + zc * 2 * _radius, width - 1) )
                 # low and high limits for columns
-                col_l, col_h = max(0, pre_c - _radius), min(width, pre_c + _radius)
+                col_l, col_h = int(max(0, pre_c - _radius)), int(min(width, pre_c + _radius))
 
                 # square grid of coordinates
                 cols, rows = np.meshgrid(np.arange(col_l, col_h,),
@@ -200,7 +208,7 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
 
                 # choose pre coords sets for each post neuron
                 for post in range(start_post, end_post):
-                    rand_indices = np.random.choice(rows.size, size=n_idx, replace=False)
+                    rand_indices = np.random.choice(rows.size, size=n_idx, replace=False).astype('int')
                     # randomly selected coordinates
                     rand_r = rand_indices // rows.shape[1]
                     rand_c = rand_indices % rows.shape[1]
@@ -212,6 +220,8 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
                             conns[pre_pop].append((pre_i, post, weight, delay))
                         else:
                             print("pre is larger than max ({} >= {})".format(pre_i, max_pre))
+                            print("pre_r, row_l, row_h = {} {} {}".format(pre_r, row_l, row_h))
+                            print("pre_c, col_l, col_h = {} {} {}".format(pre_c, col_l, col_h))
 
                 zone_idx += 1
                 sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
@@ -264,12 +274,13 @@ def output_connection_list(kenyon_size, decision_size, prob_active, active_weigh
     np.random.seed(seed)
 
     inactive_weight = active_weight * inactive_scaling
-    matrix[:, 2] = np.random.normal(inactive_weight, inactive_weight * 0.2,
+    scale = max(inactive_weight * 0.2, 0.00001)
+    matrix[:, 2] = np.random.normal(loc=inactive_weight, scale=scale,
                                     size=n_conns)
 
     dice = np.random.uniform(0., 1., size=(n_conns))
     active = np.where(dice <= prob_active)
-    matrix[active, 2] = np.random.normal(active_weight, active_weight * 0.2,
+    matrix[active, 2] = np.random.normal(loc=active_weight, scale=active_weight * 0.2,
                                          size=active[0].shape)
 
     np.random.seed()
