@@ -196,8 +196,8 @@ def main():
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=3,
-            n_iteration=10,
+            pop_size=19,
+            n_iteration=100,
             stop_criterion=np.Inf,
             seed=optimizer_seed)
 
@@ -217,7 +217,9 @@ def main():
         optimizer = GeneticAlgorithmOptimizer(traj,
             optimizee_create_individual=optimizee.create_individual,
             optimizee_fitness_weights=fit_weights,
-            parameters=parameters)
+            parameters=parameters,
+            optimizee_bounding_func=optimizee.bounding_func,
+            )
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?
