@@ -192,13 +192,13 @@ def main():
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
         parameters = EvolutionStrategiesParameters(
-            learning_rate=0.01,
+            learning_rate=0.0001,
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
             pop_size=19,
             n_iteration=100,
-            stop_criterion=np.Inf,
+            stop_criterion=100, #comb(14, 2) + ~14
             seed=optimizer_seed)
 
         optimizer = EvolutionStrategiesOptimizer(
