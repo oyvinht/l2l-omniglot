@@ -15,8 +15,8 @@ from scipy.special import comb
 
 
 
-PREFIX = 'GA'
-# PREFIX = 'GD'
+# PREFIX = 'GA'
+PREFIX = 'GD'
 # PREFIX = 'ES'
 
 
