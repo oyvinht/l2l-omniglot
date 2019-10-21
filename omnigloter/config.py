@@ -40,11 +40,11 @@ PAD = KERNEL_W//2
 PI_DIVS_RANGE = (6, 7) if DEBUG else (2, 7)
 STRIDE_RANGE = (2, 3) if DEBUG else (1, KERNEL_W//2 + 1)
 OMEGA_RANGE = (0.5, 1.0)
-EXPANSION_RANGE = (10, 11) if DEBUG else (10, 11)
+EXPANSION_RANGE = (10, 11) if DEBUG else (1, 11)
 EXP_PROB_RANGE = (0.1, 0.1000001) if DEBUG else (0.05, 0.2)
 OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.2)
-A_PLUS = (0.1, 0.100000001) if DEBUG else (0.01, 1.0)
-A_MINUS = (0.005, 0.00500000001) if DEBUG else (0.001, 0.1)
+A_PLUS = (0.1, 0.100000001) if DEBUG else (0.01, 5.0)
+A_MINUS = (0.005, 0.00500000001) if DEBUG else (0.001, 1.0)
 STD_DEV = (1.0, 1.00000001) if DEBUG else (0.5, 5.0)
 DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
 MAX_DT = (80.0, 80.00000001) if DEBUG else (SAMPLE_DT, SAMPLE_DT*2.0)
@@ -59,7 +59,7 @@ GABOR_WEIGHT_RANGE = (2.0, 2.000001) if DEBUG else (1.0, 5.0)
 OUT_WEIGHT_RANGE = (2.0, 2.000000001) if DEBUG else (0.5, 5.0)
 # OUT_WEIGHT_RANGE = (1.5, 1.500001) if DEBUG else (0.01, 0.5) ### 64x64
 
-MUSHROOM_WEIGHT_RANGE = (0.2, 0.20000001) if DEBUG else (0.1, 1.0)
+MUSHROOM_WEIGHT_RANGE = (0.2, 0.20000001) if DEBUG else (0.1, 5.0)
 # MUSHROOM_WEIGHT_RANGE = (0.50, 0.500000001) if DEBUG else (0.05, 1.0)
 # MUSHROOM_WEIGHT_RANGE = (0.025, 0.02500001) if DEBUG else (0.05, 1.0) ### for (64,64)
 
@@ -103,6 +103,7 @@ ATTR2IDX = {attr: i for i, attr in enumerate(ATTRS)}
 ATTR_RANGES = {
     'out_weight': OUT_WEIGHT_RANGE,
     'mushroom_weight': MUSHROOM_WEIGHT_RANGE,
+    'expand': EXPANSION_RANGE,
     'exp_prob': EXP_PROB_RANGE,
     'out_prob': OUTPUT_PROB_RANGE,
     'conn_dist': CONN_DIST,
@@ -114,13 +115,15 @@ ATTR_RANGES = {
     # 'maxDt': MAX_DT,
     'w_max_mult': W_MAX_MULT,
     'w_min_mult': W_MIN_MULT,
+
 }
 
 ATTR_STEPS = {
-    'out_weight': 0.1,
-    'mushroom_weight': 0.1,
-    'exp_prob': 0.001,
-    'out_prob': 0.001,
+    'out_weight': 0.5,
+    'mushroom_weight': 0.5,
+    'expand': 3,
+    'exp_prob': 0.005,
+    'out_prob': 0.005,
     'A_plus': 0.01,
     'A_minus': 0.01,
     'std': 0.5,
@@ -215,7 +218,7 @@ TIME_DEP_VARS = {
     "A_plus": 0.10,
     "A_minus": 0.01,
     "mean": 0.0,
-    "std": 1.0,
+    "std": 3.0,
     "displace": 0.0,
     "maxDt": 80.0,
 }
