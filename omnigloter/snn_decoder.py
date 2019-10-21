@@ -319,7 +319,7 @@ class Decoder(object):
                 for i in self.inputs:
                     count += len(self.inputs[i])
 
-            expand = params['sim']['expand']
+            expand = int(params['ind']['expand'])
             count = int(count * expand)
             sys.stdout.write("\tMushroom size: {}\n".format(count))
             sys.stdout.flush()
@@ -564,7 +564,7 @@ class Decoder(object):
             prjs = {}
             exc = self.mushroom_population()
             inh = self.inh_mushroom_population()
-            exp_size = params['sim']['expand']
+            exp_size = int(params['ind']['expand'])
             ew = config.EXCITATORY_WEIGHT['mushroom'] / exp_size
             iw = config.INHIBITORY_WEIGHT['mushroom']
             delay = config.TIMESTEP
@@ -615,7 +615,7 @@ class Decoder(object):
             pre = self.mushroom_population()
             post = self.output_population()
             prob = ind_par['out_prob']
-            exp_size = params['sim']['expand']
+            exp_size = int(params['ind']['expand'])
             max_w = ind_par['out_weight'] / exp_size
 
             conn_list = utils.output_connection_list(pre.size, post.size, prob,

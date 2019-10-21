@@ -30,36 +30,32 @@ timestep = 0.1
 max_w = 0.01
 start_w = max_w / 2.0
 
-tau_plus = 5.0
-tau_minus = 10.0
-a_plus = 0.01
-a_minus = 0.005
 delays = [0.1]
-
-start_dt, num_dt = -50, 100
-# start_dt, num_dt = -5, 10
-sim_time = np.round(1.5 * num_dt)
-start_t = sim_time - num_dt
-trigger_t = start_t + (start_dt + num_dt//2)
-num_neurons = num_dt
-
 time_dep_vars = {
     "A_plus": 0.10,
     "A_minus": 0.01,
     "mean": 0.0,
     "std": 2.0,
-    "displace": 0.0000001,
+    "displace": 0.0,
     "maxDt": 80.0,
 }
+
+num_dt = int(time_dep_vars['maxDt'] * 2.5)
+start_dt = - (num_dt // 2)
+# start_dt, num_dt = -5, 10
+sim_time = np.round(1.5 * num_dt)
+mid_t = sim_time / 2.0
+start_t = mid_t + start_dt
+trigger_t = mid_t
+num_neurons = num_dt
+
+
 
 sim.setup(timestep=timestep, min_delay=timestep,
           backend='SingleThreadedCPU')
 
 pprojs = {}
 for delay in delays:
-
-    a_plus_local = a_plus if delay == 1.0 else -a_plus
-    a_minus_local = a_minus if delay == 1.0 else -a_minus
 
     projs = {}
     for dt in range(start_dt, start_dt+num_dt, 1):
@@ -100,7 +96,7 @@ experiments = {}
 for delay in pprojs:
     dt_dw = {}
     for dt in pprojs[delay]:
-        dt_dw[dt] = (pprojs[delay][dt].getWeights(format='array')[0,0] - start_w) / max_w
+        dt_dw[dt] = (pprojs[delay][dt].getWeights(format='array')[0,0] - start_w)# / max_w
     experiments[delay] = dt_dw
 
 sim.end()
@@ -112,16 +108,38 @@ ax = plt.subplot()
 plt.axvline(0, linestyle='--', color='gray')
 plt.axhline(0, linestyle='--', color='gray')
 
+# plt.axhline(max_w, linestyle=':', #marker='o', markerfacecolor='none',
+#             linewidth=1, color='red', label='max_w')
+plt.axhline(time_dep_vars['A_plus']*max_w,
+            linestyle='-', linewidth=1, color='magenta', label='A_plus')
+plt.axhline(-time_dep_vars['A_minus']*max_w,
+            linestyle='-', linewidth=1, color='purple', label='A_minus')
+
+
+plt.axvline(time_dep_vars['maxDt'],
+            linestyle='-', linewidth=1, color='cyan', label='LTD')
+plt.axvline(-time_dep_vars['maxDt'],
+            linestyle='-', linewidth=1, color='cyan')
+
+plt.axvline(time_dep_vars['std'],
+            linestyle='-', linewidth=1, color='green', label='LTP')
+plt.axvline(-time_dep_vars['std'],
+            linestyle='-', linewidth=1, color='green')
+
+
+
 for delay in experiments:
     dt_dw = experiments[delay]
     dts = sorted(dt_dw.keys())
     dws = [dt_dw[dt] for dt in dts]
-    plt.plot(dts, dws, label=delay)
+    plt.plot(dts, dws, label='{}ms delay'.format(delay))
 
 max_dw = np.max(np.abs(dws)) * 1.5
-ax.set_ylim(-max_dw, max_dw)
+# ax.set_ylim(-max_dw, max_dw)
 ax.set_xlabel(r'$\Delta t = t_{pre} - t_{post}$ [ms]')
 ax.set_ylabel(r'$\Delta w $')
+
+
 plt.legend()
 plt.grid()
 plt.show()
