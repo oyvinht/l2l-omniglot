@@ -43,7 +43,7 @@ def main():
                       add_time=bool(1),
                       automatic_storing=bool(1),
                       log_stdout=bool(0),  # Sends stdout to logs
-                      multiprocessing=bool(1),
+                      multiprocessing=bool(0),
                       )
     create_shared_logger_data(logger_names=["bin", "optimizers"],
                               log_levels=["INFO", "INFO"],
@@ -162,7 +162,7 @@ def main():
     step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
     fit_weights = [1.0, 0.1] if OPTIMIZER == GRADDESC else [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
-        n_random_steps = 10
+        n_random_steps = 20
         n_iteration = 100
 
         parameters = RMSPropParameters(learning_rate=0.001,
@@ -170,7 +170,7 @@ def main():
                                        n_random_steps=n_random_steps,
                                        momentum_decay=0.5,
                                        n_iteration=n_iteration,
-                                       stop_criterion=np.Inf,
+                                       stop_criterion=100,
                                        seed=99)
 
         optimizer = GradientDescentOptimizer(traj,
@@ -188,7 +188,7 @@ def main():
             fitness_shaping_enabled=True,
             pop_size=9,
             n_iteration=1000,
-            stop_criterion=np.Inf,
+            stop_criterion=100,
             seed=optimizer_seed)
 
         optimizer = EvolutionStrategiesOptimizer(
