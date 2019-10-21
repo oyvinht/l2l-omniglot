@@ -34,6 +34,8 @@ def main():
     print("All output logs can be found in directory ", paths.logs_path)
 
     traj_file = os.path.join(paths.output_dir_path, "data.h5")
+    os.makedirs(paths.output_dir_path, exist_ok=True)
+    print("Trajectory file is: {}".format(traj_file))
 
     # Create an environment that handles running our simulation
     # This initializes an environment
