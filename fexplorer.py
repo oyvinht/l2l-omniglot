@@ -122,7 +122,7 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'kernel_pad', config.PAD)
     traj.f_add_parameter_to_group("simulation", 'output_size', config.OUTPUT_SIZE)
     traj.f_add_parameter_to_group("simulation", 'use_gabor', config.USE_GABOR_LAYER)
-    traj.f_add_parameter_to_group("simulation", 'expand', config.EXPANSION_RANGE[0])
+    # traj.f_add_parameter_to_group("simulation", 'expand', config.EXPANSION_RANGE[0])
     # traj.f_add_parameter_to_group("simulation", 'conn_dist', config.CONN_DIST)
     traj.f_add_parameter_to_group("simulation", 'prob_noise', config.PROB_NOISE_SAMPLE)
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
@@ -203,7 +203,7 @@ def main():
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
                                                 CXPB=0.5,
-                                                MUTPB=0.3,
+                                                MUTPB=0.05,
                                                 NGEN=num_generations,
                                                 indpb=0.02,
                                                 tournsize=15,
