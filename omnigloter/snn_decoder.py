@@ -747,6 +747,17 @@ class Decoder(object):
                 'shapes': self.gabor_shapes,
             }
 
+        for p in net['populations']:
+            del p
+
+        for p in net['projections']:
+            del p
+
+        import gc
+        self._network.clear()
+        del self._network
+        gc.collect()
+
         return data
 
 
