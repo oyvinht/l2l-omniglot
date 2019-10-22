@@ -45,8 +45,8 @@ def plot_input_spikes(in_spikes, start_t, total_t, dt=1.0, img_shape=(28, 28), i
 
 result_files = sorted(glob('./L2L-OMNIGLOT/run_results/*.npz'))
 
-total_different = comb(14, 2)
-total_same = 4 * 14 * 0.1
+total_different = 1.0 #comb(14, 2)
+total_same = 0.1 # 4 * 14 * 0.1
 total = total_different + total_same
 
 tmp = np.load(result_files[0], allow_pickle=True)
