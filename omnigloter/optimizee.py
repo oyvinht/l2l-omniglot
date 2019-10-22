@@ -159,7 +159,8 @@ class OmniglotOptimizee(Optimizee):
                     diff_class_dots[whr] = 1.0
 
             diff_class_fitness = n_dots - np.sum(diff_class_dots)
-            print("diff_fitness %s - %s = %s"%(n_dots, np.sum(diff_class_dots), diff_class_fitness))
+            diff_class_fitness /= float(n_dots)
+            print("diff_fitness %s - %s = %s"%(1, np.sum(diff_class_dots)/float(n_ndots), diff_class_fitness))
 
             same_fitnesses = np.asarray([
                 np.sum(same_class_dots[c]) if len(same_class_dots[c]) else 0.0 \
@@ -169,6 +170,7 @@ class OmniglotOptimizee(Optimizee):
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
             same_class_fitness = np.sum(same_fitnesses)
+            same_class_fitness /= float(len(same_fitnesses))
 
             print("same fitness ", same_class_fitness)
 
