@@ -15,7 +15,6 @@ from l2l.utils import JUBE_runner
 from l2l import dict_to_list
 from omnigloter.optimizee import OmniglotOptimizee
 from omnigloter import config
-import yappi
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
@@ -26,7 +25,6 @@ ON_JEWELS = bool(0)
 
 
 def main():
-    yappi.start()
 
     name = "L2L-OMNIGLOT"
     root_dir_path = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -234,8 +232,6 @@ def main():
     # Finally disable logging and close all log-files
     env.disable_logging()
 
-    yappi.get_func_stats().print_all(open("yappi_func_stats.txt", "+w"))
-    yappi.get_thread_stats().print_all(open("yappi_thread_stats.txt", "+w"))
 
 
 
