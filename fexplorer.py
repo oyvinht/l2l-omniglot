@@ -1,27 +1,18 @@
 import logging.config
 import os
 import sys
+
 sys.path.append('.')
 sys.path.append("./omnigloter")
 import numpy as np
-from glob import glob
-
 from l2l.utils.environment import Environment
-from l2l.optimizees.functions import tools as function_tools
-from l2l.optimizees.functions.benchmarked_functions import BenchmarkedFunctions
-# from l2l.optimizers.gridsearch import GridSearchOptimizer, GridSearchParameters
 from l2l.optimizers.gradientdescent.optimizer import GradientDescentOptimizer, RMSPropParameters
 from l2l.optimizers.evolutionstrategies.optimizer import EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
 from l2l.optimizers.evolution import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
 from l2l.paths import Paths
-
 from l2l.logging_tools import create_shared_logger_data, configure_loggers
-
 from l2l.utils import JUBE_runner
 from l2l import dict_to_list
-
-
-
 from omnigloter.optimizee import OmniglotOptimizee
 from omnigloter import config
 
@@ -30,10 +21,11 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 OPTIMIZER = EVOSTRAT
 # OPTIMIZER = GRADDESC
 # OPTIMIZER = GENALG
-ON_JEWELS = bool(0)
+ON_JEWELS = bool(1)
 
 
 def main():
+
     name = "L2L-OMNIGLOT"
     root_dir_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 
@@ -42,6 +34,8 @@ def main():
     print("All output logs can be found in directory ", paths.logs_path)
 
     traj_file = os.path.join(paths.output_dir_path, "data.h5")
+    os.makedirs(paths.output_dir_path, exist_ok=True)
+    print("Trajectory file is: {}".format(traj_file))
 
     # Create an environment that handles running our simulation
     # This initializes an environment
@@ -118,10 +112,10 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
-    traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)#ms
-    traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)#ms
-    traj.f_add_parameter_to_group("simulation", 'input_shape', config.INPUT_SHAPE)#rows, cols
-    traj.f_add_parameter_to_group("simulation", 'input_divs', config.INPUT_DIVS)#rows, cols
+    traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
+    traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
+    traj.f_add_parameter_to_group("simulation", 'input_shape', config.INPUT_SHAPE)  # rows, cols
+    traj.f_add_parameter_to_group("simulation", 'input_divs', config.INPUT_DIVS)  # rows, cols
     traj.f_add_parameter_to_group("simulation", 'input_layers', config.N_INPUT_LAYERS)
     traj.f_add_parameter_to_group("simulation", 'num_classes', config.N_CLASSES)
     traj.f_add_parameter_to_group("simulation", 'samples_per_class', config.N_SAMPLES)
@@ -132,14 +126,14 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'kernel_pad', config.PAD)
     traj.f_add_parameter_to_group("simulation", 'output_size', config.OUTPUT_SIZE)
     traj.f_add_parameter_to_group("simulation", 'use_gabor', config.USE_GABOR_LAYER)
-    traj.f_add_parameter_to_group("simulation", 'expand', config.EXPANSION_RANGE[0])
+    # traj.f_add_parameter_to_group("simulation", 'expand', config.EXPANSION_RANGE[0])
     # traj.f_add_parameter_to_group("simulation", 'conn_dist', config.CONN_DIST)
     traj.f_add_parameter_to_group("simulation", 'prob_noise', config.PROB_NOISE_SAMPLE)
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
 
-
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
-    db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d'%config.INPUT_SHAPE[0]
+    db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d' % \
+              config.INPUT_SHAPE[0]
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
@@ -162,14 +156,15 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
     ## Innerloop simulator
-    optimizee = OmniglotOptimizee(traj, 1234)
+    grad_desc = OPTIMIZER == GRADDESC
+    optimizee = OmniglotOptimizee(traj, 1234, grad_desc)
 
     # Prepare optimizee for jube runs
     JUBE_runner.prepare_optimizee(optimizee, paths.root_dir_path)
 
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
     step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
-    fit_weights = [-1.0, -0.1] if OPTIMIZER == GRADDESC else [1.0, 0.1]
+    fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
         n_random_steps = 10
         n_iteration = 100
@@ -183,10 +178,10 @@ def main():
                                        seed=99)
 
         optimizer = GradientDescentOptimizer(traj,
-                        optimizee_create_individual=optimizee.create_individual,
-                        optimizee_fitness_weights=fit_weights,
-                        parameters=parameters,
-                        optimizee_bounding_func=optimizee.bounding_func)
+                                             optimizee_create_individual=optimizee.create_individual,
+                                             optimizee_fitness_weights=fit_weights,
+                                             parameters=parameters,
+                                             optimizee_bounding_func=optimizee.bounding_func)
 
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
@@ -207,18 +202,24 @@ def main():
             parameters=parameters,
             optimizee_bounding_func=optimizee.bounding_func)
     else:
-        parameters = GeneticAlgorithmParameters(seed=0, popsize=50, CXPB=0.5,
-                                                MUTPB=0.3, NGEN=100, indpb=0.02,
-                                                tournsize=15, matepar=0.5,
+        num_generations = 100
+        population_size = 50
+        parameters = GeneticAlgorithmParameters(seed=0,
+                                                popsize=population_size,
+                                                CXPB=0.5,
+                                                MUTPB=0.05,
+                                                NGEN=num_generations,
+                                                indpb=0.02,
+                                                tournsize=15,
+                                                matepar=0.5,
                                                 mutpar=1
                                                 )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
-            optimizee_create_individual=optimizee.create_individual,
-            optimizee_fitness_weights=fit_weights,
-            parameters=parameters,
-            optimizee_bounding_func=optimizee.bounding_func,
-            )
+                                              optimizee_create_individual=optimizee.create_individual,
+                                              optimizee_fitness_weights=fit_weights,
+                                              parameters=parameters,
+                                              optimizee_bounding_func=optimizee.bounding_func)
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?
@@ -232,6 +233,9 @@ def main():
 
     # Finally disable logging and close all log-files
     env.disable_logging()
+
+
+
 
 
 if __name__ == '__main__':

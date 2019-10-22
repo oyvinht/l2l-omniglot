@@ -136,7 +136,7 @@ class MyTemporalDependence(synapses.STDPTimingDependence):
         if (dt > 0 && dt <= $(maxDt)){
             scalar update = 0.0;
             if (dt <= $(std)){
-                update = $(Aplus) - ( $(displace) * ($(I_post) < 0.0f) );
+                update = $(Aplus);// - ( $(displace) * ($(I_post) < 0.0f) );
                 
             }
             else{
@@ -152,7 +152,7 @@ class MyTemporalDependence(synapses.STDPTimingDependence):
         if (dt > 0 && dt <= $(maxDt)){
             scalar update = 0.0;
             if (dt <= $(std)){
-                update = $(Aplus) - ( $(displace) * ($(I_post) < 0.0f) );
+                update = $(Aplus);// - ( $(displace) * ($(I_post) < 0.0f) );
                 
             }
             else{

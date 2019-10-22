@@ -329,7 +329,7 @@ class Decoder(object):
                 for i in self.inputs:
                     count += len(self.inputs[i])
 
-            expand = params['sim']['expand']
+            expand = int(params['ind']['expand'])
             count = int(count * expand)
             sys.stdout.write("\tMushroom size: {}\n".format(count))
             sys.stdout.flush()
@@ -351,7 +351,7 @@ class Decoder(object):
         for k in in_shapes:
             d = (1, 1) if k < 2 else divs
             max_div = max(d[0], d[1])
-            r = max(1.0, (2.0 * radius) // max_div)
+            r = max(1.0, np.round((2.0 * radius) // max_div))
             nz[k] = [max(1.0, v//r) for v in in_shapes[k]]
             total += np.prod(nz[k])
 
@@ -522,7 +522,7 @@ class Decoder(object):
             prob = params['ind']['exp_prob']
             weight = params['ind']['mushroom_weight']
             delay = 1
-            radius = params['ind']['conn_dist']
+            radius = np.copy(params['ind']['conn_dist'])
             shapes = self.in_shapes
             divs = params['sim']['input_divs']
             nz = self.num_zones_mushroom(shapes, radius, divs)
@@ -534,7 +534,7 @@ class Decoder(object):
                 if len(conns[k]):
                     projs[k] = sim.Projection(pre, post,
                                 sim.FromListConnector(conns[k]),
-                                label='input to mushroom',
+                                label='input to mushroom - {}'.format(k),
                                 receptor_type='excitatory')
                 else:
                     projs[k] = None
@@ -574,7 +574,7 @@ class Decoder(object):
             prjs = {}
             exc = self.mushroom_population()
             inh = self.inh_mushroom_population()
-            exp_size = params['sim']['expand']
+            exp_size = int(params['ind']['expand'])
             ew = config.EXCITATORY_WEIGHT['mushroom'] / exp_size
             iw = config.INHIBITORY_WEIGHT['mushroom']
             delay = config.TIMESTEP
@@ -625,7 +625,7 @@ class Decoder(object):
             pre = self.mushroom_population()
             post = self.output_population()
             prob = ind_par['out_prob']
-            exp_size = params['sim']['expand']
+            exp_size = int(params['ind']['expand'])
             max_w = ind_par['out_weight'] / exp_size
 
             conn_list = utils.output_connection_list(pre.size, post.size, prob,
@@ -756,6 +756,17 @@ class Decoder(object):
             data['gabor'] = {
                 'shapes': self.gabor_shapes,
             }
+
+        for p in net['populations']:
+            del p
+
+        for p in net['projections']:
+            del p
+
+        import gc
+        self._network.clear()
+        del self._network
+        gc.collect()
 
         return data
 
