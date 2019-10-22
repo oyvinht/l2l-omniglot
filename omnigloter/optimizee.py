@@ -197,5 +197,17 @@ class OmniglotOptimizee(Optimizee):
         fname = 'data_{}.npz'.format(name)
         np.savez_compressed(os.path.join(results_path, fname), **data)
 
+        ### Clear big objects
+        import gc
+
+        data.clear()
+        params.clear()
+
+        del data
+        del snn
+        del params
+
+        gc.collect()
+
 
         return [diff_class_fitness, same_class_fitness]
