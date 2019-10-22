@@ -15,7 +15,7 @@ from l2l.utils import JUBE_runner
 from l2l import dict_to_list
 from omnigloter.optimizee import OmniglotOptimizee
 from omnigloter import config
-
+import yappi
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
@@ -26,6 +26,8 @@ ON_JEWELS = bool(0)
 
 
 def main():
+    yappi.start()
+
     name = "L2L-OMNIGLOT"
     root_dir_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 
@@ -162,7 +164,7 @@ def main():
 
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
     step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
-    fit_weights = [1.0, 0.1] if OPTIMIZER == GRADDESC else [1.0, 0.1]
+    fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
         n_random_steps = 20
         n_iteration = 100
@@ -201,7 +203,7 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 100
-        population_size = 25
+        population_size = 50
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
                                                 CXPB=0.5,
@@ -231,6 +233,11 @@ def main():
 
     # Finally disable logging and close all log-files
     env.disable_logging()
+
+    yappi.get_func_stats().print_all(open("yappi_func_stats.txt", "+w"))
+    yappi.get_thread_stats().print_all(open("yappi_thread_stats.txt", "+w"))
+
+
 
 
 if __name__ == '__main__':
