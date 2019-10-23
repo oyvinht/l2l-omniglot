@@ -40,14 +40,14 @@ PAD = KERNEL_W//2
 PI_DIVS_RANGE = (6, 7) if DEBUG else (2, 7)
 STRIDE_RANGE = (2, 3) if DEBUG else (1, KERNEL_W//2 + 1)
 OMEGA_RANGE = (0.5, 1.0)
-EXPANSION_RANGE = (1, 2) if DEBUG else (1, 11)
+EXPANSION_RANGE = (0.25, 0.250001) if DEBUG else (0.25, 11.0)
 EXP_PROB_RANGE = (0.1, 0.1000001) if DEBUG else (0.05, 0.2)
 OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.2)
 A_PLUS = (0.1, 0.100000001) if DEBUG else (0.01, 5.0)
 A_MINUS = (0.005, 0.00500000001) if DEBUG else (0.001, 1.0)
 STD_DEV = (1.0, 1.00000001) if DEBUG else (0.5, 5.0)
 DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
-MAX_DT = (80.0, 80.00000001) if DEBUG else (SAMPLE_DT, SAMPLE_DT*2.0)
+MAX_DT = (80.0, 80.00000001) if DEBUG else (float(SAMPLE_DT), SAMPLE_DT*2.0)
 W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-2.0, 0.0)
 W_MAX_MULT = (1.2,)# 1.200000001) if DEBUG else (0.1, 2.0)
 CONN_DIST = (15, 16) if DEBUG else (3, 18)
@@ -121,7 +121,7 @@ ATTR_RANGES = {
 ATTR_STEPS = {
     'out_weight': 0.5,
     'mushroom_weight': 0.5,
-    'expand': 3,
+    'expand': 3.0,
     'exp_prob': 0.005,
     'out_prob': 0.005,
     'A_plus': 0.01,

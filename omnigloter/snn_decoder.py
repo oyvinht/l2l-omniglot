@@ -76,6 +76,7 @@ class Decoder(object):
             self.gabor_shapes, pops['gabor'] = self.gabor_populations(params)
 
         logging.info("\tPopulations: Mushroom")
+        self.mushroom_size(params)
         pops['mushroom'] = self.mushroom_population(params)
 
         logging.info("\tPopulations: Mushroom Inhibitory")
@@ -318,19 +319,8 @@ class Decoder(object):
         try:
             return self._network['populations']['mushroom']
         except:
+            count = self.mushroom_size(params)
 
-            count = 0
-            if params['sim']['use_gabor']:
-                gshapes = self.gabor_shapes
-                ndivs = int(params['ind']['n_pi_divs'])
-                for l in gshapes:
-                    count += int(gshapes[l][0]*gshapes[l][1]*ndivs)
-            else:
-                for i in self.inputs:
-                    count += len(self.inputs[i])
-
-            expand = int(params['ind']['expand'])
-            count = int(count * expand)
             sys.stdout.write("\tMushroom size: {}\n".format(count))
             sys.stdout.flush()
             neuron_type = getattr(__neuron__, config.MUSHROOM_CLASS)
@@ -341,6 +331,27 @@ class Decoder(object):
                 p.record('spikes')
 
             return p
+
+    def mushroom_size(self, params=None):
+        try:
+            return self._mushroom_size
+        except:
+            count = 0
+            if params['sim']['use_gabor']:
+                gshapes = self.gabor_shapes
+                ndivs = int(params['ind']['n_pi_divs'])
+                for l in gshapes:
+                    count += int(gshapes[l][0]*gshapes[l][1]*ndivs)
+            else:
+                for i in self.inputs:
+                    count += len(self.inputs[i])
+
+            expand = params['ind']['expand']
+            sys.stdout.write("\tCount: {}\tExpand: {}\n".format(count, expand))
+            count = int(np.ceil(count * expand))
+            self._mushroom_size = count
+            return count
+
 
     def num_zones_mushroom(self, in_shapes, radius, divs):
         if hasattr(self, 'n_zones'):
@@ -574,7 +585,7 @@ class Decoder(object):
             prjs = {}
             exc = self.mushroom_population()
             inh = self.inh_mushroom_population()
-            exp_size = int(params['ind']['expand'])
+            exp_size = params['ind']['expand']
             ew = config.EXCITATORY_WEIGHT['mushroom'] / exp_size
             iw = config.INHIBITORY_WEIGHT['mushroom']
             delay = config.TIMESTEP
@@ -625,7 +636,7 @@ class Decoder(object):
             pre = self.mushroom_population()
             post = self.output_population()
             prob = ind_par['out_prob']
-            exp_size = int(params['ind']['expand'])
+            exp_size = params['ind']['expand']
             max_w = ind_par['out_weight'] / exp_size
 
             conn_list = utils.output_connection_list(pre.size, post.size, prob,
