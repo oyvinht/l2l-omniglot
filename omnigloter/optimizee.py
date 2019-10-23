@@ -101,9 +101,14 @@ class OmniglotOptimizee(Optimizee):
             print("{}\tdiff vectors - norms".format(name))
             print(diff_class_norms)
 
-            diff_class_dots = np.array([np.dot(x, y) / (diff_class_norms[ix] * diff_class_norms[iy]) \
-                                        for ix, x in enumerate(diff_class_vectors) \
-                                        for iy, y in enumerate(diff_class_vectors) if ix > iy])
+            a = []
+            for ix, x in enumerate(diff_class_vectors):
+                for iy, y in enumerate(diff_class_vectors):
+                    if iy > ix:
+                        dot = np.dot(x, y) / (diff_class_norms[ix] * diff_class_norms[iy])
+                        a.append(dot)
+
+            diff_class_dots = np.asarray(a)
 
             print("{}\tdiff dots".format(name))
             print(diff_class_dots)
@@ -120,11 +125,19 @@ class OmniglotOptimizee(Optimizee):
 
             print("{}\tsame vectors - norms".format(name))
             print(same_class_norms)
+            same_class_dots = {}
+            same_class_count = 0
+            for c in same_class_vectors:
+                a = []
+                for ix, x in enumerate(same_class_vectors[c]):
+                    for iy, y in enumerate(same_class_vectors[c]):
+                        if iy > ix:
+                            dot = np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy])
+                            a.append(dot)
+                            same_class_count += 1
 
-            same_class_dots = {c: np.array([np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy]) \
-                                    for ix, x in enumerate(same_class_vectors[c]) \
-                                        for iy, y in enumerate(same_class_vectors[c]) if ix > iy]) \
-                                            for c in same_class_vectors}
+                same_class_dots[c] = np.asarray(a)
+
 
             print("{}\tsame dots".format(name))
             print(same_class_dots)
@@ -171,7 +184,7 @@ class OmniglotOptimizee(Optimizee):
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
             same_class_fitness = np.sum(same_fitnesses)
-            same_class_fitness /= float(len(same_fitnesses))
+            same_class_fitness /= float(len(same_class_dots))
 
             print("same fitness ", same_class_fitness)
 

@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-DEBUG = bool(1)
+DEBUG = bool(0)
 BACKEND = 'SingleThreadedCPU' if bool(0) else 'CUDA'
 
 INF = float(10e10)
