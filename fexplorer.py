@@ -15,18 +15,16 @@ from l2l.utils import JUBE_runner
 from l2l import dict_to_list
 from omnigloter.optimizee import OmniglotOptimizee
 from omnigloter import config
-import yappi
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-# OPTIMIZER = EVOSTRAT
-OPTIMIZER = GRADDESC
+OPTIMIZER = EVOSTRAT
+#OPTIMIZER = GRADDESC
 #OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 
 
 def main():
-    yappi.start()
 
     name = "L2L-OMNIGLOT"
     root_dir_path = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -174,7 +172,7 @@ def main():
                                        n_random_steps=n_random_steps,
                                        momentum_decay=0.5,
                                        n_iteration=n_iteration,
-                                       stop_criterion=100,
+                                       stop_criterion=1.5,
                                        seed=99)
 
         optimizer = GradientDescentOptimizer(traj,
@@ -186,13 +184,13 @@ def main():
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
         parameters = EvolutionStrategiesParameters(
-            learning_rate=0.1,
+            learning_rate=0.001,
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=9,
+            pop_size=25,
             n_iteration=1000,
-            stop_criterion=100,
+            stop_criterion=1.5,
             seed=optimizer_seed)
 
         optimizer = EvolutionStrategiesOptimizer(
@@ -234,8 +232,6 @@ def main():
     # Finally disable logging and close all log-files
     env.disable_logging()
 
-    yappi.get_func_stats().print_all(open("yappi_func_stats.txt", "+w"))
-    yappi.get_thread_stats().print_all(open("yappi_thread_stats.txt", "+w"))
 
 
 
