@@ -45,7 +45,7 @@ def main():
                       add_time=bool(1),
                       automatic_storing=bool(1),
                       log_stdout=bool(0),  # Sends stdout to logs
-                      multiprocessing=bool(1),
+                      multiprocessing=bool(0),
                       )
     create_shared_logger_data(logger_names=["bin", "optimizers"],
                               log_levels=["INFO", "INFO"],
@@ -200,8 +200,9 @@ def main():
             parameters=parameters,
             optimizee_bounding_func=optimizee.bounding_func)
     else:
-        num_generations = 100
-        population_size = 50
+        num_generations = 2#100
+        # population_size = 25
+        population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
                                                 CXPB=0.5,
