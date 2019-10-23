@@ -47,7 +47,7 @@ class OmniglotOptimizee(Optimizee):
 
         return individual
 
-    def simulate(self, traj):
+    def simulate(self, traj, queue=None):
         work_path = traj._parameters.JUBE_params.params['work_path']
         results_path = os.path.join(work_path, 'run_results')
         os.makedirs(results_path, exist_ok=True)
@@ -209,5 +209,7 @@ class OmniglotOptimizee(Optimizee):
 
         gc.collect()
 
-
-        return [diff_class_fitness, same_class_fitness]
+        if queue is not None:
+            queue.put([diff_class_fitness, same_class_fitness])
+        else:
+            return [diff_class_fitness, same_class_fitness]
