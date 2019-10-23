@@ -18,8 +18,8 @@ from omnigloter import config
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-OPTIMIZER = EVOSTRAT
-# OPTIMIZER = GRADDESC
+# OPTIMIZER = EVOSTRAT
+OPTIMIZER = GRADDESC
 # OPTIMIZER = GENALG
 ON_JEWELS = bool(1)
 
@@ -166,10 +166,10 @@ def main():
     step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
     fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
-        n_random_steps = 10
-        n_iteration = 100
+        n_random_steps = 19
+        n_iteration = 1000
 
-        parameters = RMSPropParameters(learning_rate=0.001,
+        parameters = RMSPropParameters(learning_rate=0.0001,
                                        exploration_step_size=step_size,
                                        n_random_steps=n_random_steps,
                                        momentum_decay=0.5,
@@ -192,7 +192,7 @@ def main():
             fitness_shaping_enabled=True,
             pop_size=19,
             n_iteration=100,
-            stop_criterion=100, #comb(14, 2) + ~14
+            stop_criterion=1.5,
             seed=optimizer_seed)
 
         optimizer = EvolutionStrategiesOptimizer(
