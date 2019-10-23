@@ -126,7 +126,7 @@ class OmniglotOptimizee(Optimizee):
             print("{}\tsame vectors - norms".format(name))
             print(same_class_norms)
             same_class_dots = {}
-            same_class_count = 0
+            same_class_count = 0.0
             for c in same_class_vectors:
                 a = []
                 for ix, x in enumerate(same_class_vectors[c]):
@@ -134,7 +134,7 @@ class OmniglotOptimizee(Optimizee):
                         if iy > ix:
                             dot = np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy])
                             a.append(dot)
-                            same_class_count += 1
+                            same_class_count += 1.0
 
                 same_class_dots[c] = np.asarray(a)
 
@@ -184,7 +184,7 @@ class OmniglotOptimizee(Optimizee):
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
             same_class_fitness = np.sum(same_fitnesses)
-            same_class_fitness /= float(len(same_class_dots))
+            same_class_fitness /= same_class_count
 
             print("same fitness ", same_class_fitness)
 
