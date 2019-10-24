@@ -47,7 +47,31 @@ class OmniglotOptimizee(Optimizee):
 
         return individual
 
-    def simulate(self, traj, queue=None):
+
+    def snn_multiproc(self, name, params):
+        # trying to avoid huge memory consumption after many individuals
+        from multiprocessing import Process, Queue
+
+        # queue = Queue()
+        # p = Process(target=self.create_and_run, args=(name, params, queue))
+        # p.start()
+        # print("launched process, waiting ...")
+        # p.join()  # this blocks until the process terminates
+        # print("done running!")
+        # data = queue.get()
+        # return data
+        queue = None
+        return self.create_and_run(name, params, queue)
+
+    def create_and_run(self, name, params, queue):
+        print("Creating and running SNN")
+        snn = Decoder(name, params)
+        data = snn.run_pynn()
+        if queue is None:
+            return data
+        queue.put(data)
+
+    def simulate(self, traj):
         work_path = traj._parameters.JUBE_params.params['work_path']
         results_path = os.path.join(work_path, 'run_results')
         os.makedirs(results_path, exist_ok=True)
@@ -78,9 +102,9 @@ class OmniglotOptimizee(Optimizee):
             'sim': self.sim_params,
             'gen': {'gen': generation, 'ind': ind_idx},
         }
-        snn = Decoder(name, params)
-        try:
-            data = snn.run_pynn()
+        # try:
+        if True:
+            data = self.snn_multiproc(name, params)
 
             ### Analyze results
             dt = self.sim_params['sample_dt']
@@ -142,9 +166,9 @@ class OmniglotOptimizee(Optimizee):
             print("{}\tsame dots".format(name))
             print(same_class_dots)
 
-        except:
-            print("Error in simulation, setting fitness to 0")
-            diff_class_dots = []
+        # except:
+        #     print("Error in simulation, setting fitness to 0")
+        #     diff_class_dots = []
 
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
@@ -217,12 +241,8 @@ class OmniglotOptimizee(Optimizee):
         params.clear()
 
         del data
-        del snn
         del params
 
         gc.collect()
 
-        if queue is not None:
-            queue.put([diff_class_fitness, same_class_fitness])
-        else:
-            return [diff_class_fitness, same_class_fitness]
+        return [diff_class_fitness, same_class_fitness]

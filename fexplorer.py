@@ -211,7 +211,7 @@ def main():
                                                 indpb=0.02,
                                                 tournsize=15,
                                                 matepar=0.5,
-                                                mutpar=1
+                                                mutpar=step_size,
                                                 )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
