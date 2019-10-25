@@ -50,7 +50,7 @@ class OmniglotOptimizee(Optimizee):
 
     def snn_multiproc(self, name, params):
         # trying to avoid huge memory consumption after many individuals
-        from multiprocessing import Process, Queue
+
 
         # queue = Queue()
         # p = Process(target=self.create_and_run, args=(name, params, queue))
@@ -63,10 +63,11 @@ class OmniglotOptimizee(Optimizee):
         queue = None
         return self.create_and_run(name, params, queue)
 
-    def create_and_run(self, name, params, queue):
+    def create_and_run(self, name, params, queue=None):
         print("Creating and running SNN")
         snn = Decoder(name, params)
         data = snn.run_pynn()
+        print("Done running simulation")
         if queue is None:
             return data
         queue.put(data)
@@ -104,6 +105,15 @@ class OmniglotOptimizee(Optimizee):
         }
         # try:
         if True:
+            # from multiprocessing import Process, Queue
+            # queue = Queue()
+            # p = Process(target=self.create_and_run, args=(name, params, queue))
+            # p.start()
+            # print("launched process, waiting ...")
+            # p.join()  # this blocks until the process terminates
+            # print("done running!")
+            # data = queue.get()
+
             data = self.snn_multiproc(name, params)
 
             ### Analyze results
@@ -114,62 +124,100 @@ class OmniglotOptimizee(Optimizee):
             start_t = end_t - n_class * n_test * dt
             apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
+
+
             diff_class_vectors = [np.zeros(n_out) for _ in apc]
             for c in apc:
                 if len(apc[c]):
                     kv = np.array(list(apc[c].keys()), dtype='int')
                     diff_class_vectors[c - 1][kv] = 1
 
+            # punish inactivity on output cells,
+            # every test sample should produce at least one spike in
+            # the output population
+            any_zero = False
+            for v in diff_class_vectors:
+                if np.sum(v) > 0:
+                    continue
+                any_zero = True
 
-            diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
-            print("{}\tdiff vectors - norms".format(name))
-            print(diff_class_norms)
-
-            a = []
-            for ix, x in enumerate(diff_class_vectors):
-                for iy, y in enumerate(diff_class_vectors):
-                    if iy > ix:
-                        dot = np.dot(x, y) / (diff_class_norms[ix] * diff_class_norms[iy])
-                        a.append(dot)
-
-            diff_class_dots = np.asarray(a)
-
-            print("{}\tdiff dots".format(name))
-            print(diff_class_dots)
-
-            same_class_vectors = {c-1: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
-            for c in ipc:
-                for i, x in enumerate(ipc[c]):
-                    for nid in ipc[c][x]:
-                        same_class_vectors[c - 1][i][nid] = 1
-
-
-            same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
-                                                        for c in same_class_vectors}
-
-            print("{}\tsame vectors - norms".format(name))
-            print(same_class_norms)
-            same_class_dots = {}
-            same_class_count = 0.0
-            for c in same_class_vectors:
+            if not any_zero:
                 a = []
-                for ix, x in enumerate(same_class_vectors[c]):
-                    for iy, y in enumerate(same_class_vectors[c]):
+                for ix, x in enumerate(diff_class_vectors):
+                    for iy, y in enumerate(diff_class_vectors):
                         if iy > ix:
-                            dot = np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy])
+                            dot = np.sqrt( np.sum( (x - y)**2 ) )
                             a.append(dot)
-                            same_class_count += 1.0
 
-                same_class_dots[c] = np.asarray(a)
+                diff_class_distances = np.asarray(a)
+                diff_dist = np.mean(diff_class_distances)
+
+                diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
+                print("{}\tdiff vectors - norms".format(name))
+                print(diff_class_norms)
+
+                a = []
+                for ix, x in enumerate(diff_class_vectors):
+                    for iy, y in enumerate(diff_class_vectors):
+                        if iy > ix:
+                            dot = np.dot(x, y) / (diff_class_norms[ix] * diff_class_norms[iy])
+                            a.append(dot)
+
+                diff_class_dots = np.asarray(a)
+
+                print("{}\tdiff dots".format(name))
+                print(diff_class_dots)
+
+                same_class_vectors = {c-1: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
+                for c in ipc:
+                    for i, x in enumerate(ipc[c]):
+                        for nid in ipc[c][x]:
+                            same_class_vectors[c - 1][i][nid] = 1
+
+                # punish inactivity on output cells,
+                # every test sample should produce at least one spike in
+                # the output population
+                for c in same_class_vectors:
+                    for i, v in enumerate(ipc[c]):
+                        if np.sum(v) > 0:
+                            continue
+                        any_zero = True
+
+                if not any_zero:
+                    same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
+                                                                for c in same_class_vectors}
+
+                    print("{}\tsame vectors - norms".format(name))
+                    print(same_class_norms)
+                    same_class_dots = {}
+                    same_class_distances = {}
+                    same_class_count = 0.0
+                    for c in same_class_vectors:
+                        a = []
+                        b = []
+                        for ix, x in enumerate(same_class_vectors[c]):
+                            for iy, y in enumerate(same_class_vectors[c]):
+                                if iy > ix:
+                                    dot = np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy])
+                                    a.append(dot)
+                                    dist = np.sqrt( np.sum( (x - y)**2 ) )
+                                    b.append(dist)
+                                    same_class_count += 1.0
+
+                        same_class_dots[c] = np.asarray(a)
+                        same_class_distances[c] = np.asarray(b)
 
 
-            print("{}\tsame dots".format(name))
-            print(same_class_dots)
+                    print("{}\tsame dots".format(name))
+                    print(same_class_dots)
 
-        # except:
-        #     print("Error in simulation, setting fitness to 0")
-        #     diff_class_dots = []
-
+                # except:
+                #     print("Error in simulation, setting fitness to 0")
+                #     diff_class_dots = []
+            else:
+                diff_class_vectors = []
+        else:
+            diff_class_dots = []
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
@@ -185,6 +233,10 @@ class OmniglotOptimizee(Optimizee):
             diff_class_fitness = 0#n_dots
             same_class_fitness = 0
 
+            diff_class_distances = []
+            diff_dist = 0
+
+
         else:
             if np.any(diff_class_norms == 0.):
                 print("At least one of the norms was 0")
@@ -197,7 +249,7 @@ class OmniglotOptimizee(Optimizee):
                     diff_class_dots[whr] = 1.0
 
             diff_class_fitness = n_dots - np.sum(diff_class_dots)
-            diff_class_fitness /= float(len(diff_class_dots))
+            # diff_class_fitness /= float(len(diff_class_dots))
             print("diff_fitness %s - %s = %s"%(1, np.sum(diff_class_dots)/n_dots, diff_class_fitness))
 
             same_fitnesses = np.asarray([
@@ -208,7 +260,7 @@ class OmniglotOptimizee(Optimizee):
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
             same_class_fitness = np.sum(same_fitnesses)
-            same_class_fitness /= same_class_count
+            # same_class_fitness /= same_class_count
 
             print("same fitness ", same_class_fitness)
 
@@ -219,7 +271,10 @@ class OmniglotOptimizee(Optimizee):
                 'vectors': diff_class_vectors,
                 'norms': diff_class_norms,
                 'dots': diff_class_dots,
-                'fitness': diff_class_fitness,
+                'cos_fit': diff_class_fitness,
+                'distances': diff_class_distances,
+                'euc_dist': diff_dist,
+                'fitness': diff_dist,
             },
             'individual_per_class': {
                 'spikes': ipc,
@@ -227,6 +282,7 @@ class OmniglotOptimizee(Optimizee):
                 'norms': same_class_norms,
                 'dots': same_class_dots,
                 'fitness': same_class_fitness,
+                'distances': same_class_distances,
             }
         }
         ### Save results for this individual
@@ -245,4 +301,4 @@ class OmniglotOptimizee(Optimizee):
 
         gc.collect()
 
-        return [diff_class_fitness, same_class_fitness]
+        return [diff_dist, same_class_fitness]
