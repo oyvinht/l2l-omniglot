@@ -24,6 +24,8 @@ base_params = {
     'tau_refrac': 0.1,  # ms
     'tau_syn_E': 1.0,  # ms
     'tau_syn_I': 5.0,  # ms
+    'tau_thresh': 50.0,
+    'mult_thresh': 1.8,
 
 }
 
@@ -37,10 +39,10 @@ a_plus = 0.01
 a_minus = 0.005
 delays = [0.1]
 
-start_dt, num_dt = -50, 100
+start_dt, num_dt = -50, 500
 # start_dt, num_dt = -5, 10
 sim_time = np.round(1.5 * num_dt)
-start_t = sim_time - num_dt
+start_t = 10.#sim_time - num_dt
 trigger_t = start_t + (start_dt + num_dt//2)
 num_neurons = num_dt
 
@@ -49,7 +51,7 @@ sim.setup(timestep=timestep, min_delay=timestep,
 
 
 pre_spike_times = [[trigger_t + 1.0]]
-trigger_spike_times = [[trigger_t, trigger_t + 1, trigger_t + 2, trigger_t + 3]]
+trigger_spike_times = [[trigger_t,]]# trigger_t + 1, trigger_t + 2, trigger_t + 3]]
 
 trigger = sim.Population(1,
             sim.SpikeSourceArray(**{'spike_times': trigger_spike_times}))
