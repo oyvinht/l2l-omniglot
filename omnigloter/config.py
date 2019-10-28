@@ -41,9 +41,9 @@ PI_DIVS_RANGE = (6, 7) if DEBUG else (2, 7)
 STRIDE_RANGE = (2, 3) if DEBUG else (1, KERNEL_W//2 + 1)
 OMEGA_RANGE = (0.5, 1.0)
 EXPANSION_RANGE = (10., 10.0001) if DEBUG else (0.25, 11.0)
-EXP_PROB_RANGE = (0.1, 0.1000001) if DEBUG else (0.05, 0.2)
+EXP_PROB_RANGE = (0.15, 0.15000001) if DEBUG else (0.05, 0.2)
 OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.2)
-A_PLUS = (0.0, 0.000000001) if DEBUG else (0.01, 5.0)
+A_PLUS = (0.0, 0.0000000001) if DEBUG else (0.01, 5.0)
 A_MINUS = (0.0, 0.000000001) if DEBUG else (0.001, 1.0)
 STD_DEV = (3.0, 3.00000001) if DEBUG else (0.5, 5.0)
 DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
@@ -59,7 +59,7 @@ GABOR_WEIGHT_RANGE = (2.0, 2.000001) if DEBUG else (1.0, 5.0)
 OUT_WEIGHT_RANGE = (2.0, 2.000000001) if DEBUG else (0.5, 5.0)
 # OUT_WEIGHT_RANGE = (1.5, 1.500001) if DEBUG else (0.01, 0.5) ### 64x64
 
-MUSHROOM_WEIGHT_RANGE = (1.0, 1.0000001) if DEBUG else (0.5, 5.0)
+MUSHROOM_WEIGHT_RANGE = (1.0, 1.0000001) if DEBUG else (1.0, 5.0)
 # MUSHROOM_WEIGHT_RANGE = (0.50, 0.500000001) if DEBUG else (0.05, 1.0)
 # MUSHROOM_WEIGHT_RANGE = (0.025, 0.02500001) if DEBUG else (0.05, 1.0) ### for (64,64)
 
@@ -160,11 +160,14 @@ BASE_PARAMS = {
     'tau_syn_I': 1., # ms
 }
 
+tau_thresh = 25.0
+mult_thresh = 0.00000000001
+
 GABOR_PARAMS = BASE_PARAMS.copy()
 MUSHROOM_PARAMS = BASE_PARAMS.copy()
 MUSHROOM_PARAMS['v_thresh_adapt'] = MUSHROOM_PARAMS['v_thresh']
-MUSHROOM_PARAMS['tau_thresh'] = 80.0
-MUSHROOM_PARAMS['mult_thresh'] = 1.8
+MUSHROOM_PARAMS['tau_thresh'] = tau_thresh
+MUSHROOM_PARAMS['mult_thresh'] = mult_thresh
 MUSHROOM_PARAMS['tau_syn_I'] = 5.
 
 INH_MUSHROOM_PARAMS = BASE_PARAMS.copy()
@@ -172,8 +175,8 @@ INH_OUTPUT_PARAMS = BASE_PARAMS.copy()
 
 OUTPUT_PARAMS = BASE_PARAMS.copy()
 OUTPUT_PARAMS['v_thresh_adapt'] = OUTPUT_PARAMS['v_thresh']
-OUTPUT_PARAMS['tau_thresh'] = 120.0
-OUTPUT_PARAMS['mult_thresh'] = 1.8
+OUTPUT_PARAMS['tau_thresh'] = tau_thresh
+OUTPUT_PARAMS['mult_thresh'] = mult_thresh
 OUTPUT_PARAMS['tau_syn_I'] = 5.
 
 

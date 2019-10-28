@@ -149,6 +149,7 @@ def main():
 
     # dbs = ['Alphabet_of_the_Magi']
     dbs = ['Futurama']
+    # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)

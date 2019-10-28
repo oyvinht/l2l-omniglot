@@ -130,7 +130,7 @@ class OmniglotOptimizee(Optimizee):
             for c in apc:
                 if len(apc[c]):
                     kv = np.array(list(apc[c].keys()), dtype='int')
-                    diff_class_vectors[c - 1][kv] = 1
+                    diff_class_vectors[c - 1][kv] += 1
 
             # punish inactivity on output cells,
             # every test sample should produce at least one spike in
@@ -140,13 +140,16 @@ class OmniglotOptimizee(Optimizee):
                 if np.sum(v) > 0:
                     continue
                 any_zero = True
+                break
 
             if not any_zero:
                 a = []
                 for ix, x in enumerate(diff_class_vectors):
                     for iy, y in enumerate(diff_class_vectors):
                         if iy > ix:
-                            dot = np.sqrt( np.sum( (x - y)**2 ) )
+                            xnorm = x / np.sqrt(np.sum(x ** 2))
+                            ynorm = y / np.sqrt(np.sum(y ** 2))
+                            dot = np.sqrt(np.sum( (xnorm - ynorm) ** 2 )) / np.sqrt(2)
                             a.append(dot)
 
                 diff_class_distances = np.asarray(a)
@@ -178,10 +181,11 @@ class OmniglotOptimizee(Optimizee):
                 # every test sample should produce at least one spike in
                 # the output population
                 for c in same_class_vectors:
-                    for i, v in enumerate(ipc[c]):
+                    for i, v in enumerate(same_class_vectors[c]):
                         if np.sum(v) > 0:
                             continue
                         any_zero = True
+                        break
 
                 if not any_zero:
                     same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
@@ -200,7 +204,9 @@ class OmniglotOptimizee(Optimizee):
                                 if iy > ix:
                                     dot = np.dot(x, y) / (same_class_norms[c][ix] * same_class_norms[c][iy])
                                     a.append(dot)
-                                    dist = np.sqrt( np.sum( (x - y)**2 ) )
+                                    xnorm = x / np.sqrt(np.sum(x ** 2))
+                                    ynorm = y / np.sqrt(np.sum(y ** 2))
+                                    dist = np.sqrt(np.sum((xnorm - ynorm) ** 2)) / np.sqrt(2)
                                     b.append(dist)
                                     same_class_count += 1.0
 
@@ -211,17 +217,17 @@ class OmniglotOptimizee(Optimizee):
                     print("{}\tsame dots".format(name))
                     print(same_class_dots)
 
-                # except:
-                #     print("Error in simulation, setting fitness to 0")
-                #     diff_class_dots = []
+                else:
+                    diff_class_vectors = []
             else:
-                diff_class_vectors = []
-        else:
-            diff_class_dots = []
+                diff_class_dots = []
+        # except:
+        #     print("Error in simulation, setting fitness to 0")
+        #     diff_class_dots = []
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
-        if len(diff_class_dots) == 0:
+        if len(diff_class_dots) == 0 or any_zero:
             print("dots == 0, fitness = ", 0)
 
             diff_class_norms = []
@@ -248,9 +254,10 @@ class OmniglotOptimizee(Optimizee):
                 if len(whr):
                     diff_class_dots[whr] = 1.0
 
-            diff_class_fitness = n_dots - np.sum(diff_class_dots)
+            diff_class_fitness = 1.0 - np.mean(diff_class_dots)
+            # diff_class_fitness = 1.0 - np.sum(diff_class_dots)
             # diff_class_fitness /= float(len(diff_class_dots))
-            print("diff_fitness %s - %s = %s"%(1, np.sum(diff_class_dots)/n_dots, diff_class_fitness))
+            # print("diff_fitness %s - %s = %s"%(1, np.sum(diff_class_dots)/n_dots, diff_class_fitness))
 
             same_fitnesses = np.asarray([
                 np.sum(same_class_dots[c]) if len(same_class_dots[c]) else 0.0 \
@@ -260,7 +267,7 @@ class OmniglotOptimizee(Optimizee):
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
             same_class_fitness = np.sum(same_fitnesses)
-            # same_class_fitness /= same_class_count
+            same_class_fitness /= same_class_count
 
             print("same fitness ", same_class_fitness)
 
@@ -271,7 +278,7 @@ class OmniglotOptimizee(Optimizee):
                 'vectors': diff_class_vectors,
                 'norms': diff_class_norms,
                 'dots': diff_class_dots,
-                'cos_fit': diff_class_fitness,
+                'cos_dist': diff_class_fitness,
                 'distances': diff_class_distances,
                 'euc_dist': diff_dist,
                 'fitness': diff_dist,
