@@ -90,6 +90,7 @@ class OmniglotOptimizee(Optimizee):
         n_test = self.sim_params['test_per_class']
         n_class = self.sim_params['num_classes']
         n_dots = comb(n_class, 2)
+        same_class_count = 0
 
         # ind_idx = np.random.randint(0, 1000)
         ind_idx = traj.individual.ind_idx
@@ -144,6 +145,7 @@ class OmniglotOptimizee(Optimizee):
 
             if not any_zero:
                 a = []
+
                 for ix, x in enumerate(diff_class_vectors):
                     for iy, y in enumerate(diff_class_vectors):
                         if iy > ix:
@@ -154,6 +156,14 @@ class OmniglotOptimizee(Optimizee):
 
                 diff_class_distances = np.asarray(a)
                 diff_dist = np.mean(diff_class_distances)
+
+                overlap = np.zeros_like(diff_class_vectors[0])
+                for _class, v in enumerate(diff_class_vectors):
+                    overlap += v
+
+                overlap_len = np.sum(overlap > 0)
+                overlap[:] = overlap > 1
+                diff_class_overlap = 1.0 - np.sum(overlap)/overlap_len
 
                 diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
                 print("{}\tdiff vectors - norms".format(name))
@@ -218,7 +228,7 @@ class OmniglotOptimizee(Optimizee):
                     print(same_class_dots)
 
                 else:
-                    diff_class_vectors = []
+                    diff_class_dots = []
             else:
                 diff_class_dots = []
         # except:
@@ -229,6 +239,8 @@ class OmniglotOptimizee(Optimizee):
 
         if len(diff_class_dots) == 0 or any_zero:
             print("dots == 0, fitness = ", 0)
+            same_class_vectors = []
+            # diff_class_vectors = [] ###already defined
 
             diff_class_norms = []
             diff_class_dots = []
@@ -240,8 +252,10 @@ class OmniglotOptimizee(Optimizee):
             same_class_fitness = 0
 
             diff_class_distances = []
+            same_class_distances = []
             diff_dist = 0
 
+            diff_class_overlap = 0
 
         else:
             if np.any(diff_class_norms == 0.):
@@ -281,7 +295,9 @@ class OmniglotOptimizee(Optimizee):
                 'cos_dist': diff_class_fitness,
                 'distances': diff_class_distances,
                 'euc_dist': diff_dist,
-                'fitness': diff_dist,
+                'fitness': diff_class_overlap,
+                'num_dots': n_dots,
+                'overlap_dist': diff_class_overlap
             },
             'individual_per_class': {
                 'spikes': ipc,
@@ -290,6 +306,7 @@ class OmniglotOptimizee(Optimizee):
                 'dots': same_class_dots,
                 'fitness': same_class_fitness,
                 'distances': same_class_distances,
+                'num_dost': same_class_count,
             }
         }
         ### Save results for this individual
