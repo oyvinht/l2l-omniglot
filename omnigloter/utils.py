@@ -159,6 +159,30 @@ def gain_control_list(input_size, horn_size, max_w, cutoff=0.75):
 
     return matrix
 
+def o2o_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
+    print("in ONE TO ONE con_list")
+    print(" pre shapes {}".format(in_shapes))
+    print(" num zones {}".format(num_zones))
+    print("out size {}".format(out_size))
+    print("radius {}".format(radius))
+    print("prob {}".format(prob))
+
+    conns = [[] for _ in in_shapes]
+    start_post = 0
+    for pre_pop in in_shapes:
+        height, width = in_shapes[pre_pop][0], in_shapes[pre_pop][1]
+        max_pre = width * height
+        for pre in range(max_pre):
+            post = start_post + pre
+            conns[pre_pop].append([pre, post, weight, delay])
+            sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (float(post+1.0) / out_size)))
+            sys.stdout.flush()
+
+        start_post += max_pre
+
+    sys.stdout.write("\n")
+    sys.stdout.flush()
+    return conns
 
 def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
     print("in dist_con_list")
@@ -258,7 +282,7 @@ def wta_mush_conn_list(in_shapes, num_zones, out_size, iweight, eweight, delay):
 
 
 def output_connection_list(kenyon_size, decision_size, prob_active, active_weight,
-                           inactive_scaling, seed=1, max_pre=10000):
+                           inactive_scaling, seed=None, max_pre=10000):
     n_pre = min(max_pre, kenyon_size)
     n_conns = n_pre * decision_size
     print("output_connection_list: n_conns = {}".format(n_conns))
