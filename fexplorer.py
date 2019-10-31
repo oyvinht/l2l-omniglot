@@ -149,6 +149,7 @@ def main():
 
     # dbs = ['Alphabet_of_the_Magi']
     dbs = ['Futurama']
+    # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
@@ -161,7 +162,9 @@ def main():
     JUBE_runner.prepare_optimizee(optimizee, paths.root_dir_path)
 
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
-    step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
+    # step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
+    step_size = tuple([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
+
     fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
         n_random_steps = 20
@@ -205,13 +208,13 @@ def main():
         # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
-                                                CXPB=0.5,
-                                                MUTPB=0.1,
+                                                CXPB=0.5, # probability of mating 2 individuals
+                                                MUTPB=0.25, # probability of individual to mutate
                                                 NGEN=num_generations,
-                                                indpb=0.02,
-                                                tournsize=15,
-                                                matepar=0.5,
-                                                mutpar=1
+                                                indpb=0.2, # probability of "gene" to mutate
+                                                tournsize=15, # number of best individuals to mate
+                                                matepar=0.5, # how much to mix two genes when mating
+                                                mutpar=step_size,
                                                 )
 
         optimizer = GeneticAlgorithmOptimizer(traj,

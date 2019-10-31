@@ -51,7 +51,7 @@ class Decoder(object):
                   self._network['min_delay'],
                   model_name=self.name,
                   backend=config.BACKEND,
-                  # selected_gpu_id=0,
+                  selected_gpu_id=0,
                 )
 
         logging.info("\tGenerating spikes")
@@ -527,7 +527,11 @@ class Decoder(object):
             shapes = self.in_shapes
             divs = params['sim']['input_divs']
             nz = self.num_zones_mushroom(shapes, radius, divs)
-            conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
+            if config.ONE_TO_ONE_EXCEPTION:
+                conns = utils.o2o_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
+            else:
+                conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
+
             self._in_to_mush_conns = conns
             projs = {}
 
