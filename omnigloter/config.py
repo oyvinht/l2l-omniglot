@@ -28,7 +28,7 @@ INPUT_DIVS = (2, 2)
 # INPUT_DIVS = (2, 3)
 N_CLASSES = 14 if DEBUG else 14
 N_SAMPLES = 16 if DEBUG else 16
-N_EPOCHS = 50 if DEBUG else 10
+N_EPOCHS = 50 if DEBUG else 50
 N_TEST = 4 if DEBUG else 4
 TOTAL_SAMPLES = N_SAMPLES * N_EPOCHS + N_TEST
 DURATION = N_CLASSES * TOTAL_SAMPLES * SAMPLE_DT
@@ -45,10 +45,11 @@ OMEGA_RANGE = (0.5, 1.0)
 if ONE_TO_ONE_EXCEPTION:
     EXPANSION_RANGE = (1., 1.0000000000000000000001)
 else:
-    EXPANSION_RANGE = (10., 10.0001) if DEBUG else (0.25, 11.0)
+    # EXPANSION_RANGE = (10., 10.0001) if DEBUG else (0.25, 11.0)
+    EXPANSION_RANGE = (0.25, 0.25) if DEBUG else (0.25, 11.0)
 
-EXP_PROB_RANGE = (0.15, 0.15000001) if DEBUG else (0.05, 0.2)
-OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.2)
+EXP_PROB_RANGE = (0.15, 0.15000001) if DEBUG else (0.05, 0.3)
+OUTPUT_PROB_RANGE = (0.15, 0.150000001) if DEBUG else (0.05, 0.3)
 A_PLUS = (2.0, 2.0000000001) if DEBUG else (0.01, 5.0)
 A_MINUS = (1.0, 1.000000001) if DEBUG else (0.001, 1.0)
 STD_DEV = (3.0, 3.00000001) if DEBUG else (0.5, 5.0)
@@ -56,7 +57,7 @@ DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
 MAX_DT = (80.0, 80.00000001) if DEBUG else (float(SAMPLE_DT), SAMPLE_DT*2.0)
 W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-2.0, 0.0)
 W_MAX_MULT = (1.2,)# 1.200000001) if DEBUG else (0.1, 2.0)
-CONN_DIST = (10, 11) if DEBUG else (3, 18)
+CONN_DIST = (10, 11) if DEBUG else (3, 25)
 
 
 GABOR_WEIGHT_RANGE = (2.0, 2.000001) if DEBUG else (1.0, 5.0)
@@ -130,21 +131,23 @@ ATTR_RANGES = {
 
 }
 
-ATTR_STEPS = {
+ATTR_STEPS_BASE = {
     'out_weight': 0.5,
     'mushroom_weight': 0.5,
     'expand': 3.0,
-    'exp_prob': 0.005,
-    'out_prob': 0.005,
+    'exp_prob': 0.05,
+    'out_prob': 0.05,
     'A_plus': 0.01,
     'A_minus': 0.01,
     'std': 0.5,
-    'displace': 0.001,
+    'displace': 0.01,
     'maxDt': 10.0,
     'w_max_mult': 0.01,
     'w_min_mult': 0.01,
-    'conn_dist': 5,
+    'conn_dist': 5.0,
 }
+
+ATTR_STEPS = {k: ATTR_STEPS_BASE[k] for k in ATTR_STEPS_BASE}
 
 # for s in ATTRS:
 #     if s.startswith('gabor_weight'):
@@ -199,7 +202,7 @@ OUTPUT_PARAMS['tau_syn_I'] = 5.
 RECORD_SPIKES = [
     # 'input',
     # 'gabor',
-    'mushroom',
+    # 'mushroom',
     # 'inh_mushroom',
     'output',
     # 'inh_output',
