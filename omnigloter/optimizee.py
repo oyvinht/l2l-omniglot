@@ -72,7 +72,7 @@ class OmniglotOptimizee(Optimizee):
             return data
         queue.put(data)
 
-    def simulate(self, traj):
+    def simulate(self, traj, queue=None):
         work_path = traj._parameters.JUBE_params.params['work_path']
         results_path = os.path.join(work_path, 'run_results')
         os.makedirs(results_path, exist_ok=True)
@@ -115,7 +115,10 @@ class OmniglotOptimizee(Optimizee):
             # print("done running!")
             # data = queue.get()
 
-            data = self.snn_multiproc(name, params)
+            # data = self.snn_multiproc(name, params)
+
+            snn = Decoder(name, params)
+            data = snn.run_pynn()
 
             ### Analyze results
             dt = self.sim_params['sample_dt']
@@ -314,6 +317,9 @@ class OmniglotOptimizee(Optimizee):
         fname = 'data_{}.npz'.format(name)
         np.savez_compressed(os.path.join(results_path, fname), **data)
 
+        fit0 = data['analysis']['aggregate_per_class']['fitness']
+        fit1 = data['analysis']['individual_per_class']['fitness']
+
         ### Clear big objects
         import gc
 
@@ -324,5 +330,11 @@ class OmniglotOptimizee(Optimizee):
         del params
 
         gc.collect()
+        print("Done running simulation")
 
-        return [diff_dist, same_class_fitness]
+
+        if queue is not None:
+            queue.put([fit0, fit1,])
+            return
+
+        return [fit0, fit1,]
