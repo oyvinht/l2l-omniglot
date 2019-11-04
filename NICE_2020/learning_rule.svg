@@ -25,16 +25,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6568542"
-     inkscape:cx="118.46992"
-     inkscape:cy="61.578528"
+     inkscape:zoom="4"
+     inkscape:cx="240.34584"
+     inkscape:cy="127.12022"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer3"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1033"
-     inkscape:window-x="2560"
-     inkscape:window-y="360"
+     inkscape:window-width="2560"
+     inkscape:window-height="1393"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      fit-margin-top="1"
      fit-margin-left="1"
@@ -571,11 +571,11 @@
      id="layer3"
      inkscape:label="Layer 3">
     <g
-       transform="translate(-53.185468,-65.695924)"
+       transform="matrix(1.4880521,0,0,1.4880522,-113.68219,-97.483683)"
        id="g11453">
       <g
          transform="matrix(0.5259074,0,0,0.5259074,4.111145,0.08328967)"
-         style="fill:#000000;fill-opacity:1;stroke:#666666"
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942"
          id="g2338">
         <use
            height="100%"
@@ -584,11 +584,11 @@
            x="223.43201"
            y="134.765"
            id="use2336"
-           style="stroke:#666666" />
+           style="stroke:#666666;stroke-width:0.67201942" />
       </g>
       <g
          transform="matrix(0.5259074,0,0,0.5259074,4.111145,0.08328967)"
-         style="fill:#000000;fill-opacity:1;stroke:#666666"
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942"
          id="g2342">
         <use
            height="100%"
@@ -597,15 +597,15 @@
            x="231.73399"
            y="134.765"
            id="use2340"
-           style="stroke:#666666" />
+           style="stroke:#666666;stroke-width:0.67201942" />
       </g>
     </g>
     <g
-       transform="translate(-53.185468,-65.695924)"
+       transform="matrix(1.4880521,0,0,1.4880522,-143.74885,-121.29632)"
        id="g11459">
       <use
          transform="matrix(0.5259074,0,0,0.5259074,52.166715,36.772935)"
-         style="fill:#000000;fill-opacity:1;stroke:#666666"
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942"
          id="use2344"
          y="146.72"
          x="238.37601"
@@ -614,7 +614,7 @@
          height="100%" />
       <use
          transform="matrix(0.5259074,0,0,0.5259074,52.166715,36.772935)"
-         style="fill:#000000;fill-opacity:1;stroke:#666666"
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942"
          id="use2348"
          y="146.72"
          x="246.67799"
@@ -624,11 +624,11 @@
     </g>
     <g
        id="g8927"
-       style="stroke:#666666"
-       transform="matrix(0.70555601,0,0,0.70555601,-27.220996,-47.636481)">
+       style="stroke:#666666;stroke-width:0.67201942"
+       transform="matrix(1.0499041,0,0,1.0499041,-79.461682,-93.857429)">
       <g
          id="g5193"
-         style="fill:#000000;fill-opacity:1;stroke:#666666">
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942">
         <path
            inkscape:connector-curvature="0"
            id="path5195"
@@ -638,7 +638,7 @@
       </g>
       <g
          id="g5197"
-         style="fill:#000000;fill-opacity:1;stroke:#666666"
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942"
          transform="matrix(0.68780508,0,0,0.68780508,47.938272,41.995463)">
         <path
            inkscape:connector-curvature="0"
@@ -649,8 +649,8 @@
       </g>
     </g>
     <g
-       style="stroke:#666666"
-       transform="matrix(0.70555601,0,0,0.70555601,-61.444535,-60.180875)"
+       style="stroke:#666666;stroke-width:0.80359483"
+       transform="matrix(0.87799965,0,0,0.87799958,-88.54513,-83.837644)"
        ns0:version="0.11.0"
        ns0:texconverter="pdflatex"
        ns0:pdfconverter="pdf2svg"
@@ -662,10 +662,10 @@
        ns0:jacobian_sqrt="0.705556"
        id="g6990">
       <g
-         style="stroke:#666666"
+         style="stroke:#666666;stroke-width:0.80359483"
          id="g6992">
         <g
-           style="fill:#000000;fill-opacity:1;stroke:#666666"
+           style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.80359483"
            id="g6994">
           <path
              inkscape:connector-curvature="0"
@@ -675,7 +675,7 @@
              id="path6996" />
         </g>
         <g
-           style="fill:#000000;fill-opacity:1;stroke:#666666"
+           style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.80359483"
            id="g6998">
           <path
              inkscape:connector-curvature="0"
@@ -687,11 +687,11 @@
       </g>
     </g>
     <g
-       style="stroke:#666666"
+       style="stroke:#666666;stroke-width:0.80359483"
        id="surface1"
-       transform="matrix(0.70555601,0,0,0.70555601,-92.159691,-50.145843)">
+       transform="matrix(0.87799965,0,0,0.87799958,-120.26229,-73.505433)">
       <g
-         style="fill:#000000;fill-opacity:1;stroke:#666666"
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.80359483"
          id="g8916">
         <path
            inkscape:connector-curvature="0"
@@ -702,7 +702,7 @@
       </g>
       <g
          transform="matrix(0.64503333,0,0,1,55.706339,-0.4749997)"
-         style="fill:#000000;fill-opacity:1;stroke:#666666"
+         style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.80359483"
          id="g8920">
         <path
            inkscape:connector-curvature="0"
@@ -713,44 +713,7 @@
       </g>
     </g>
     <g
-       style="stroke:#666666"
-       id="g9666"
-       ns0:jacobian_sqrt="0.705556"
-       inkscapeversion="0.91"
-       ns0:alignment="middle center"
-       ns0:scale="2.0"
-       ns0:preamble="/home/gp283/.config/inkscape/extensions/textext/default_packages.tex"
-       ns0:text="$\\tau_{-}$"
-       ns0:pdfconverter="pdf2svg"
-       ns0:texconverter="pdflatex"
-       ns0:version="0.11.0"
-       transform="matrix(0.70555601,0,0,0.70555601,-11.935361,-32.836454)">
-      <g
-         style="stroke:#666666"
-         id="g9668">
-        <g
-           id="g9670"
-           style="fill:#000000;fill-opacity:1;stroke:#666666">
-          <path
-             inkscape:connector-curvature="0"
-             id="path9672"
-             transform="translate(148.712,134.765)"
-             d="m 2.9375,-3.71875 1.671875,0 c 0.125,0 0.484375,0 0.484375,-0.34375 0,-0.234375 -0.203125,-0.234375 -0.40625,-0.234375 l -2.78125,0 c -0.203125,0 -0.59375,0 -1.03125,0.46875 -0.328125,0.359375 -0.609375,0.84375 -0.609375,0.890625 0,0.015625 0,0.109375 0.125,0.109375 0.078125,0 0.09375,-0.046875 0.15625,-0.125 C 1.03125,-3.71875 1.609375,-3.71875 1.8125,-3.71875 l 0.828125,0 -0.96875,3.203125 C 1.625,-0.40625 1.5625,-0.1875 1.5625,-0.15625 c 0,0.109375 0.078125,0.28125 0.296875,0.28125 0.328125,0 0.375,-0.28125 0.40625,-0.4375 z m 0,0"
-             style="stroke:#666666;stroke-width:0" />
-        </g>
-        <g
-           id="g9674"
-           style="fill:#000000;fill-opacity:1;stroke:#666666">
-          <path
-             inkscape:connector-curvature="0"
-             id="path9676"
-             d="m 156.18663,134.68087 c 0.0584,0 0.15012,0 0.15012,-0.15625 0,-0.1875 -0.0917,-0.1875 -0.15012,-0.1875 l -2.21851,0 c -0.0584,0 -0.15012,0 -0.15012,0.17188 0,0.17187 0.0834,0.17187 0.15012,0.17187 z m 0,0"
-             style="stroke:#666666;stroke-width:0" />
-        </g>
-      </g>
-    </g>
-    <g
-       transform="matrix(0.70555601,0,0,0.70555601,-11.935361,-32.836454)"
+       transform="matrix(1.0499041,0,0,1.0499041,-63.325395,-79.07602)"
        ns0:version="0.11.0"
        ns0:texconverter="pdflatex"
        ns0:pdfconverter="pdf2svg"
@@ -761,12 +724,12 @@
        inkscapeversion="0.91"
        ns0:jacobian_sqrt="0.705556"
        id="g4637"
-       style="stroke:#666666">
+       style="stroke:#666666;stroke-width:0.67201942">
       <g
          id="g4639"
-         style="stroke:#666666">
+         style="stroke:#666666;stroke-width:0.67201942">
         <g
-           style="fill:#000000;fill-opacity:1;stroke:#666666"
+           style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942"
            id="g4641">
           <path
              style="stroke:#666666;stroke-width:0"
@@ -776,7 +739,7 @@
              inkscape:connector-curvature="0" />
         </g>
         <g
-           style="fill:#000000;fill-opacity:1;stroke:#666666"
+           style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942"
            id="g4645">
           <path
              style="stroke:#666666;stroke-width:0"
@@ -787,44 +750,7 @@
       </g>
     </g>
     <g
-       transform="matrix(0.70555601,0,0,0.70555601,-71.801751,-32.836454)"
-       ns0:version="0.11.0"
-       ns0:texconverter="pdflatex"
-       ns0:pdfconverter="pdf2svg"
-       ns0:text="$\\tau_{-}$"
-       ns0:preamble="/home/gp283/.config/inkscape/extensions/textext/default_packages.tex"
-       ns0:scale="2.0"
-       ns0:alignment="middle center"
-       inkscapeversion="0.91"
-       ns0:jacobian_sqrt="0.705556"
-       id="g4899"
-       style="stroke:#666666">
-      <g
-         id="g4901"
-         style="stroke:#666666">
-        <g
-           style="fill:#000000;fill-opacity:1;stroke:#666666"
-           id="g4903">
-          <path
-             style="stroke:#666666;stroke-width:0"
-             d="m 2.9375,-3.71875 1.671875,0 c 0.125,0 0.484375,0 0.484375,-0.34375 0,-0.234375 -0.203125,-0.234375 -0.40625,-0.234375 l -2.78125,0 c -0.203125,0 -0.59375,0 -1.03125,0.46875 -0.328125,0.359375 -0.609375,0.84375 -0.609375,0.890625 0,0.015625 0,0.109375 0.125,0.109375 0.078125,0 0.09375,-0.046875 0.15625,-0.125 C 1.03125,-3.71875 1.609375,-3.71875 1.8125,-3.71875 l 0.828125,0 -0.96875,3.203125 C 1.625,-0.40625 1.5625,-0.1875 1.5625,-0.15625 c 0,0.109375 0.078125,0.28125 0.296875,0.28125 0.328125,0 0.375,-0.28125 0.40625,-0.4375 z m 0,0"
-             transform="translate(148.712,134.765)"
-             id="path4905"
-             inkscape:connector-curvature="0" />
-        </g>
-        <g
-           style="fill:#000000;fill-opacity:1;stroke:#666666"
-           id="g4907">
-          <path
-             style="stroke:#666666;stroke-width:0"
-             d="m 156.18663,134.68087 c 0.0584,0 0.15012,0 0.15012,-0.15625 0,-0.1875 -0.0917,-0.1875 -0.15012,-0.1875 l -2.21851,0 c -0.0584,0 -0.15012,0 -0.15012,0.17188 0,0.17187 0.0834,0.17187 0.15012,0.17187 z m 0,0"
-             id="path4909"
-             inkscape:connector-curvature="0" />
-        </g>
-      </g>
-    </g>
-    <g
-       style="stroke:#666666"
+       style="stroke:#666666;stroke-width:0.67201942"
        id="g4911"
        ns0:jacobian_sqrt="0.705556"
        inkscapeversion="0.91"
@@ -835,13 +761,13 @@
        ns0:pdfconverter="pdf2svg"
        ns0:texconverter="pdflatex"
        ns0:version="0.11.0"
-       transform="matrix(0.70555601,0,0,0.70555601,-71.801751,-32.836454)">
+       transform="matrix(1.0499041,0,0,1.0499041,-123.93213,-79.07602)">
       <g
-         style="stroke:#666666"
+         style="stroke:#666666;stroke-width:0.67201942"
          id="g4913">
         <g
            id="g4915"
-           style="fill:#000000;fill-opacity:1;stroke:#666666">
+           style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942">
           <path
              inkscape:connector-curvature="0"
              id="path4917"
@@ -851,7 +777,7 @@
         </g>
         <g
            id="g4919"
-           style="fill:#000000;fill-opacity:1;stroke:#666666">
+           style="fill:#000000;fill-opacity:1;stroke:#666666;stroke-width:0.67201942">
           <path
              inkscape:connector-curvature="0"
              id="path4921"

@@ -18,9 +18,9 @@ from omnigloter import config
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-# OPTIMIZER = EVOSTRAT
+OPTIMIZER = EVOSTRAT
 # OPTIMIZER = GRADDESC
-OPTIMIZER = GENALG
+# OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 
 
@@ -167,10 +167,10 @@ def main():
 
     fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
-        n_random_steps = 10
-        n_iteration = 100
+        n_random_steps = 100
+        n_iteration = 1000
 
-        parameters = RMSPropParameters(learning_rate=0.001,
+        parameters = RMSPropParameters(learning_rate=0.0001,
                                        exploration_step_size=step_size,
                                        n_random_steps=n_random_steps,
                                        momentum_decay=0.5,
@@ -187,11 +187,11 @@ def main():
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
         parameters = EvolutionStrategiesParameters(
-            learning_rate=0.1,
+            learning_rate=0.0001,
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=9,
+            pop_size=50, #couples
             n_iteration=1000,
             stop_criterion=np.Inf,
             seed=optimizer_seed)
@@ -203,8 +203,8 @@ def main():
             parameters=parameters,
             optimizee_bounding_func=optimizee.bounding_func)
     else:
-        num_generations = 100
-        population_size = 25
+        num_generations = 1000
+        population_size = 100
         # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
