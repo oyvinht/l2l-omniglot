@@ -132,18 +132,18 @@ ATTR_RANGES = {
 }
 
 ATTR_STEPS_BASE = {
-    'out_weight': 0.5,
-    'mushroom_weight': 0.5,
-    'expand': 3.0,
+    'out_weight': 1.0,
+    'mushroom_weight': 1.0,
+    'expand': 5.0,
     'exp_prob': 0.05,
     'out_prob': 0.05,
-    'A_plus': 0.01,
-    'A_minus': 0.01,
+    'A_plus': 0.1,
+    'A_minus': 0.1,
     'std': 0.5,
     'displace': 0.01,
     'maxDt': 10.0,
-    'w_max_mult': 0.01,
-    'w_min_mult': 0.01,
+    'w_max_mult': 0.05,
+    'w_min_mult': 0.05,
     'conn_dist': 5.0,
 }
 
