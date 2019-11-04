@@ -167,10 +167,10 @@ def main():
 
     fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
-        n_random_steps = 20
-        n_iteration = 100
+        n_random_steps = 100
+        n_iteration = 1000
 
-        parameters = RMSPropParameters(learning_rate=0.001,
+        parameters = RMSPropParameters(learning_rate=0.0001,
                                        exploration_step_size=step_size,
                                        n_random_steps=n_random_steps,
                                        momentum_decay=0.5,
@@ -187,11 +187,11 @@ def main():
     elif OPTIMIZER == EVOSTRAT:
         optimizer_seed = 1234
         parameters = EvolutionStrategiesParameters(
-            learning_rate=0.001,
+            learning_rate=0.0001,
             noise_std=step_size,
             mirrored_sampling_enabled=True,
             fitness_shaping_enabled=True,
-            pop_size=25,
+            pop_size=50, #couples
             n_iteration=1000,
             stop_criterion=1.5,
             seed=optimizer_seed)
@@ -209,10 +209,10 @@ def main():
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
                                                 CXPB=0.5, # probability of mating 2 individuals
-                                                MUTPB=0.25, # probability of individual to mutate
+                                                MUTPB=0.2, # probability of individual to mutate
                                                 NGEN=num_generations,
-                                                indpb=0.2, # probability of "gene" to mutate
-                                                tournsize=15, # number of best individuals to mate
+                                                indpb=0.1, # probability of "gene" to mutate
+                                                tournsize=50, # number of best individuals to mate
                                                 matepar=0.5, # how much to mix two genes when mating
                                                 mutpar=step_size,
                                                 )

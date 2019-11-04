@@ -116,8 +116,8 @@ plt.plot(np.asarray(maximum), '^', linestyle=':', label='max')
 plt.plot(np.asarray(average), 'o', linestyle='-', label='avg')
 plt.plot(np.asarray(minimum), 'v', linestyle='-.', label='min')
 
-plt.axhline(total, linestyle='--', color='magenta', linewidth=1)
-plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
+# plt.axhline(total, linestyle='--', color='magenta', linewidth=1)
+# plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
 plt.axhline(0, linestyle='--', color='gray', linewidth=1)
 ax.set_xlabel('generation')
 ax.set_ylabel('fitness')
@@ -138,7 +138,7 @@ ax = plt.subplot(1, 1, 1)
 plt.plot(np.asarray(maximum), '^', linestyle=':', label='max')
 
 # plt.axhline(total, linestyle='--', color='magenta', linewidth=1)
-plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
+# plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
 ax.set_xlabel('generation')
 ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
@@ -189,7 +189,7 @@ for i in range(n_params):
                          c=scores,
                          #                           s=(100.0 - scores)+ 5.0,
                          #                           s=scores + 5.0,
-                         vmin=0.0, vmax=total,
+  #                       vmin=0.0, vmax=total,
                          cmap='bwr_r',
                          #                           alpha=0.15
                          )
