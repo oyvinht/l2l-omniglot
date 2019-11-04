@@ -18,9 +18,9 @@ from omnigloter import config
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-OPTIMIZER = EVOSTRAT
+#OPTIMIZER = EVOSTRAT
 #OPTIMIZER = GRADDESC
-#OPTIMIZER = GENALG
+OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 
 
@@ -203,8 +203,8 @@ def main():
             parameters=parameters,
             optimizee_bounding_func=optimizee.bounding_func)
     else:
-        num_generations = 100
-        population_size = 25
+        num_generations = 1000
+        population_size = 100
         # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,

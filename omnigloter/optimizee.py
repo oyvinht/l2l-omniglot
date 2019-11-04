@@ -200,7 +200,7 @@ class OmniglotOptimizee(Optimizee):
                         any_zero = True
                         break
 
-                if not any_zero:
+                if True or not any_zero:
                     same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
                                                                 for c in same_class_vectors}
 
@@ -240,7 +240,7 @@ class OmniglotOptimizee(Optimizee):
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
-        if len(diff_class_dots) == 0 or any_zero:
+        if len(diff_class_dots) == 0:# or any_zero:
             print("dots == 0, fitness = ", 0)
             same_class_vectors = []
             # diff_class_vectors = [] ###already defined
