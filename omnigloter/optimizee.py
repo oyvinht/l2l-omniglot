@@ -18,6 +18,7 @@ logger = logging.getLogger("optimizee.mushroom_body")
 from l2l.optimizees.functions.optimizee import Optimizee
 from six import iterkeys, iteritems
 
+SOFT_ZERO_PUNISH = bool(1)
 
 class OmniglotOptimizee(Optimizee):
     def __init__(self, traj, seed, gradient_desc=bool(0)):
@@ -146,7 +147,7 @@ class OmniglotOptimizee(Optimizee):
                 any_zero = True
                 break
 
-            if not any_zero:
+            if SOFT_ZERO_PUNISH or not any_zero:
                 a = []
 
                 for ix, x in enumerate(diff_class_vectors):
@@ -166,7 +167,8 @@ class OmniglotOptimizee(Optimizee):
 
                 overlap_len = np.sum(overlap > 0)
                 overlap[:] = overlap > 1
-                diff_class_overlap = 1.0 - np.sum(overlap)/overlap_len
+                # diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
+                diff_class_overlap = overlap_len - np.sum(overlap)
 
                 diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
                 print("{}\tdiff vectors - norms".format(name))
@@ -200,7 +202,7 @@ class OmniglotOptimizee(Optimizee):
                         any_zero = True
                         break
 
-                if True or not any_zero:
+                if SOFT_ZERO_PUNISH or not any_zero:
                     same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
                                                                 for c in same_class_vectors}
 
@@ -265,13 +267,14 @@ class OmniglotOptimizee(Optimizee):
                 print("At least one of the norms was 0")
                 whr = np.where(np.isnan(diff_class_dots))[0]
                 if len(whr):
-                    diff_class_dots[whr] = 1.0
+                    diff_class_dots[whr] = 1.0 # 1 means same vector == bad
 
                 whr = np.where(np.isinf(diff_class_dots))[0]
                 if len(whr):
-                    diff_class_dots[whr] = 1.0
+                    diff_class_dots[whr] = 1.0 # 1 means same vector == bad
 
-            diff_class_fitness = 1.0 - np.mean(diff_class_dots)
+            # diff_class_fitness = 1.0 - np.mean(diff_class_dots)
+            diff_class_fitness = 1.0 - diff_class_dots
             # diff_class_fitness = 1.0 - np.sum(diff_class_dots)
             # diff_class_fitness /= float(len(diff_class_dots))
             # print("diff_fitness %s - %s = %s"%(1, np.sum(diff_class_dots)/n_dots, diff_class_fitness))
@@ -281,10 +284,11 @@ class OmniglotOptimizee(Optimizee):
                                                 for c in sorted(same_class_dots.keys())
             ])
 
+            # 0 means orthogonal vector == bad for same class activity
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
             same_class_fitness = np.sum(same_fitnesses)
-            same_class_fitness /= same_class_count
+            # same_class_fitness /= same_class_count
 
             print("same fitness ", same_class_fitness)
 
@@ -308,8 +312,9 @@ class OmniglotOptimizee(Optimizee):
                 'norms': same_class_norms,
                 'dots': same_class_dots,
                 'fitness': same_class_fitness,
+                'cos_dist': same_class_fitness,
                 'distances': same_class_distances,
-                'num_dost': same_class_count,
+                'num_dots': same_class_count,
             }
         }
         ### Save results for this individual
@@ -317,8 +322,9 @@ class OmniglotOptimizee(Optimizee):
         fname = 'data_{}.npz'.format(name)
         np.savez_compressed(os.path.join(results_path, fname), **data)
 
-        fit0 = data['analysis']['aggregate_per_class']['fitness']
-        fit1 = data['analysis']['individual_per_class']['fitness']
+        fit0 = data['analysis']['aggregate_per_class']['overlap_dist'] + \
+                data['analysis']['aggregate_per_class']['euc_dist']
+        fit1 = data['analysis']['individual_per_class']['cos_dist']
 
         ### Clear big objects
         import gc
