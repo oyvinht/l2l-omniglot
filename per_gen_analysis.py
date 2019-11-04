@@ -15,8 +15,8 @@ from scipy.special import comb
 
 
 
-PREFIX = 'GA'
-# PREFIX = 'GD'
+# PREFIX = 'GA'
+PREFIX = 'GD'
 # PREFIX = 'ES'
 
 
@@ -45,8 +45,8 @@ def plot_input_spikes(in_spikes, start_t, total_t, dt=1.0, img_shape=(28, 28), i
 
 result_files = sorted(glob('./L2L-OMNIGLOT/run_results/*.npz'))
 
-total_different = comb(14, 2)
-total_same = 4 * 14 * 0.1
+total_different = 1.0 #comb(14, 2)
+total_same = 0.1 # 4 * 14 * 0.1
 total = total_different + total_same
 
 tmp = np.load(result_files[0], allow_pickle=True)
@@ -116,8 +116,8 @@ plt.plot(np.asarray(maximum), '^', linestyle=':', label='max')
 plt.plot(np.asarray(average), 'o', linestyle='-', label='avg')
 plt.plot(np.asarray(minimum), 'v', linestyle='-.', label='min')
 
-plt.axhline(total, linestyle='--', color='magenta', linewidth=1)
-plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
+# plt.axhline(total, linestyle='--', color='magenta', linewidth=1)
+# plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
 plt.axhline(0, linestyle='--', color='gray', linewidth=1)
 ax.set_xlabel('generation')
 ax.set_ylabel('fitness')
@@ -138,7 +138,7 @@ ax = plt.subplot(1, 1, 1)
 plt.plot(np.asarray(maximum), '^', linestyle=':', label='max')
 
 # plt.axhline(total, linestyle='--', color='magenta', linewidth=1)
-plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
+# plt.axhline(total_different, linestyle='--', color='magenta', linewidth=0.5)
 ax.set_xlabel('generation')
 ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
@@ -189,7 +189,7 @@ for i in range(n_params):
                          c=scores,
                          #                           s=(100.0 - scores)+ 5.0,
                          #                           s=scores + 5.0,
-                         vmin=0.0, vmax=total,
+  #                       vmin=0.0, vmax=total,
                          cmap='bwr_r',
                          #                           alpha=0.15
                          )

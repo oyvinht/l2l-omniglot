@@ -27,7 +27,7 @@ _genn_neuron_defs['IFAdapt'] = GeNNDefinitions(
             if ($(RefracTime) <= 0.0) {
                 scalar alpha = (($(Isyn) + $(Ioffset)) * $(Rmembrane)) + $(Vrest);
                 $(V) = alpha - ($(ExpTC) * (alpha - $(V)));
-                $(VThreshAdapt) = fmax($(VThreshAdapt) * $(DownThresh), $(Vthresh));
+                $(VThreshAdapt) = $(Vthresh) + ($(VThreshAdapt) - $(Vthresh))* $(DownThresh);
             }
             else {
                 $(RefracTime) -= DT;
@@ -39,7 +39,7 @@ _genn_neuron_defs['IFAdapt'] = GeNNDefinitions(
         "reset_code" : """
             $(V) = $(Vreset);
             $(RefracTime) = $(TauRefrac);
-            $(VThreshAdapt) *= $(UpThresh); 
+            $(VThreshAdapt) += $(UpThresh)*($(Vthresh) - $(Vrest)); 
         """,
 
         "var_name_types" : [
@@ -71,8 +71,8 @@ _genn_neuron_defs['IFAdapt'] = GeNNDefinitions(
         ("i_offset",    "Ioffset"),
         ("v",           "V"),
         ("i",           "I"),
-        ("mult_thresh", "UpThresh", partial(inv_val, "mult_thresh"), None),
-        ("tau_thresh",  "DownThresh",    partial(inv_tau_to_decay, "tau_thresh"), None),
+        ("mult_thresh", "UpThresh"),
+        ("tau_thresh",  "DownThresh",    partial(tau_to_decay, "tau_thresh"), None),
         ("v_thresh_adapt",    "VThreshAdapt"),
     ),
     extra_param_values = {

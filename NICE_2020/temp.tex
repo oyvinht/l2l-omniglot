@@ -1,0 +1,113 @@
+\documentclass[sigconf]{acmart}
+
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage[square,numbers]{natbib}
+\bibliographystyle{abbrvnat}
+
+\title{L2L omniglot }
+
+
+\author{
+  Garibaldi {Pineda Garc{\'i}a}\thanks{info} \\
+  School of Informatics\\
+  University of Sussex\\
+  Brighton, BN1 9RH, UK \\ 
+  \texttt{g.pineda-garcia@sussex.ac.uk} \\
+  %% examples of more authors
+   \And
+  Thomas Nowotny \\
+  School of Informatics\\
+  University of Sussex\\
+  Brighton, BN1 9RH, UK \\ 
+  \texttt{t.nowotny@sussex.ac.uk} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+
+State of the art neural networks typically require Few-shot learning 
+
+Spiking networks are third gen of ANN\\
+
+Insects have unique architecture and has proven successful for recognition\\
+
+Text recognition is useful and has been used as benchmark, however single set (MNIST)\\
+
+Omniglot is a set of alphabets~\cite{Lake1332}, few samples per character\\
+
+How to do few-shot learning and classification?\\
+
+Can we exploit insect-based networks for learning multiple character sets in a single network?\\
+
+Brains have been optimized through evolution, we usually have trained in a task before learning another.\\
+
+Transfer learning, is still open question and could help deploy systems?\\
+
+Learning to learn (L2L) can be seen as fast evolution, transfer learning methodology?\\
+
+Is the image encoding doing most of the heavy lifting?
+\end{abstract}
+
+
+% keywords can be removed
+\keywords{First keyword \and Second keyword \and More}
+
+
+\section{Introduction}
+learning to learn as a methodology to optimize network and learning algorithm parameters~\cite{Thrun-1998-16516} so that the system is more efficient at learning new tasks from same family.\\
+
+
+A rank-order image to spike encoding, Focal~\cite{5484611} .
+Advantages: give the same number of spikes per image regardless of content, sparse and distributed, one spike per (active) pixel.
+Disadvantages: expand onto 4 images, in practice about 3 times the size, spatio-temporal nature may make it hard to train.
+Code for image conversion found in Visual benchmark~\cite{10.3389/fnins.2016.00496}\\
+
+Omniglot is a dataset of different alphabets (real and fictional languages) with few samples per character~\cite{Lake1332}. 
+This imposes the challenge to extract good statistics out of a not-so-rich dataset (as opposed to MNIST where we have quite a lot).\\
+
+\citeauthor{DBLP:journals/corr/abs-1901-09049} modify an error module using l2l to compute error signals required to apply eprop~\cite{DBLP:journals/corr/abs-1901-09049}\\
+
+Extreme learning machines, similar idea (two-layered network, with large hidden network) where ``random'' input connections are generated and only the output connections  are tuned. 
+Random is usually replaced by orthogonal basis, thus not entirely random!~\cite{huang2006extreme}. 
+The main advantage is that we only need to do a least-squares minimization (inv matrix) to train the output layer. 
+I can see this working for orthogonal decomposition of the input but truly random may suffer from decreased performance.
+Our image-to-spike transformation does a similar process where pixels are now represented by neurons with input weights proportional to non-orthogonal vector basis.
+The activity of the neurons is reduced through competition and this pushes the output representation towards orthogonality.\\
+
+\citeauthor{ILLING201990} explore how does a ``shallow'' network performs when compared to deep architectures~\cite{ILLING201990}. 
+Similarly to our findings, the authors see improved classification when using local receptive fields for the input connections.
+Our approach is closer to their localized populations but in our case input connections are randomly generated and fixed.
+Output weights in their work are generated from an error signal and a back-prop step; ours uses unsupervised and competition for output training.\\
+
+\section{Headings: first level}
+
+\bibliography{references}
+\end{document}
