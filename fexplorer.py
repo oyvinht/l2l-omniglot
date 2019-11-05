@@ -169,7 +169,7 @@ def main():
 
     fit_weights = [1.0, 0.1]
     if OPTIMIZER == GRADDESC:
-        n_random_steps = 100
+        n_random_steps = 78
         n_iteration = 1000
 
         parameters = RMSPropParameters(learning_rate=0.0001,
@@ -177,7 +177,7 @@ def main():
                                        n_random_steps=n_random_steps,
                                        momentum_decay=0.5,
                                        n_iteration=n_iteration,
-                                       stop_criterion=1.5,
+                                       stop_criterion=np.inf,
                                        seed=99)
 
         optimizer = GradientDescentOptimizer(traj,
@@ -195,7 +195,7 @@ def main():
             fitness_shaping_enabled=True,
             pop_size=50, #couples
             n_iteration=1000,
-            stop_criterion=1.5,
+            stop_criterion=np.inf,
             seed=optimizer_seed)
 
         optimizer = EvolutionStrategiesOptimizer(
