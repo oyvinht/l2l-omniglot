@@ -273,6 +273,7 @@ class OmniglotOptimizee(Optimizee):
                 if len(whr):
                     diff_class_dots[whr] = 1.0 # 1 means same vector == bad
 
+            # invert (1 - x) so that 0 == bad and 1 == good
             # diff_class_fitness = 1.0 - np.mean(diff_class_dots)
             diff_class_fitness = 1.0 - diff_class_dots
             # diff_class_fitness = 1.0 - np.sum(diff_class_dots)
