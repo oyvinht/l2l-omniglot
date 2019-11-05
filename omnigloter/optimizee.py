@@ -323,8 +323,8 @@ class OmniglotOptimizee(Optimizee):
         fname = 'data_{}.npz'.format(name)
         np.savez_compressed(os.path.join(results_path, fname), **data)
 
-        fit0 = data['analysis']['aggregate_per_class']['overlap_dist'] + \
-               data['analysis']['aggregate_per_class']['euc_dist']
+        fit0 = 0.45 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+               0.45 * data['analysis']['aggregate_per_class']['euc_dist']
         fit1 = data['analysis']['individual_per_class']['cos_dist']
 
         ### Clear big objects
