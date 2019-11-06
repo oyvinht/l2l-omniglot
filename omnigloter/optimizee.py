@@ -167,8 +167,8 @@ class OmniglotOptimizee(Optimizee):
 
                 overlap_len = np.sum(overlap > 0)
                 overlap[:] = overlap > 1
-                # diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
-                diff_class_overlap = overlap_len - np.sum(overlap)
+                diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
+                # diff_class_overlap = overlap_len - np.sum(overlap)
 
                 diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
                 print("{}\tdiff vectors - norms".format(name))
@@ -274,10 +274,7 @@ class OmniglotOptimizee(Optimizee):
                     diff_class_dots[whr] = 1.0 # 1 means same vector == bad
 
             # invert (1 - x) so that 0 == bad and 1 == good
-            # diff_class_fitness = 1.0 - np.mean(diff_class_dots)
-            diff_class_fitness = 1.0 - diff_class_dots
-            # diff_class_fitness = 1.0 - np.sum(diff_class_dots)
-            # diff_class_fitness /= float(len(diff_class_dots))
+            diff_class_fitness = np.mean(1.0 - diff_class_dots)
             # print("diff_fitness %s - %s = %s"%(1, np.sum(diff_class_dots)/n_dots, diff_class_fitness))
 
             same_fitnesses = np.asarray([
@@ -289,7 +286,7 @@ class OmniglotOptimizee(Optimizee):
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
             same_class_fitness = np.sum(same_fitnesses)
-            # same_class_fitness /= same_class_count
+            same_class_fitness /= same_class_count
 
             print("same fitness ", same_class_fitness)
 
@@ -322,9 +319,10 @@ class OmniglotOptimizee(Optimizee):
 
         fname = 'data_{}.npz'.format(name)
         np.savez_compressed(os.path.join(results_path, fname), **data)
+        time.sleep(0.1)
 
-        fit0 = data['analysis']['aggregate_per_class']['overlap_dist'] + \
-                data['analysis']['aggregate_per_class']['euc_dist']
+        fit0 = 0.45 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+               0.45 * data['analysis']['aggregate_per_class']['euc_dist']
         fit1 = data['analysis']['individual_per_class']['cos_dist']
 
         ### Clear big objects
