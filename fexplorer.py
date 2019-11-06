@@ -204,8 +204,8 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 100
-        # population_size = 5
+        population_size = 50
+        population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
                                                 CXPB=0.5, # probability of mating 2 individuals
