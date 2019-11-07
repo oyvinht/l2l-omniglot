@@ -141,13 +141,16 @@ class OmniglotOptimizee(Optimizee):
             # every test sample should produce at least one spike in
             # the output population
             any_zero = False
+            all_zero = True
             for v in diff_class_vectors:
                 if np.sum(v) > 0:
+                    all_zero = False
                     continue
                 any_zero = True
-                break
 
-            if SOFT_ZERO_PUNISH or not any_zero:
+
+
+            if (not all_zero) and (SOFT_ZERO_PUNISH or not any_zero):
                 a = []
 
                 for ix, x in enumerate(diff_class_vectors):
@@ -155,7 +158,10 @@ class OmniglotOptimizee(Optimizee):
                         if iy > ix:
                             xnorm = x / np.sqrt(np.sum(x ** 2))
                             ynorm = y / np.sqrt(np.sum(y ** 2))
-                            dot = np.sqrt(np.sum( (xnorm - ynorm) ** 2 )) / np.sqrt(2)
+                            if xnorm == 0 or ynorm == 0:
+                                dot = 1.0
+                            else:
+                                dot = np.sqrt(np.sum( (xnorm - ynorm) ** 2 )) / np.sqrt(2)
                             a.append(dot)
 
                 diff_class_distances = np.asarray(a)
@@ -167,8 +173,11 @@ class OmniglotOptimizee(Optimizee):
 
                 overlap_len = np.sum(overlap > 0)
                 overlap[:] = overlap > 1
-                diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
-                # diff_class_overlap = overlap_len - np.sum(overlap)
+                if overlap_len == 0:
+                    diff_class_overlap = 0.0
+                else:
+                    diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
+                    # diff_class_overlap = overlap_len - np.sum(overlap)
 
                 diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
                 print("{}\tdiff vectors - norms".format(name))
