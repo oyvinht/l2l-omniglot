@@ -83,7 +83,7 @@ for rf in result_files[:]:
     fit0 = data['analysis']['aggregate_per_class']['overlap_dist'] + \
            data['analysis']['aggregate_per_class']['euc_dist']
     fit1 = data['analysis']['individual_per_class']['cos_dist']
-    _fit = (0.9*fit0 + 0.1*fit1)#/2.0
+    _fit = (0.45*fit0 + 0.1*fit1)#/2.0
 
     # _fit = ag + ig
     all_scores.append(_fit)
