@@ -159,7 +159,7 @@ class OmniglotOptimizee(Optimizee):
                             xnorm = x / np.sqrt(np.sum(x ** 2))
                             ynorm = y / np.sqrt(np.sum(y ** 2))
                             if xnorm == 0 or ynorm == 0:
-                                dot = 1.0
+                                dot = 0.0
                             else:
                                 dot = np.sqrt(np.sum( (xnorm - ynorm) ** 2 )) / np.sqrt(2)
                             a.append(dot)
