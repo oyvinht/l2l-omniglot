@@ -156,11 +156,14 @@ class OmniglotOptimizee(Optimizee):
                 for ix, x in enumerate(diff_class_vectors):
                     for iy, y in enumerate(diff_class_vectors):
                         if iy > ix:
-                            xnorm = x / np.sqrt(np.sum(x ** 2))
-                            ynorm = y / np.sqrt(np.sum(y ** 2))
-                            if xnorm == 0 or ynorm == 0:
+                            xnorm = np.sqrt(np.sum(x ** 2))
+                            ynorm = np.sqrt(np.sum(y ** 2))
+                            if xnorm <= 1e-9 or ynorm <= 1e-9:
                                 dot = 0.0
                             else:
+                                xnorm = x / xnorm
+                                ynorm = y / ynorm
+
                                 dot = np.sqrt(np.sum( (xnorm - ynorm) ** 2 )) / np.sqrt(2)
                             a.append(dot)
 
