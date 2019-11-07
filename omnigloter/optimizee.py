@@ -142,9 +142,11 @@ class OmniglotOptimizee(Optimizee):
             # the output population
             any_zero = False
             all_zero = True
+            n_out_class = 0
             for v in diff_class_vectors:
                 if np.sum(v) > 0:
                     all_zero = False
+                    n_out_class += 1
                     continue
                 any_zero = True
 
@@ -178,8 +180,11 @@ class OmniglotOptimizee(Optimizee):
                 overlap[:] = overlap > 1
                 if overlap_len < n_class:
                     diff_class_overlap = 0.0
+                    diff_class_repr = 0
                 else:
                     diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
+                    # diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
+                    diff_class_repr = float(n_out_class) / float(n_class)
                     # diff_class_overlap = overlap_len - np.sum(overlap)
 
                 diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
@@ -314,7 +319,8 @@ class OmniglotOptimizee(Optimizee):
                 'euc_dist': diff_dist,
                 'fitness': diff_class_overlap,
                 'num_dots': n_dots,
-                'overlap_dist': diff_class_overlap
+                'overlap_dist': diff_class_overlap,
+                'class_dist': diff_class_repr,
             },
             'individual_per_class': {
                 'spikes': ipc,
@@ -333,8 +339,9 @@ class OmniglotOptimizee(Optimizee):
         np.savez_compressed(os.path.join(results_path, fname), **data)
         time.sleep(0.1)
 
-        fit0 = 0.45 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
-               0.45 * data['analysis']['aggregate_per_class']['euc_dist']
+        fit0 = 0.3 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+               0.3 * data['analysis']['aggregate_per_class']['euc_dist'] + \
+               0.3 * data['analysis']['aggregate_per_class']['class_dist']
         fit1 = data['analysis']['individual_per_class']['cos_dist']
 
         ### Clear big objects
