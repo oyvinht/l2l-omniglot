@@ -176,7 +176,7 @@ class OmniglotOptimizee(Optimizee):
 
                 overlap_len = np.sum(overlap > 0)
                 overlap[:] = overlap > 1
-                if overlap_len <= 14:
+                if overlap_len < n_class:
                     diff_class_overlap = 0.0
                 else:
                     diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
