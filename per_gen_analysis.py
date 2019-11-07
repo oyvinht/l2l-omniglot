@@ -80,7 +80,13 @@ for rf in result_files[:]:
         continue
     ag = data['analysis']['aggregate_per_class']['fitness']
     ig = data['analysis']['individual_per_class']['fitness']
-    _fit = ag + ig
+    fit0 = 0.3 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+           0.3 * data['analysis']['aggregate_per_class']['euc_dist'] + \
+           0.3 * data['analysis']['aggregate_per_class']['class_dist']
+    fit1 = data['analysis']['individual_per_class']['cos_dist']
+    _fit = (fit0 + 0.1*fit1)#/2.0
+
+    # _fit = ag + ig
     all_scores.append(_fit)
 
     for k in all_params:
@@ -122,6 +128,7 @@ plt.axhline(0, linestyle='--', color='gray', linewidth=1)
 ax.set_xlabel('generation')
 ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
+ax.margins(0.1)
 plt.tight_layout()
 plt.savefig("{}_fitness_per_generation.pdf".format(PREFIX))
 
@@ -142,6 +149,7 @@ plt.plot(np.asarray(maximum), '^', linestyle=':', label='max')
 ax.set_xlabel('generation')
 ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
+ax.margins(0.1)
 plt.tight_layout()
 plt.savefig("{}_max_fitness_per_generation.pdf".format(PREFIX))
 
@@ -165,6 +173,7 @@ for g in fitnesses:
     ax.set_title("Gen %d   n_ind %d"%(g+1, len(fitnesses[g])))
     plt.hist(fitnesses[g])#, bins=n_bins)
 #     ax.set_xticks(np.arange(0, total+11, 10))
+ax.margins(0.1)
 plt.tight_layout()
 plt.savefig("{}_histogram_per_gen.pdf".format(PREFIX))
 
@@ -199,5 +208,7 @@ for i in range(n_params):
         ax.set_ylabel(keys[j])
 
         plt_idx += 1
-
+ax.margins(0.1)
+plt.tight_layout()
 plt.savefig('{}_parameter_pairs.pdf'.format(PREFIX))
+
