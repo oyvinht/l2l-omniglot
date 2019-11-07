@@ -80,10 +80,11 @@ for rf in result_files[:]:
         continue
     ag = data['analysis']['aggregate_per_class']['fitness']
     ig = data['analysis']['individual_per_class']['fitness']
-    fit0 = data['analysis']['aggregate_per_class']['overlap_dist'] + \
-           data['analysis']['aggregate_per_class']['euc_dist']
+    fit0 = 0.3 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+           0.3 * data['analysis']['aggregate_per_class']['euc_dist'] + \
+           0.3 * data['analysis']['aggregate_per_class']['class_dist']
     fit1 = data['analysis']['individual_per_class']['cos_dist']
-    _fit = (0.45*fit0 + 0.1*fit1)#/2.0
+    _fit = (fit0 + 0.1*fit1)#/2.0
 
     # _fit = ag + ig
     all_scores.append(_fit)
