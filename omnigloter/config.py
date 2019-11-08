@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-DEBUG = bool(0)
+DEBUG = bool(1)
 ONE_TO_ONE_EXCEPTION = bool(0)
 BACKEND = 'SingleThreadedCPU' if bool(0) else 'CUDA'
 
@@ -23,12 +23,12 @@ iw = 56
 INPUT_SHAPE = (iw, iw)
 # INPUT_DIVS = (3, 5)
 # INPUT_DIVS = (3, 3)
-INPUT_DIVS = (2, 2)
-# INPUT_DIVS = (1, 1)
+# INPUT_DIVS = (2, 2)
+INPUT_DIVS = (1, 1)
 # INPUT_DIVS = (2, 3)
-N_CLASSES = 2 if DEBUG else 14
-N_SAMPLES = 1 if DEBUG else 16
-N_EPOCHS = 1 if DEBUG else 50
+N_CLASSES = 14 if DEBUG else 14
+N_SAMPLES = 16 if DEBUG else 16
+N_EPOCHS = 50 if DEBUG else 50
 N_TEST = 4 if DEBUG else 4
 TOTAL_SAMPLES = N_SAMPLES * N_EPOCHS + N_TEST
 DURATION = N_CLASSES * TOTAL_SAMPLES * SAMPLE_DT
@@ -46,10 +46,10 @@ if ONE_TO_ONE_EXCEPTION:
     EXPANSION_RANGE = (1., 1.0000000000000000000001)
 else:
     # EXPANSION_RANGE = (10., 10.0001) if DEBUG else (0.25, 11.0)
-    EXPANSION_RANGE = (0.25, 1.0) if DEBUG else (0.25, 11.0)
+    EXPANSION_RANGE = (20., 21.0) if DEBUG else (0.25, 21.0)
 
-EXP_PROB_RANGE = (0.01, 0.5000001) if DEBUG else (0.05, 0.3)
-OUTPUT_PROB_RANGE = (0.01, 0.50000001) if DEBUG else (0.05, 0.3)
+EXP_PROB_RANGE = (0.5, 0.75000001) if DEBUG else (0.05, 0.5)
+OUTPUT_PROB_RANGE = (0.5, 0.750000001) if DEBUG else (0.05, 0.8)
 A_PLUS = (0.1, 5.0000000001) if DEBUG else (0.01, 5.0)
 A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 1.0)
 STD_DEV = (3.0, 3.00000001) if DEBUG else (0.5, 5.0)
