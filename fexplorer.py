@@ -8,13 +8,13 @@ import numpy as np
 from l2l.utils.environment import Environment
 from l2l.optimizers.gradientdescent.optimizer import GradientDescentOptimizer, RMSPropParameters
 from l2l.optimizers.evolutionstrategies.optimizer import EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
-from l2l.optimizers.evolution import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
 from l2l.paths import Paths
 from l2l.logging_tools import create_shared_logger_data, configure_loggers
 from l2l.utils import JUBE_runner
 from l2l import dict_to_list
 from omnigloter.optimizee import OmniglotOptimizee
 from omnigloter import config
+from omnigloter.evolution_optimizer import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
@@ -206,12 +206,12 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 100
-        # population_size = 5
+        population_size = 20
+        population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                                                 popsize=population_size,
                                                 CXPB=0.5, # probability of mating 2 individuals
-                                                MUTPB=0.2, # probability of individual to mutate
+                                                MUTPB=1.0, # probability of individual to mutate
                                                 NGEN=num_generations,
                                                 indpb=0.1, # probability of "gene" to mutate
                                                 tournsize=50, # number of best individuals to mate

@@ -141,21 +141,32 @@ class OmniglotOptimizee(Optimizee):
             # every test sample should produce at least one spike in
             # the output population
             any_zero = False
+            all_zero = True
+            n_out_class = 0
             for v in diff_class_vectors:
                 if np.sum(v) > 0:
+                    all_zero = False
+                    n_out_class += 1
                     continue
                 any_zero = True
-                break
 
-            if SOFT_ZERO_PUNISH or not any_zero:
+
+
+            if (not all_zero) and (SOFT_ZERO_PUNISH or not any_zero):
                 a = []
 
                 for ix, x in enumerate(diff_class_vectors):
                     for iy, y in enumerate(diff_class_vectors):
                         if iy > ix:
-                            xnorm = x / np.sqrt(np.sum(x ** 2))
-                            ynorm = y / np.sqrt(np.sum(y ** 2))
-                            dot = np.sqrt(np.sum( (xnorm - ynorm) ** 2 )) / np.sqrt(2)
+                            xnorm = np.sqrt(np.sum(x ** 2))
+                            ynorm = np.sqrt(np.sum(y ** 2))
+                            if xnorm <= 1e-9 or ynorm <= 1e-9:
+                                dot = 0.0
+                            else:
+                                xnorm = x / xnorm
+                                ynorm = y / ynorm
+
+                                dot = np.sqrt(np.sum( (xnorm - ynorm) ** 2 )) / np.sqrt(2)
                             a.append(dot)
 
                 diff_class_distances = np.asarray(a)
@@ -167,8 +178,14 @@ class OmniglotOptimizee(Optimizee):
 
                 overlap_len = np.sum(overlap > 0)
                 overlap[:] = overlap > 1
-                diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len) # mean overlap
-                #diff_class_overlap = overlap_len - np.sum(overlap)
+                if overlap_len < n_class:
+                    diff_class_overlap = 0.0
+                    diff_class_repr = 0
+                else:
+                    diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
+                    # diff_class_overlap = 1.0 - (np.sum(overlap)/overlap_len)
+                    diff_class_repr = float(n_out_class) / float(n_class)
+                    # diff_class_overlap = overlap_len - np.sum(overlap)
 
                 diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
                 print("{}\tdiff vectors - norms".format(name))
@@ -262,6 +279,7 @@ class OmniglotOptimizee(Optimizee):
             diff_dist = 0
 
             diff_class_overlap = 0
+            diff_class_repr = 0
 
         else:
             if np.any(diff_class_norms == 0.):
@@ -274,10 +292,8 @@ class OmniglotOptimizee(Optimizee):
                 if len(whr):
                     diff_class_dots[whr] = 1.0 # 1 means same vector == bad
 
-            # diff_class_fitness = 1.0 - np.mean(diff_class_dots)
-            diff_class_fitness = np.mean( 1.0 - diff_class_dots )
-            # diff_class_fitness = 1.0 - np.sum(diff_class_dots)
-            # diff_class_fitness /= float(len(diff_class_dots))
+            # invert (1 - x) so that 0 == bad and 1 == good
+            diff_class_fitness = np.mean(1.0 - diff_class_dots)
             # print("diff_fitness %s - %s = %s"%(1, np.sum(diff_class_dots)/n_dots, diff_class_fitness))
 
             same_fitnesses = np.asarray([
@@ -288,8 +304,8 @@ class OmniglotOptimizee(Optimizee):
             # 0 means orthogonal vector == bad for same class activity
             same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
             same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
-            same_class_fitness = np.mean(same_fitnesses)
-            # same_class_fitness /= same_class_count
+            same_class_fitness = np.sum(same_fitnesses)
+            same_class_fitness /= same_class_count
 
             print("same fitness ", same_class_fitness)
 
@@ -305,7 +321,8 @@ class OmniglotOptimizee(Optimizee):
                 'euc_dist': diff_dist, #mean euclidean distance
                 'fitness': diff_class_overlap,
                 'num_dots': n_dots,
-                'overlap_dist': diff_class_overlap
+                'overlap_dist': diff_class_overlap,
+                'class_dist': diff_class_repr,
             },
             'individual_per_class': {
                 'spikes': ipc,
@@ -322,9 +339,11 @@ class OmniglotOptimizee(Optimizee):
 
         fname = 'data_{}.npz'.format(name)
         np.savez_compressed(os.path.join(results_path, fname), **data)
+        time.sleep(0.1)
 
-        fit0 = 0.45 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
-               0.45 * data['analysis']['aggregate_per_class']['euc_dist']
+        fit0 = 0.3 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+               0.3 * data['analysis']['aggregate_per_class']['euc_dist'] + \
+               0.3 * data['analysis']['aggregate_per_class']['class_dist']
         fit1 = data['analysis']['individual_per_class']['cos_dist']
 
         ### Clear big objects
