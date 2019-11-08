@@ -121,10 +121,11 @@ class Decoder(object):
         nepochs = params['sim']['num_epochs']
         nlayers = params['sim']['input_layers']
         in_shape = params['sim']['input_shape']
+        in_divs = params['sim']['input_divs']
         total_fs = nclass*nsamp*nepochs + nclass*ntest
         in_path = params['sim']['noisy_spikes_path']
-        fname = "input_spikes_%s__width_%s__nclass_%02d__totalsamples_%010d.npz"%\
-                (db, in_shape[0], nclass, total_fs)
+        fname = "input_spikes_%s__width_%s_div_%s__nclass_%02d__totalsamples_%010d.npz"%\
+                (db, in_shape[0], in_divs[0], nclass, total_fs)
         fname = os.path.join(in_path, fname)
         print(fname)
         if os.path.isfile(fname):

@@ -119,6 +119,11 @@ class GeneticAlgorithmOptimizer(Optimizer):
         def to_fit(ind):
             return np.dot(ind.fitness.values, ind.fitness.weights)
 
+        def spawn():
+            x = self.optimizee_create_individual()
+            d = list_to_dict(x, self.optimizee_individual_dict_spec)
+            return dict_to_list(self.optimizee_bounding_func(d))
+
         CXPB, MUTPB, NGEN = traj.CXPB, traj.MUTPB, traj.n_iteration
 
         logger.info("  Evaluating %i individuals" % len(fitnesses_results))
@@ -172,6 +177,8 @@ class GeneticAlgorithmOptimizer(Optimizer):
             #switch worst-good with best of best
             offsp_ids = np.argsort([to_fit(o) for o in offspring])
             best_ids = np.argsort([to_fit(o)  for o in bob_inds])
+            max_score = to_fit(bob_inds[best_ids[-1]])
+            min_score = 0.05 * max_score
             for i in range(2):
                 off_f = to_fit(offspring[int(offsp_ids[i])])
                 bob_f = to_fit(best_inds[int(best_ids[-2 + i])])
@@ -181,20 +188,24 @@ class GeneticAlgorithmOptimizer(Optimizer):
             # Apply crossover and mutation on the offspring
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 f1, f2 = to_fit(child1), to_fit(child2)
-                if random.random() < CXPB and (f1 > 0 or f2 > 0):
-                    self.toolbox.mate(child1, child2)
+                if random.random() < CXPB:
+                    if f1 <= min_score and f2 <= min_score:
+                        child1[:] = spawn()
+                        child2[:] = spawn()
+                    else:
+                        self.toolbox.mate(child1, child2)
+
                     del child1.fitness.values
                     del child2.fitness.values
+
 
             for mutant in offspring[:]:
                 if random.random() < MUTPB:
                     f = to_fit(mutant) if mutant.fitness.valid else None
                     print("f = {}".format(f))
                     # if this was an unfit individual, replace with a "foreigner"
-                    if f is not None and f <= 0:
-                        x = self.optimizee_create_individual()
-                        d = list_to_dict(x, self.optimizee_individual_dict_spec)
-                        mutant[:] = dict_to_list(self.optimizee_bounding_func(d))
+                    if f is not None and f <= min_score:
+                        mutant[:] = spawn()
                     else:
                         self.toolbox.mutate(mutant)
                     del mutant.fitness.values
