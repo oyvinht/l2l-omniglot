@@ -278,6 +278,7 @@ class OmniglotOptimizee(Optimizee):
             diff_dist = 0
 
             diff_class_overlap = 0
+            diff_class_repr = 0
 
         else:
             if np.any(diff_class_norms == 0.):
