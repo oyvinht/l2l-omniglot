@@ -183,13 +183,16 @@ class GeneticAlgorithmOptimizer(Optimizer):
                 off_f = to_fit(offspring[int(offsp_ids[i])])
                 bob_f = to_fit(best_inds[int(best_ids[-2 + i])])
                 if bob_f > off_f:
+                    logger.info("Inserting BoB {} to population".format(i+1))
                     offspring[int(offsp_ids[i])] = best_inds[int(best_ids[-2+i])]
 
             # Apply crossover and mutation on the offspring
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 f1, f2 = to_fit(child1), to_fit(child2)
                 if random.random() < CXPB:
+                    #if both parents are really unfit, replace them with a new couple
                     if f1 <= min_score and f2 <= min_score:
+                        logger.info("Both parents had a low score")
                         child1[:] = spawn()
                         child2[:] = spawn()
                     else:
@@ -202,9 +205,10 @@ class GeneticAlgorithmOptimizer(Optimizer):
             for mutant in offspring[:]:
                 if random.random() < MUTPB:
                     f = to_fit(mutant) if mutant.fitness.valid else None
-                    print("f = {}".format(f))
+                    # print("f = {}".format(f))
                     # if this was an unfit individual, replace with a "foreigner"
                     if f is not None and f <= min_score:
+                        logger.info("Mutant had a really low score")
                         mutant[:] = spawn()
                     else:
                         self.toolbox.mutate(mutant)
