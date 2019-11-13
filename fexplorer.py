@@ -165,7 +165,7 @@ def main():
     # step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
     step_size = tuple([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
 
-    fit_weights = [1.0, 0.1]
+    fit_weights = [1.0,]# 0.1]
     if OPTIMIZER == GRADDESC:
         n_random_steps = 100
         n_iteration = 1000
