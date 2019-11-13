@@ -124,8 +124,8 @@ class Decoder(object):
         in_divs = params['sim']['input_divs']
         total_fs = nclass*nsamp*nepochs + nclass*ntest
         in_path = params['sim']['noisy_spikes_path']
-        fname = "input_spikes_%s__width_%s_div_%s__nclass_%02d__totalsamples_%010d.npz"%\
-                (db, in_shape[0], in_divs[0], nclass, total_fs)
+        fname = "input_spikes_%s__width_%s_div_%s__nclass_%02d__nepoch_%04d__totalsamples_%010d.npz"%\
+                (db, in_shape[0], in_divs[0], nclass, nepochs, total_fs)
         fname = os.path.join(in_path, fname)
         print(fname)
         if os.path.isfile(fname):
@@ -151,13 +151,25 @@ class Decoder(object):
         else:
             print("FILE NOT FOUND!!!!!!")
 
-        train_fnames = []
+        fnames = []
         class_dirs = sorted(os.listdir(path))[:nclass]
-        for cidx in class_dirs:
-            cpath = os.path.join(path, cidx)
-            files = sorted(glob(os.path.join(cpath, '*.npz')))
-            for f in files[:nsamp]:
-                train_fnames.append(f)
+        from random import shuffle
+        # fnames = train_fnames * nepochs
+        # shuffle(fnames)
+        # shuffle(fnames)
+        # shuffle(fnames)
+        e_fnames = []
+        for e in range(nepochs):
+            e_fnames[:] = []
+            for cidx in class_dirs:
+                cpath = os.path.join(path, cidx)
+                files = sorted(glob(os.path.join(cpath, '*.npz')))
+                for f in files[:nsamp]:
+                    e_fnames.append(f)
+
+            shuffle(e_fnames)
+
+            fnames += e_fnames
 
         test_fnames = []
         for cidx in class_dirs:
@@ -166,11 +178,7 @@ class Decoder(object):
             for f in files[nsamp:nsamp+ntest]:
                 test_fnames.append(f)
 
-        fnames = train_fnames * nepochs
-        from random import shuffle
-        shuffle(fnames)
-        shuffle(fnames)
-        shuffle(fnames)
+
 
 
         # fnames += test_fnames
