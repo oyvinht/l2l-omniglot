@@ -22,7 +22,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-
+MULTIPROCESSING = (ON_JEWELS or bool(0))
 
 def main():
 
@@ -207,21 +207,21 @@ def main():
         population_size = 50
         # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
-                                                popsize=population_size,
-                                                CXPB=0.5, # probability of mating 2 individuals
-                                                MUTPB=0.2, # probability of individual to mutate
-                                                NGEN=num_generations,
-                                                indpb=0.2, # probability of "gene" to mutate
-                                                tournsize=50, # number of best individuals to mate
-                                                matepar=0.5, # how much to mix two genes when mating
-                                                mutpar=step_size,
-                                                )
+                        popsize=population_size,
+                        CXPB=0.5, # probability of mating 2 individuals
+                        MUTPB=0.2, # probability of individual to mutate
+                        NGEN=num_generations,
+                        indpb=0.2, # probability of "gene" to mutate
+                        tournsize=50, # number of best individuals to mate
+                        matepar=0.5, # how much to mix two genes when mating
+                        mutpar=step_size,
+                        )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
-                                              optimizee_create_individual=optimizee.create_individual,
-                                              optimizee_fitness_weights=fit_weights,
-                                              parameters=parameters,
-                                              optimizee_bounding_func=optimizee.bounding_func)
+                      optimizee_create_individual=optimizee.create_individual,
+                      optimizee_fitness_weights=fit_weights,
+                      parameters=parameters,
+                      optimizee_bounding_func=optimizee.bounding_func)
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?
