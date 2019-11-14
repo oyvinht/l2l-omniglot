@@ -7,7 +7,8 @@ sys.path.append("./omnigloter")
 import numpy as np
 from l2l.utils.environment import Environment
 from l2l.optimizers.gradientdescent.optimizer import GradientDescentOptimizer, RMSPropParameters
-from l2l.optimizers.evolutionstrategies.optimizer import EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
+from l2l.optimizers.evolutionstrategies.optimizer import \
+    EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
 from l2l.paths import Paths
 from l2l.logging_tools import create_shared_logger_data, configure_loggers
 from l2l.utils import JUBE_runner
@@ -45,7 +46,7 @@ def main():
                       add_time=bool(1),
                       automatic_storing=bool(1),
                       log_stdout=bool(0),  # Sends stdout to logs
-                      multiprocessing=bool(0),
+                      multiprocessing=MULTIPROCESSING,
                       )
     create_shared_logger_data(logger_names=["bin", "optimizers"],
                               log_levels=["INFO", "INFO"],
@@ -94,8 +95,8 @@ def main():
         # -t exec time (mins)
         # -n num sub-procs
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-                                      "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
-                                      " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+                  "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
+                  " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
         traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
                                       os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
