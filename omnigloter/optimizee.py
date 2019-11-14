@@ -308,10 +308,6 @@ class OmniglotOptimizee(Optimizee):
 
             print("same fitness ", same_class_fitness)
 
-        fit0 = 0.35 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
-               0.35 * data['analysis']['aggregate_per_class']['class_dist'] + \
-               0.2 * data['analysis']['aggregate_per_class']['euc_dist'] + \
-               0.1 * data['analysis']['individual_per_class']['cos_dist']
 
 
         data['analysis'] = {
@@ -338,8 +334,15 @@ class OmniglotOptimizee(Optimizee):
                 'distances': same_class_distances,
                 'num_dots': same_class_count,
             },
-            'fitness': fit0,
+
         }
+
+        fit0 = 0.35 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+               0.35 * data['analysis']['aggregate_per_class']['class_dist'] + \
+               0.2 * data['analysis']['aggregate_per_class']['euc_dist'] + \
+               0.1 * data['analysis']['individual_per_class']['cos_dist']
+
+        data['fitness'] = fit0
         ### Save results for this individual
 
         fname = 'data_{}.npz'.format(name)
