@@ -148,7 +148,8 @@ def main():
     # ]
 
     # dbs = ['Alphabet_of_the_Magi']
-    dbs = ['Futurama']
+    # dbs = ['Futurama']
+    dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
 
