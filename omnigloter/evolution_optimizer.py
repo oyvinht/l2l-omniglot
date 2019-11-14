@@ -13,7 +13,8 @@ from l2l.optimizers.optimizer import Optimizer
 logger = logging.getLogger("l2l-ga")
 
 GeneticAlgorithmParameters = namedtuple('GeneticAlgorithmParameters',
-                                        ['seed', 'popsize', 'CXPB', 'MUTPB', 'NGEN', 'indpb', 'tournsize', 'matepar',
+                                        ['seed', 'popsize', 'CXPB', 'MUTPB', 'NGEN',
+                                         'indpb', 'tournsize', 'matepar',
                                          'mutpar'])
 GeneticAlgorithmParameters.__doc__ = """
 :param seed: Random seed
@@ -51,7 +52,8 @@ class GeneticAlgorithmOptimizer(Optimizer):
                          optimizee_fitness_weights=optimizee_fitness_weights,
                          parameters=parameters, optimizee_bounding_func=optimizee_bounding_func)
         self.optimizee_bounding_func = optimizee_bounding_func
-        __, self.optimizee_individual_dict_spec = dict_to_list(optimizee_create_individual(), get_dict_spec=True)
+        __, self.optimizee_individual_dict_spec = \
+            dict_to_list(optimizee_create_individual(), get_dict_spec=True)
         self.optimizee_create_individual = optimizee_create_individual
         traj.f_add_parameter('seed', parameters.seed, comment='Seed for RNG')
         traj.f_add_parameter('popsize', parameters.popsize, comment='Population size')  # 185
@@ -150,8 +152,9 @@ class GeneticAlgorithmOptimizer(Optimizer):
         logger.info("-- End of generation {} --".format(self.g))
         best_inds = tools.selBest(self.eval_pop_inds, 2)
         for best_ind in best_inds:
-            print("Best individual is %s, %s" % (list_to_dict(best_ind, self.optimizee_individual_dict_spec),
-                                                 best_ind.fitness.values))
+            print("Best individual is %s, %s" % (
+                list_to_dict(best_ind, self.optimizee_individual_dict_spec),
+                best_ind.fitness.values))
 
 
         # add the bestest individuals this generation to HoF
@@ -159,8 +162,9 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         logger.info("-- Hall of fame --")
         for hof_ind in tools.selBest(self.hall_of_fame, 2):
-            logger.info("HOF individual is %s, %s" % (list_to_dict(hof_ind, self.optimizee_individual_dict_spec),
-                                                      hof_ind.fitness.values))
+            logger.info("HOF individual is %s, %s" % (
+                list_to_dict(hof_ind, self.optimizee_individual_dict_spec),
+                hof_ind.fitness.values))
 
         bob_inds = tools.selBest(self.hall_of_fame, 2)
         bob_inds = list(map(self.toolbox.clone, bob_inds))
