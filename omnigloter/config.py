@@ -171,21 +171,41 @@ ATTR_RANGES = {
     'w_min_mult': W_MIN_MULT,
 
 }
-
-ATTR_STEPS_BASE = {
+ATTR_STEPS_DEVS = {
     'out_weight': 1.0,
     'mushroom_weight': 1.0,
-    'expand': 5.0,
-    'exp_prob': 0.05,
-    'out_prob': 0.05,
-    'A_plus': 0.1,
-    'A_minus': 0.1,
-    'std': 0.5,
-    'displace': 0.01,
-    'maxDt': 10.0,
-    'w_max_mult': 0.05,
-    'w_min_mult': 0.05,
-    'conn_dist': 5.0,
+    'expand': 1.0,
+    'exp_prob': 1.0,
+    'out_prob': 1.0,
+    'A_plus': 1.0,
+    'A_minus': 1.0,
+    'std': 1.0,
+    'displace': 1.0,
+    'maxDt': 1.0,
+    'w_max_mult': 1.0,
+    'w_min_mult': 1.0,
+    'conn_dist': 1.0,
+}
+# ATTR_STEPS_BASE = {
+#     'out_weight': 1.0,
+#     'mushroom_weight': 1.0,
+#     'expand': 5.0,
+#     'exp_prob': 0.05,
+#     'out_prob': 0.05,
+#     'A_plus': 0.1,
+#     'A_minus': 0.1,
+#     'std': 0.5,
+#     'displace': 0.01,
+#     'maxDt': 10.0,
+#     'w_max_mult': 0.05,
+#     'w_min_mult': 0.05,
+#     'conn_dist': 5.0,
+# }
+
+ATTR_STEPS_BASE = {
+    # cheap attempt to scale the variance for normal-distributed mutation
+    k: ATTR_STEPS_DEVS * ((ATTR_RANGES[1] - ATTR_RANGES[1]) / 4.0)
+        for k in ATTR_RANGES
 }
 
 ATTR_STEPS = {k: ATTR_STEPS_BASE[k] for k in ATTR_STEPS_BASE}
