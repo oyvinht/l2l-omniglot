@@ -45,7 +45,9 @@ class GeneticAlgorithmOptimizer(Optimizer):
                  optimizee_create_individual,
                  optimizee_fitness_weights,
                  parameters,
-                 optimizee_bounding_func=None):
+                 optimizee_bounding_func=None,
+                 percent_hall_of_fame=0.2,
+                 percent_elite=0.4):
 
         super().__init__(traj,
                          optimizee_create_individual=optimizee_create_individual,
@@ -90,7 +92,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
                     bounded_individuals = [self.optimizee_bounding_func(x) for x in result_individuals]
                     for i, deap_indiv in enumerate(result_individuals_deap):
                         deap_indiv[:] = dict_to_list(bounded_individuals[i])
-                    print("Bounded Individual: {}".format(bounded_individuals))
+                    # print("Bounded Individual: {}".format(bounded_individuals))
                     return result_individuals_deap
 
             return bounding_wrapper
@@ -110,7 +112,9 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         self.g = 0  # the current generation
         self.toolbox = toolbox  # the DEAP toolbox
-        self.hall_of_fame = HallOfFame(20)
+        self.n_hof = max(percent_hall_of_fame * traj.popsize, 20)
+        self.n_bobs = int(max(1, percent_elite * self.n_hof))
+        self.hall_of_fame = HallOfFame(self.n_hof)
 
         self._expand_trajectory(traj)
 
@@ -123,12 +127,12 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         def spawn():
             x = self.optimizee_create_individual()
-            d = list_to_dict(x, self.optimizee_individual_dict_spec)
-            return dict_to_list(self.optimizee_bounding_func(d))
+            return dict_to_list(self.optimizee_bounding_func(x))
 
         CXPB, MUTPB, NGEN = traj.CXPB, traj.MUTPB, traj.n_iteration
 
         logger.info("  Evaluating %i individuals" % len(fitnesses_results))
+        print("  Evaluating %i individuals" % len(fitnesses_results))
 
         #**************************************************************************************************************
         # Storing run-information in the trajectory
@@ -150,11 +154,12 @@ class GeneticAlgorithmOptimizer(Optimizer):
         traj.v_idx = -1  # set the trajectory back to default
 
         logger.info("-- End of generation {} --".format(self.g))
+        print("-- End of generation {} --".format(self.g))
         best_inds = tools.selBest(self.eval_pop_inds, 2)
-        for best_ind in best_inds:
-            print("Best individual is %s, %s" % (
-                list_to_dict(best_ind, self.optimizee_individual_dict_spec),
-                best_ind.fitness.values))
+        # for best_ind in best_inds:
+        #     print("Best individual is %s, %s" % (
+        #         list_to_dict(best_ind, self.optimizee_individual_dict_spec),
+        #         best_ind.fitness.values))
 
 
         # add the bestest individuals this generation to HoF
@@ -165,8 +170,12 @@ class GeneticAlgorithmOptimizer(Optimizer):
             logger.info("HOF individual is %s, %s" % (
                 list_to_dict(hof_ind, self.optimizee_individual_dict_spec),
                 hof_ind.fitness.values))
+            print("HOF individual is %s, %s" % (
+                list_to_dict(hof_ind, self.optimizee_individual_dict_spec),
+                hof_ind.fitness.values))
 
-        bob_inds = tools.selBest(self.hall_of_fame, 2)
+        n_bobs = self.n_bobs
+        bob_inds = tools.selBest(self.hall_of_fame, n_bobs)
         bob_inds = list(map(self.toolbox.clone, bob_inds))
 
         # ------- Create the next generation by crossover and mutation -------- #
@@ -179,16 +188,20 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
             #sorts small to big
             #switch worst-good with best of best
+            #ascending (worst to best)
             offsp_ids = np.argsort([to_fit(o) for o in offspring])
-            best_ids = np.argsort([to_fit(o)  for o in bob_inds])
-            max_score = to_fit(bob_inds[best_ids[-1]])
-            min_score = 0.05 * max_score
-            for i in range(2):
-                off_f = to_fit(offspring[int(offsp_ids[i])])
-                bob_f = to_fit(best_inds[int(best_ids[-2 + i])])
+            #descending (best to worst)
+            bob_ids = np.argsort([to_fit(o)  for o in bob_inds])[::-1]
+            max_score = to_fit(bob_inds[bob_ids[0]])
+            min_score = 0.5 * max_score
+            for i in range(n_bobs):
+                off_i = int(offsp_ids[i])
+                bob_i = int(bob_ids[i])
+                off_f = to_fit(offspring[off_i])
+                bob_f = to_fit(bob_inds[bob_i])
                 if bob_f > off_f:
                     logger.info("Inserting BoB {} to population".format(i+1))
-                    offspring[int(offsp_ids[i])] = best_inds[int(best_ids[-2+i])]
+                    offspring[int(offsp_ids[i])][:] = bob_inds[int(bob_ids[i])]
 
             # Apply crossover and mutation on the offspring
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -208,23 +221,24 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
             for mutant in offspring[:]:
                 if random.random() < MUTPB:
-                    f = to_fit(mutant) if mutant.fitness.valid else None
+                    # f = to_fit(mutant) if mutant.fitness.valid else None
                     # print("f = {}".format(f))
                     # if this was an unfit individual, replace with a "foreigner"
-                    if f is not None and f <= min_score:
-                        logger.info("Mutant had a really low score")
-                        mutant[:] = spawn()
-                    else:
-                        self.toolbox.mutate(mutant)
+                    # if f is not None and f <= min_score:
+                    #     logger.info("Mutant had a really low score")
+                    #     mutant[:] = spawn()
+                    # else:
+                    self.toolbox.mutate(mutant)
                     del mutant.fitness.values
 
             if len(set(map(tuple, offspring))) < len(offspring):
                 logger.info("Mutating more")
                 for i, o1 in enumerate(offspring[:-1]):
                     for o2 in offspring[i+1:]:
-                        if tuple(o1) == tuple(o2):
+                        if tuple(np.round(o1, decimals=4)) == tuple(np.round(o2, decimals=4)):
                             if random.random() < 0.8:
-                                self.toolbox.mutate(o2)
+                                # self.toolbox.mutate(o2)
+                                o2[:] = spawn()
                                 del o2.fitness.values
 
             # The population is entirely replaced by the offspring
