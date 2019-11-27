@@ -14,6 +14,8 @@ from omnigloter import neuron_model as __neuron__
 from omnigloter import config
 from omnigloter import utils
 
+import matplotlib.pyplot as plt
+
 if config.DEBUG:
     class Logging:
         def __init__(self):
@@ -134,8 +136,8 @@ class Decoder(object):
         in_divs = params['sim']['input_divs']
         total_fs = nclass*nsamp*nepochs + nclass*ntest
         in_path = params['sim']['noisy_spikes_path']
-        fname = "input_spikes_%s__width_%s_div_%s__nclass_%02d__totalsamples_%010d.npz"%\
-                (db, in_shape[0], in_divs[0], nclass, total_fs)
+        fname = "input_spikes_%s__width_%s_div_%s__nclass_%02d__nepoch_%04d__totalsamples_%010d.npz"%\
+                (db, in_shape[0], in_divs[0], nclass, nepochs, total_fs)
         fname = os.path.join(in_path, fname)
         print(fname)
         if os.path.isfile(fname):
@@ -161,29 +163,60 @@ class Decoder(object):
         else:
             print("FILE NOT FOUND!!!!!!")
 
-        train_fnames = []
+        fnames = []
         class_dirs = sorted(os.listdir(path))[:nclass]
-        for cidx in class_dirs:
-            cpath = os.path.join(path, cidx)
-            files = sorted(glob(os.path.join(cpath, '*.npz')))
-            for f in files[:nsamp]:
-                train_fnames.append(f)
+        # print(class_dirs)
+        from random import shuffle
+        # fnames = train_fnames * nepochs
+        # shuffle(fnames)
+        # shuffle(fnames)
+        # shuffle(fnames)
+        e_fnames = []
+        for e in range(nepochs):
+            e_fnames[:] = []
+            lbls = []
+            for cidx in class_dirs:
+                cpath = os.path.join(path, cidx)
+                files = sorted(glob(os.path.join(cpath, '*.npz')))
+                for f in files[:nsamp]:
+                    e_fnames.append(f)
+                    # print(f)
+                    # x = f.find('character') + len('character')
+                    # label = int(f[x:x + 2])
+                    # lbls.append(label)
+
+            # plt.close('all')
+            # plt.figure(figsize=(50, 5))
+            # ax = plt.subplot(1, 3, 1)
+            # plt.suptitle('epoch {}'.format(e))
+            #
+            # plt.hist([x[:-6] for x in e_fnames], bins=nclass)#, bins=np.arange(nclass))
+            # ax.set_xticklabels(np.arange(nclass))
+
+            shuffle(e_fnames)
+
+            # ax = plt.subplot(1, 3, 2)
+            # plt.hist([x[:-6] for x in e_fnames], bins=nclass)
+            # ax.set_xticklabels(np.arange(nclass))
+
+            fnames += e_fnames
+
+            # ax = plt.subplot(1, 3, 3)
+            # plt.hist([x[:-6] for x in fnames], bins=nclass)
+            # ax.set_xticklabels(np.arange(nclass))
+            # plt.show()
+            # print()
 
         test_fnames = []
         for cidx in class_dirs:
             cpath = os.path.join(path, cidx)
             files = sorted(glob(os.path.join(cpath, '*.npz')))
-            for f in files[nsamp:nsamp+ntest]:
+            for f in files[nsamp:]:
                 test_fnames.append(f)
 
-        fnames = train_fnames * nepochs
-        from random import shuffle
-        shuffle(fnames)
-        shuffle(fnames)
-        shuffle(fnames)
 
 
-        # fnames += test_fnames
+
         t_creation_start = time.time()
         tmp = []
         labels = []
@@ -193,18 +226,29 @@ class Decoder(object):
         dt = params['sim']['sample_dt']
         dt_idx = 0
         total_fs = float(len(fnames) + len(test_fnames))
-        for f in fnames:
+        for i, f in enumerate(fnames):
+            if (i % (nclass * nsamp)) == 0 :
+                plt.close('all')
+                plt.figure()
+                plt.hist(labels, bins=nclass)
+                plt.savefig("label_histogram_{:09d}.pdf".format(i))
+            #     plt.show()
+
             spk = np.load(f, allow_pickle=True)
-            try:
-                labels.append(spk['label'].item())
-            except:
-                x = f.find('character') + len('character')
-                labels.append(int(f[x:x+2]))
+            # try:
+            #     labels.append(spk['label'].item())
+            # except:
+            #     x = f.find('character') + len('character')
+            #     labels.append(int(f[x:x+2]))
+            x = f.find('character') + len('character')
+            label = int(f[x:x+2])
+            labels.append(label)
 
             try:
                 tmp[:] = utils.split_spikes(spk['spikes'], nlayers)
             except:
                 tmp[:] = utils.split_spikes(spk['spike_source_array'], nlayers)
+            # img = spk['image']
 
             for tidx in range(nlayers):
                 divs = (1, 1) if tidx < 2 else params['sim']['input_divs']
@@ -222,6 +266,14 @@ class Decoder(object):
             dt_idx += 1
             sys.stdout.write("\r\t\tTrain %06.2f%%"%(100.0 * dt_idx / total_fs))
             sys.stdout.flush()
+
+
+        plt.close('all')
+        plt.figure()
+        plt.hist(labels[-nclass*nsamp:], bins=nclass)
+        plt.savefig("label_histogram_last.pdf")
+
+        # plt.show()
 
         shuffle(test_fnames)
         shuffle(test_fnames)

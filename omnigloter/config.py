@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-DEBUG = bool(1)
+DEBUG = bool(0)
 ONE_TO_ONE_EXCEPTION = bool(0)
 BACKEND = 'SingleThreadedCPU' if bool(0) else 'CUDA'
 
@@ -21,14 +21,14 @@ iw = 56
 # iw = 64
 # iw = 105
 INPUT_SHAPE = (iw, iw)
-# INPUT_DIVS = (3, 5)
+INPUT_DIVS = (3, 5)
 # INPUT_DIVS = (3, 3)
 # INPUT_DIVS = (2, 2)
-INPUT_DIVS = (1, 1)
+# INPUT_DIVS = (1, 1)
 # INPUT_DIVS = (2, 3)
 N_CLASSES = 14 if DEBUG else 14
 N_SAMPLES = 16 if DEBUG else 16
-N_EPOCHS = 50 if DEBUG else 50
+N_EPOCHS = 10 if DEBUG else 100
 N_TEST = 4 if DEBUG else 4
 TOTAL_SAMPLES = N_SAMPLES * N_EPOCHS + N_TEST
 DURATION = N_CLASSES * TOTAL_SAMPLES * SAMPLE_DT
@@ -51,13 +51,13 @@ else:
 EXP_PROB_RANGE = (0.5, 0.75000001) if DEBUG else (0.05, 0.5)
 OUTPUT_PROB_RANGE = (0.5, 0.750000001) if DEBUG else (0.05, 0.8)
 A_PLUS = (0.1, 5.0000000001) if DEBUG else (0.01, 5.0)
-A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 1.0)
+A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 5.0)
 STD_DEV = (3.0, 3.00000001) if DEBUG else (0.5, 5.0)
 DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
 MAX_DT = (80.0, 80.00000001) if DEBUG else (float(SAMPLE_DT), SAMPLE_DT*2.0)
-W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-2.0, 0.0)
+W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-5.0, 0.0)
 W_MAX_MULT = (1.2,)# 1.200000001) if DEBUG else (0.1, 2.0)
-CONN_DIST = (5, 15) if DEBUG else (3, 25)
+CONN_DIST = (5, 15) if DEBUG else (3, 30)
 
 
 GABOR_WEIGHT_RANGE = (2.0, 5.000001) if DEBUG else (1.0, 5.0)
@@ -171,21 +171,41 @@ ATTR_RANGES = {
     'w_min_mult': W_MIN_MULT,
 
 }
-
-ATTR_STEPS_BASE = {
+ATTR_STEPS_DEVS = {
     'out_weight': 1.0,
     'mushroom_weight': 1.0,
-    'expand': 5.0,
-    'exp_prob': 0.05,
-    'out_prob': 0.05,
-    'A_plus': 0.1,
-    'A_minus': 0.1,
-    'std': 0.5,
-    'displace': 0.01,
-    'maxDt': 10.0,
-    'w_max_mult': 0.05,
-    'w_min_mult': 0.05,
-    'conn_dist': 5.0,
+    'expand': 1.0,
+    'exp_prob': 1.0,
+    'out_prob': 1.0,
+    'A_plus': 1.0,
+    'A_minus': 1.0,
+    'std': 1.0,
+    'displace': 1.0,
+    'maxDt': 1.0,
+    'w_max_mult': 1.0,
+    'w_min_mult': 1.0,
+    'conn_dist': 1.0,
+}
+# ATTR_STEPS_BASE = {
+#     'out_weight': 1.0,
+#     'mushroom_weight': 1.0,
+#     'expand': 5.0,
+#     'exp_prob': 0.05,
+#     'out_prob': 0.05,
+#     'A_plus': 0.1,
+#     'A_minus': 0.1,
+#     'std': 0.5,
+#     'displace': 0.01,
+#     'maxDt': 10.0,
+#     'w_max_mult': 0.05,
+#     'w_min_mult': 0.05,
+#     'conn_dist': 5.0,
+# }
+
+ATTR_STEPS_BASE = {
+    # cheap attempt to scale the variance for normal-distributed mutation
+    k: ATTR_STEPS_DEVS * ((ATTR_RANGES[1] - ATTR_RANGES[1]) / 4.0)
+        for k in ATTR_RANGES
 }
 
 ATTR_STEPS = {k: ATTR_STEPS_BASE[k] for k in ATTR_STEPS_BASE}

@@ -7,7 +7,8 @@ sys.path.append("./omnigloter")
 import numpy as np
 from l2l.utils.environment import Environment
 from l2l.optimizers.gradientdescent.optimizer import GradientDescentOptimizer, RMSPropParameters
-from l2l.optimizers.evolutionstrategies.optimizer import EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
+from l2l.optimizers.evolutionstrategies.optimizer import \
+    EvolutionStrategiesOptimizer, EvolutionStrategiesParameters
 from l2l.paths import Paths
 from l2l.logging_tools import create_shared_logger_data, configure_loggers
 from l2l.utils import JUBE_runner
@@ -150,7 +151,8 @@ def main():
     # ]
 
     # dbs = ['Alphabet_of_the_Magi']
-    dbs = ['Futurama']
+    # dbs = ['Futurama']
+    dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
 
@@ -167,7 +169,7 @@ def main():
     # step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
     step_size = tuple([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
 
-    fit_weights = [1.0, 0.1]
+    fit_weights = [1.0,]# 0.1]
     if OPTIMIZER == GRADDESC:
         n_random_steps = 78
         n_iteration = 1000
@@ -206,24 +208,24 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 20
-        population_size = 5
+        population_size = 50
+        # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
-                                                popsize=population_size,
-                                                CXPB=0.5, # probability of mating 2 individuals
-                                                MUTPB=1.0, # probability of individual to mutate
-                                                NGEN=num_generations,
-                                                indpb=0.1, # probability of "gene" to mutate
-                                                tournsize=50, # number of best individuals to mate
-                                                matepar=0.5, # how much to mix two genes when mating
-                                                mutpar=step_size,
-                                                )
+                        popsize=population_size,
+                        CXPB=0.5,  # probability of mating 2 individuals
+                        MUTPB=0.8,  # probability of individual to mutate
+                        NGEN=num_generations,
+                        indpb=0.1,  # probability of "gene" to mutate
+                        tournsize=100,  # number of best individuals to mate
+                        matepar=0.5,  # how much to mix two genes when mating
+                        mutpar=2.0 / 4.0,  # standard deviations for normal distribution
+                        )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
-                                              optimizee_create_individual=optimizee.create_individual,
-                                              optimizee_fitness_weights=fit_weights,
-                                              parameters=parameters,
-                                              optimizee_bounding_func=optimizee.bounding_func)
+                      optimizee_create_individual=optimizee.create_individual,
+                      optimizee_fitness_weights=fit_weights,
+                      parameters=parameters,
+                      optimizee_bounding_func=optimizee.bounding_func)
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?
