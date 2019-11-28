@@ -2,8 +2,8 @@
 
 #SBATCH --account=hhd34
 #SBATCH --partition=gpus
-#SBATCH --nodes=20
-#SBATCH --ntasks=80
+#SBATCH --nodes=26
+#SBATCH --ntasks=100
 #SBATCH --ntasks-per-node=4
 #SBATCH --ntasks-per-core=1
 #SBATCH --cpus-per-task=1

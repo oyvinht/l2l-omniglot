@@ -20,8 +20,8 @@ from omnigloter.evolution_optimizer import GeneticAlgorithmOptimizer, GeneticAlg
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
 # OPTIMIZER = EVOSTRAT
-OPTIMIZER = GRADDESC
-# OPTIMIZER = GENALG
+# OPTIMIZER = GRADDESC
+OPTIMIZER = GENALG
 ON_JEWELS = bool(1)
 MULTIPROCESSING = (ON_JEWELS or bool(1))
 
@@ -218,7 +218,7 @@ def main():
                         indpb=0.1,  # probability of "gene" to mutate
                         tournsize=100,  # number of best individuals to mate
                         matepar=0.5,  # how much to mix two genes when mating
-                        mutpar=2.0 / 4.0,  # standard deviations for normal distribution
+                        mutpar=step_size,  # standard deviations for normal distribution
                         )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
