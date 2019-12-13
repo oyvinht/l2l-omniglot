@@ -63,7 +63,7 @@ class Decoder(object):
                   self._network['min_delay'],
                   model_name=self.name,
                   backend=config.BACKEND,
-                  selected_gpu_id=int(params['gen']['ind']%4)
+                  selected_gpu_id=None,#int(params['gen']['ind']%4)
                 )
 
         logging.info("\tGenerating spikes")

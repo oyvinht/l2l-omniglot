@@ -96,7 +96,7 @@ def main():
         # -n num sub-procs
         # -p gpus --gres=gpu:1 --ntasks=8 --ntasks-per-node=4 --ntasks-per-core=1
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 00:30:00 -c 1 --gres=gpu:1 " + \
+            "srun -t 01:00:00 -c 1 --gres=gpu:1 " + \
             " -N 1 -n 1 " + \
             " python " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
@@ -208,8 +208,8 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 50
-        # population_size = 5
+        population_size = 100
+        # population_size = 8
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals

@@ -261,7 +261,7 @@ class OmniglotOptimizee(Optimizee):
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
         if len(diff_class_dots) == 0:# or any_zero:
-            print("dots == 0, fitness = ", 0)
+            print("dots == 0, fitness == 0 ")
             same_class_vectors = []
             # diff_class_vectors = [] ###already defined
 
@@ -367,7 +367,8 @@ class OmniglotOptimizee(Optimizee):
 
 
         if queue is not None:
+            print("queue was not None")
             queue.put([fit0])#, fit1,])
             return
-
+        print("returning fitness = {}".format(fit0))
         return [fit0]#, fit1,]
