@@ -314,86 +314,85 @@ class Decoder(object):
         if self.inputs is None:
             raise Exception("Input spike arrays are not defined")
 
-        try:
+        if 'populations' in self._network and 'input' in self._network['populations']:
             return self._network['populations']['input']
-        except:
 
-            ins = {}
-            for i in self.inputs:
-                s = len(self.inputs[i])
-                p = sim.Population(s, sim.SpikeSourceArray,
-                                   {'spike_times': self.inputs[i]},
-                                   label='input layer %s'%i)
-                if 'input' in config.RECORD_SPIKES:
-                    p.record('spikes')
-                ins[i] = p
-            return ins
+        ins = {}
+        for i in self.inputs:
+            s = len(self.inputs[i])
+            p = sim.Population(s, sim.SpikeSourceArray,
+                               {'spike_times': self.inputs[i]},
+                               label='input layer %s'%i)
+            if 'input' in config.RECORD_SPIKES:
+                p.record('spikes')
+            ins[i] = p
+        return ins
 
     def gabor_populations(self, params=None):
-        try:
+        if 'populations' in self._network and 'gabor' in self._network['populations']:
             return self.gabor_shapes, self._network['populations']['gabor']
-        except:
-            gs = {}
-            stride = (params['ind']['stride'], params['ind']['stride'])
-            pad = (params['sim']['kernel_pad'], params['sim']['kernel_pad'])
-            k_shape = (params['sim']['kernel_width'], params['sim']['kernel_width'])
-            ndivs = int(params['ind']['n_pi_divs'])
-            _shapes = {
-                i: utils.compute_region_shape(self.in_shapes[i], stride, pad, k_shape) \
-                                                                for i in self.in_shapes
-            }
-            neuron_type = getattr(sim, config.GABOR_CLASS)
-            for lyr in _shapes:
-                lrd = gs.get(lyr, {})
-                for row in np.arange(_shapes[lyr][config.HEIGHT]).astype('int'):
-                    lrc = lrd.get(row, {})
-                    for col in np.arange(_shapes[lyr][config.WIDTH]).astype('int'):
-                        lrc[col] = sim.Population(ndivs, neuron_type, config.GABOR_CLASS,
-                                    label='gabor - {} ({}, {})'.format(lyr, row, col))
-                        if 'gabor' in config.RECORD_SPIKES:
-                            lrc[col].record('spikes')
 
-                    lrd[row] = lrc
-                gs[lyr] = lrd
+        gs = {}
+        stride = (params['ind']['stride'], params['ind']['stride'])
+        pad = (params['sim']['kernel_pad'], params['sim']['kernel_pad'])
+        k_shape = (params['sim']['kernel_width'], params['sim']['kernel_width'])
+        ndivs = int(params['ind']['n_pi_divs'])
+        _shapes = {
+            i: utils.compute_region_shape(self.in_shapes[i], stride, pad, k_shape) \
+                                                            for i in self.in_shapes
+        }
+        neuron_type = getattr(sim, config.GABOR_CLASS)
+        for lyr in _shapes:
+            lrd = gs.get(lyr, {})
+            for row in np.arange(_shapes[lyr][config.HEIGHT]).astype('int'):
+                lrc = lrd.get(row, {})
+                for col in np.arange(_shapes[lyr][config.WIDTH]).astype('int'):
+                    lrc[col] = sim.Population(ndivs, neuron_type, config.GABOR_CLASS,
+                                label='gabor - {} ({}, {})'.format(lyr, row, col))
+                    if 'gabor' in config.RECORD_SPIKES:
+                        lrc[col].record('spikes')
 
-            return _shapes, gs
+                lrd[row] = lrc
+            gs[lyr] = lrd
+
+        return _shapes, gs
 
     def mushroom_population(self, params=None):
-        try:
+        if 'populations' in self._network and 'mushroom' in self._network['populations']:
             return self._network['populations']['mushroom']
-        except:
-            count = self.mushroom_size(params)
 
-            sys.stdout.write("\tMushroom size: {}\n".format(count))
-            sys.stdout.flush()
-            neuron_type = getattr(__neuron__, config.MUSHROOM_CLASS)
-            p = sim.Population(count, neuron_type, config.MUSHROOM_PARAMS,
-                               label='mushroom')
+        count = self.mushroom_size(params)
 
-            if 'mushroom' in config.RECORD_SPIKES:
-                p.record('spikes')
+        sys.stdout.write("\tMushroom size: {}\n".format(count))
+        sys.stdout.flush()
+        neuron_type = getattr(__neuron__, config.MUSHROOM_CLASS)
+        p = sim.Population(count, neuron_type, config.MUSHROOM_PARAMS,
+                           label='mushroom')
 
-            return p
+        if 'mushroom' in config.RECORD_SPIKES:
+            p.record('spikes')
+
+        return p
 
     def mushroom_size(self, params=None):
-        try:
+        if hasattr(self, '_mushroom_size'):
             return self._mushroom_size
-        except:
-            count = 0
-            if params['sim']['use_gabor']:
-                gshapes = self.gabor_shapes
-                ndivs = int(params['ind']['n_pi_divs'])
-                for l in gshapes:
-                    count += int(gshapes[l][0]*gshapes[l][1]*ndivs)
-            else:
-                for i in self.inputs:
-                    count += len(self.inputs[i])
 
-            expand = params['ind']['expand']
-            sys.stdout.write("\tCount: {}\tExpand: {}\n".format(count, expand))
-            count = int(np.ceil(count * expand))
-            self._mushroom_size = count
-            return count
+        count = 0
+        if params['sim']['use_gabor']:
+            gshapes = self.gabor_shapes
+            ndivs = int(params['ind']['n_pi_divs'])
+            for l in gshapes:
+                count += int(gshapes[l][0]*gshapes[l][1]*ndivs)
+        else:
+            for i in self.inputs:
+                count += len(self.inputs[i])
+
+        expand = params['ind']['expand']
+        sys.stdout.write("\tCount: {}\tExpand: {}\n".format(count, expand))
+        count = int(np.ceil(count * expand))
+        self._mushroom_size = count
+        return count
 
 
     def num_zones_mushroom(self, in_shapes, radius, divs):
@@ -418,67 +417,67 @@ class Decoder(object):
 
 
     def inh_mushroom_population(self, params=None):
-        try:
+        if 'populations' in self._network and 'inh_mushroom' in self._network['populations']:
             return self._network['populations']['inh_mushroom']
-        except:
-            # count = 0
-            # if params['sim']['use_gabor']:
-            #     gshapes = self.gabor_shapes
-            #     ndivs = int(params['ind']['n_pi_divs'])
-            #     for l in gshapes:
-            #         count += int(gshapes[l][0]*gshapes[l][1]*ndivs)
-            # else:
-            #     for i in self.inputs:
-            #         count += len(self.inputs[i])
-            #
-            # expand = params['ind']['expand']
-            # count = int(count * expand * 0.25)
-            radius = params['ind']['conn_dist']
-            shapes = self.in_shapes
-            divs = params['sim']['input_divs']
-            nz = self.num_zones_mushroom(shapes, radius, divs)
-            count = int(nz['total'])
-            neuron_type = getattr(sim, config.INH_MUSHROOM_CLASS)
-            p = sim.Population(count, neuron_type, config.INH_MUSHROOM_PARAMS,
-                               label='inh_mushroom')
 
-            if 'inh_mushroom' in config.RECORD_SPIKES:
-                p.record('spikes')
+        # count = 0
+        # if params['sim']['use_gabor']:
+        #     gshapes = self.gabor_shapes
+        #     ndivs = int(params['ind']['n_pi_divs'])
+        #     for l in gshapes:
+        #         count += int(gshapes[l][0]*gshapes[l][1]*ndivs)
+        # else:
+        #     for i in self.inputs:
+        #         count += len(self.inputs[i])
+        #
+        # expand = params['ind']['expand']
+        # count = int(count * expand * 0.25)
+        radius = params['ind']['conn_dist']
+        shapes = self.in_shapes
+        divs = params['sim']['input_divs']
+        nz = self.num_zones_mushroom(shapes, radius, divs)
+        count = int(nz['total'])
+        neuron_type = getattr(sim, config.INH_MUSHROOM_CLASS)
+        p = sim.Population(count, neuron_type, config.INH_MUSHROOM_PARAMS,
+                           label='inh_mushroom')
 
-            return p
+        if 'inh_mushroom' in config.RECORD_SPIKES:
+            p.record('spikes')
+
+        return p
 
 
     def output_population(self, params=None):
-        try:
+        if 'populations' in self._network and 'output' in self._network['populations']:
             return self._network['populations']['output']
+
+        try:
+            neuron_type = getattr(sim, config.OUTPUT_CLASS)
         except:
-            try:
-                neuron_type = getattr(sim, config.OUTPUT_CLASS)
-            except:
-                neuron_type = getattr(__neuron__, config.OUTPUT_CLASS)
+            neuron_type = getattr(__neuron__, config.OUTPUT_CLASS)
 
-            n_out = params['sim']['output_size']
-            p = sim.Population(n_out, neuron_type, config.OUTPUT_PARAMS,
-                               label='output')
+        n_out = params['sim']['output_size']
+        p = sim.Population(n_out, neuron_type, config.OUTPUT_PARAMS,
+                           label='output')
 
-            if 'output' in config.RECORD_SPIKES:
-                p.record('spikes')
+        if 'output' in config.RECORD_SPIKES:
+            p.record('spikes')
 
-            return p
+        return p
 
     def inh_output_population(self, params=None):
-        try:
+        if 'populations' in self._network and 'inh_output' in self._network['populations']:
             return self._network['populations']['inh_output']
-        except:
-            neuron_type = getattr(sim, config.INH_OUTPUT_CLASS)
-            n_out = 1 # params['sim']['output_size']
-            p = sim.Population(n_out, neuron_type, config.INH_OUTPUT_PARAMS,
-                               label='inh_output')
 
-            if 'inh_output' in config.RECORD_SPIKES:
-                p.record('spikes')
+        neuron_type = getattr(sim, config.INH_OUTPUT_CLASS)
+        n_out = 1 # params['sim']['output_size']
+        p = sim.Population(n_out, neuron_type, config.INH_OUTPUT_PARAMS,
+                           label='inh_output')
 
-            return p
+        if 'inh_output' in config.RECORD_SPIKES:
+            p.record('spikes')
+
+        return p
 
 
     ### ----------------------------------------------------------------------
@@ -486,251 +485,250 @@ class Decoder(object):
     ### ----------------------------------------------------------------------
 
     def in_to_gabor(self, params=None):
-        try:
+        if 'projections' in self._network and 'input to gabor' in self._network['projections']:
             return self._network['projections']['input to gabor']
-        except:
-            gabor_weight = [params['ind'][s] for s in sorted(params['ind'].keys()) \
-                                                        if s.startswith('gabor_weight')]
-            stride = (int(params['ind']['stride']), int(params['ind']['stride']))
-            pad = (int(params['sim']['kernel_pad']), int(params['sim']['kernel_pad']))
-            k_shape = (int(params['sim']['kernel_width']), int(params['sim']['kernel_width']))
-            ndivs = params['ind']['n_pi_divs']
-            # 0 about the same as 180?
-            adiv = (np.pi / ndivs)
 
-            gabor_params = {
-                'omega': [params['ind']['omega']],
-                'theta': (np.arange(ndivs) * adiv).tolist(),
-                'shape': k_shape,
-            }
-            pre_shapes = self.in_shapes
-            pres = self.input_populations()
-            post_shapes, posts = self.gabor_populations()
+        gabor_weight = [params['ind'][s] for s in sorted(params['ind'].keys()) \
+                                                    if s.startswith('gabor_weight')]
+        stride = (int(params['ind']['stride']), int(params['ind']['stride']))
+        pad = (int(params['sim']['kernel_pad']), int(params['sim']['kernel_pad']))
+        k_shape = (int(params['sim']['kernel_width']), int(params['sim']['kernel_width']))
+        ndivs = params['ind']['n_pi_divs']
+        # 0 about the same as 180?
+        adiv = (np.pi / ndivs)
 
-            projs = {}
-            for i in self.in_shapes:
-                lyrdict = projs.get(i, {})
-                pre_shape = pre_shapes[i]
-                pre_indices = utils.pre_indices_per_region(pre_shape, pad, stride, k_shape)
-                pre = pres[i]
-                for r in posts[i]:
-                    rowdict = lyrdict.get(r, {})
-                    for c in posts[i][r]:
-                        k, conns = utils.gabor_connect_list(pre_indices[r][c], gabor_params, delay=1.0,
-                                                      w_mult=gabor_weight[i])
-                        ilist, elist = utils.split_to_inh_exc(conns)
+        gabor_params = {
+            'omega': [params['ind']['omega']],
+            'theta': (np.arange(ndivs) * adiv).tolist(),
+            'shape': k_shape,
+        }
+        pre_shapes = self.in_shapes
+        pres = self.input_populations()
+        post_shapes, posts = self.gabor_populations()
 
-                        if len(elist) == 0:
-                            continue
+        projs = {}
+        for i in self.in_shapes:
+            lyrdict = projs.get(i, {})
+            pre_shape = pre_shapes[i]
+            pre_indices = utils.pre_indices_per_region(pre_shape, pad, stride, k_shape)
+            pre = pres[i]
+            for r in posts[i]:
+                rowdict = lyrdict.get(r, {})
+                for c in posts[i][r]:
+                    k, conns = utils.gabor_connect_list(pre_indices[r][c], gabor_params, delay=1.0,
+                                                  w_mult=gabor_weight[i])
+                    ilist, elist = utils.split_to_inh_exc(conns)
 
-                        post = posts[i][r][c]
-                        econ = sim.FromListConnector(elist)
-                        elabel = 'exc - in {} to gabor {}-{}'.format(i, r, c)
-                        rowdict[c] = {
-                            'exc': sim.Projection(pre, post, econ, sim.StaticSynapse(),
-                                                  label=elabel, receptor_type='excitatory')
-                        }
+                    if len(elist) == 0:
+                        continue
 
-                        if len(ilist) > 0:
-                            icon = sim.FromListConnector(ilist)
-                            ilabel = 'inh - in {} to gabor {}-{}'.format(i, r, c)
-                            rowdict[c]['inh'] = sim.Projection(pre, post, icon, sim.StaticSynapse(),
-                                                               label=ilabel, receptor_type='inhibitory')
+                    post = posts[i][r][c]
+                    econ = sim.FromListConnector(elist)
+                    elabel = 'exc - in {} to gabor {}-{}'.format(i, r, c)
+                    rowdict[c] = {
+                        'exc': sim.Projection(pre, post, econ, sim.StaticSynapse(),
+                                              label=elabel, receptor_type='excitatory')
+                    }
 
-                    lyrdict[r] = rowdict
-                projs[i] = lyrdict
+                    if len(ilist) > 0:
+                        icon = sim.FromListConnector(ilist)
+                        ilabel = 'inh - in {} to gabor {}-{}'.format(i, r, c)
+                        rowdict[c]['inh'] = sim.Projection(pre, post, icon, sim.StaticSynapse(),
+                                                           label=ilabel, receptor_type='inhibitory')
 
-            return projs
+                lyrdict[r] = rowdict
+            projs[i] = lyrdict
+
+        return projs
 
     def gabor_to_mushroom(self, params=None):
-        try:
+        if 'projections' in self._network and 'gabor to mushroom' in self._network['projections']:
             return self._network['projections']['gabor to mushroom']
-        except:
-            post = self.mushroom_population()
-            prob = params['ind']['exp_prob']
-            mushroom_weight = params['ind']['mushroom_weight']
-            projs = {}
-            pre_shapes, pres = self.gabor_populations()
-            for lyr in pres:
-                lyrdict = projs.get(lyr, {})
-                for r in pres[lyr]:
-                    rdict = lyrdict.get(r, {})
-                    for c in pres[lyr][r]:
-                        pre = pres[lyr][r][c]
-                        rdict[c] = sim.Projection(pre, post,
-                                    sim.FixedProbabilityConnector(prob),
-                                    sim.StaticSynapse(weight=mushroom_weight),
-                                   label='gabor {}{}{} to mushroom'.format(lyr, r, c),
-                                    receptor_type='excitatory')
-                    lyrdict[r] = rdict
-                projs[lyr] = lyrdict
 
-            return projs
+        post = self.mushroom_population()
+        prob = params['ind']['exp_prob']
+        mushroom_weight = params['ind']['mushroom_weight']
+        projs = {}
+        pre_shapes, pres = self.gabor_populations()
+        for lyr in pres:
+            lyrdict = projs.get(lyr, {})
+            for r in pres[lyr]:
+                rdict = lyrdict.get(r, {})
+                for c in pres[lyr][r]:
+                    pre = pres[lyr][r][c]
+                    rdict[c] = sim.Projection(pre, post,
+                                sim.FixedProbabilityConnector(prob),
+                                sim.StaticSynapse(weight=mushroom_weight),
+                               label='gabor {}{}{} to mushroom'.format(lyr, r, c),
+                                receptor_type='excitatory')
+                lyrdict[r] = rdict
+            projs[lyr] = lyrdict
+
+        return projs
 
     def input_to_mushroom(self, params=None):
-        try:
+        if 'projections' in self._network and 'input to mushroom' in self._network['projections']:
             return self._network['projections']['input to mushroom']
-        except:
 
-            post = self.mushroom_population()
-            prob = params['ind']['exp_prob']
-            weight = params['ind']['mushroom_weight']
-            delay = 1
-            radius = np.copy(params['ind']['conn_dist'])
-            shapes = self.in_shapes
-            divs = params['sim']['input_divs']
-            nz = self.num_zones_mushroom(shapes, radius, divs)
-            if config.ONE_TO_ONE_EXCEPTION:
-                conns = utils.o2o_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
+        post = self.mushroom_population()
+        prob = params['ind']['exp_prob']
+        weight = params['ind']['mushroom_weight']
+        delay = 1
+        radius = np.copy(params['ind']['conn_dist'])
+        shapes = self.in_shapes
+        divs = params['sim']['input_divs']
+        nz = self.num_zones_mushroom(shapes, radius, divs)
+        if config.ONE_TO_ONE_EXCEPTION:
+            conns = utils.o2o_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
+        else:
+            conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
+
+        self._in_to_mush_conns = conns
+        projs = {}
+
+        for k, pre in self.input_populations().items():
+            if len(conns[k]):
+                projs[k] = sim.Projection(pre, post,
+                            sim.FromListConnector(conns[k]),
+                            label='input to mushroom - {}'.format(k),
+                            receptor_type='excitatory')
             else:
-                conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
+                projs[k] = None
 
-            self._in_to_mush_conns = conns
-            projs = {}
-
-            for k, pre in self.input_populations().items():
-                if len(conns[k]):
-                    projs[k] = sim.Projection(pre, post,
-                                sim.FromListConnector(conns[k]),
-                                label='input to mushroom - {}'.format(k),
-                                receptor_type='excitatory')
-                else:
-                    projs[k] = None
-
-            return projs
+        return projs
 
     def wta_gabor(self, params=None):
-        try:
+        if 'projections' in self._network and 'wta_gabor' in self._network['projections']:
             return self._network['projections']['wta_gabor']
-        except:
-            iw = config.INHIBITORY_WEIGHT['gabor']
-            projs = {}
-            pre_shapes, pres = self.gabor_populations()
-            for lyr in pres:
-                lyrdict = projs.get(lyr, {})
-                for r in pres[lyr]:
-                    rdict = lyrdict.get(r, {})
-                    for c in pres[lyr][r]:
-                        pre = pres[lyr][r][c]
-                        post = pres[lyr][r][c]
 
-                        rdict[c] = sim.Projection(pre, post,
-                                    sim.AllToAllConnector(),
-                                    sim.StaticSynapse(weight=iw, delay=config.TIMESTEP),
-                                   label='wta gabor {}{}{}'.format(lyr, r, c),
-                                    receptor_type='inhibitory')
-                    lyrdict[r] = rdict
-                projs[lyr] = lyrdict
+        iw = config.INHIBITORY_WEIGHT['gabor']
+        projs = {}
+        pre_shapes, pres = self.gabor_populations()
+        for lyr in pres:
+            lyrdict = projs.get(lyr, {})
+            for r in pres[lyr]:
+                rdict = lyrdict.get(r, {})
+                for c in pres[lyr][r]:
+                    pre = pres[lyr][r][c]
+                    post = pres[lyr][r][c]
 
-            return projs
+                    rdict[c] = sim.Projection(pre, post,
+                                sim.AllToAllConnector(),
+                                sim.StaticSynapse(weight=iw, delay=config.TIMESTEP),
+                               label='wta gabor {}{}{}'.format(lyr, r, c),
+                                receptor_type='inhibitory')
+                lyrdict[r] = rdict
+            projs[lyr] = lyrdict
+
+        return projs
 
 
     def wta_mushroom(self, params=None):
-        try:
+        if 'projections' in self._network and 'wta_mushroom' in self._network['projections']:
             return self._network['projections']['wta_mushroom']
-        except:
-            prjs = {}
-            exc = self.mushroom_population()
-            inh = self.inh_mushroom_population()
-            exp_size = params['ind']['expand']
-            ew = config.EXCITATORY_WEIGHT['mushroom'] / exp_size
-            iw = config.INHIBITORY_WEIGHT['mushroom']
-            delay = config.TIMESTEP
-            radius = params['ind']['conn_dist']
-            shapes = self.in_shapes
-            divs = params['sim']['input_divs']
-            nz = self.num_zones_mushroom(shapes, radius, divs)
 
-            icon, econ = utils.wta_mush_conn_list(shapes, nz, exc.size, iw, ew, config.TIMESTEP)
-            prjs['e to i'] = sim.Projection(exc, inh,
-                                sim.FromListConnector(econ),
-                                label='mushroom to inh_mushroom',
-                                receptor_type='excitatory')
+        prjs = {}
+        exc = self.mushroom_population()
+        inh = self.inh_mushroom_population()
+        exp_size = params['ind']['expand']
+        ew = config.EXCITATORY_WEIGHT['mushroom'] / exp_size
+        iw = config.INHIBITORY_WEIGHT['mushroom']
+        delay = config.TIMESTEP
+        radius = params['ind']['conn_dist']
+        shapes = self.in_shapes
+        divs = params['sim']['input_divs']
+        nz = self.num_zones_mushroom(shapes, radius, divs)
 
-            prjs['i to e'] = sim.Projection(inh, exc,
-                                sim.FromListConnector(icon),
-                                label='inh_mushroom to mushroom',
-                                receptor_type='inhibitory')
+        icon, econ = utils.wta_mush_conn_list(shapes, nz, exc.size, iw, ew, config.TIMESTEP)
+        prjs['e to i'] = sim.Projection(exc, inh,
+                            sim.FromListConnector(econ),
+                            label='mushroom to inh_mushroom',
+                            receptor_type='excitatory')
 
-            # prjs['e to i'] = sim.Projection(exc, inh,
-            #                     sim.AllToAllConnector(),
-            #                     sim.StaticSynapse(weight=ew, delay=TIMESTEP),
-            #                     label='mushroom to inh_mushroom',
-            #                     receptor_type='excitatory')
-            #
-            # prjs['i to e'] = sim.Projection(inh, exc,
-            #                     sim.AllToAllConnector(),
-            #                     sim.StaticSynapse(weight=INHIBITORY_WEIGHT['mushroom'],
-            #                                       delay=TIMESTEP),
-            #                     label='inh_mushroom to mushroom',
-            #                     receptor_type='inhibitory')
+        prjs['i to e'] = sim.Projection(inh, exc,
+                            sim.FromListConnector(icon),
+                            label='inh_mushroom to mushroom',
+                            receptor_type='inhibitory')
 
-            # prjs['e to e'] = sim.Projection(exc, exc,
-            #                     sim.FixedProbabilityConnector(MUSH_SELF_PROB),
-            #                     sim.StaticSynapse(weight=INHIBITORY_WEIGHT['mushroom'],
-            #                                       delay=TIMESTEP),
-            #                     label='inh_mushroom to mushroom',
-            #                     receptor_type='inhibitory')
+        # prjs['e to i'] = sim.Projection(exc, inh,
+        #                     sim.AllToAllConnector(),
+        #                     sim.StaticSynapse(weight=ew, delay=TIMESTEP),
+        #                     label='mushroom to inh_mushroom',
+        #                     receptor_type='excitatory')
+        #
+        # prjs['i to e'] = sim.Projection(inh, exc,
+        #                     sim.AllToAllConnector(),
+        #                     sim.StaticSynapse(weight=INHIBITORY_WEIGHT['mushroom'],
+        #                                       delay=TIMESTEP),
+        #                     label='inh_mushroom to mushroom',
+        #                     receptor_type='inhibitory')
 
-            return prjs
+        # prjs['e to e'] = sim.Projection(exc, exc,
+        #                     sim.FixedProbabilityConnector(MUSH_SELF_PROB),
+        #                     sim.StaticSynapse(weight=INHIBITORY_WEIGHT['mushroom'],
+        #                                       delay=TIMESTEP),
+        #                     label='inh_mushroom to mushroom',
+        #                     receptor_type='inhibitory')
+
+        return prjs
 
 
     def mushroom_to_output(self, params=None):
-        try:
+        if 'projections' in self._network and 'mushroom to output' in self._network['projections']:
             return self._network['projections']['mushroom to output']
-        except:
-            ind_par = params['ind']
-            pre = self.mushroom_population()
-            post = self.output_population()
-            prob = ind_par['out_prob']
-            exp_size = params['ind']['expand']
-            max_w = ind_par['out_weight'] / exp_size
 
-            conn_list = utils.output_connection_list(pre.size, post.size, prob,
-                                                     max_w, 1.0# , seed=123
-                                                    )
+        ind_par = params['ind']
+        pre = self.mushroom_population()
+        post = self.output_population()
+        prob = ind_par['out_prob']
+        exp_size = params['ind']['expand']
+        max_w = ind_par['out_weight'] / exp_size
 
-            tdeps = {k: ind_par[k] if k in ind_par else config.TIME_DEP_VARS[k] \
-                                                    for k in config.TIME_DEP_VARS}
-            print("time deps ", tdeps)
-            tdep = getattr(__stdp__, config.TIME_DEP)(**tdeps)
-            wdep = getattr(__stdp__, config.WEIGHT_DEP)(ind_par['w_min_mult']*max_w, ind_par['w_max_mult']*max_w)
-            stdp = getattr(__stdp__, config.STDP_MECH)(timing_dependence=tdep, weight_dependence=wdep)
+        conn_list = utils.output_connection_list(pre.size, post.size, prob,
+                                                 max_w, 1.0# , seed=123
+                                                )
 
-            p = sim.Projection(pre, post, sim.FromListConnector(conn_list), stdp,
-                               label='mushroom to output', receptor_type='excitatory')
-            return p
+        tdeps = {k: ind_par[k] if k in ind_par else config.TIME_DEP_VARS[k] \
+                                                for k in config.TIME_DEP_VARS}
+        print("time deps ", tdeps)
+        tdep = getattr(__stdp__, config.TIME_DEP)(**tdeps)
+        wdep = getattr(__stdp__, config.WEIGHT_DEP)(ind_par['w_min_mult']*max_w, ind_par['w_max_mult']*max_w)
+        stdp = getattr(__stdp__, config.STDP_MECH)(timing_dependence=tdep, weight_dependence=wdep)
+
+        p = sim.Projection(pre, post, sim.FromListConnector(conn_list), stdp,
+                           label='mushroom to output', receptor_type='excitatory')
+        return p
 
 
     def wta_output(self, params=None):
-        try:
+        if 'projections' in self._network and 'wta_output' in self._network['projections']:
             return self._network['projections']['wta_output']
-        except:
-            prjs = {}
-            exc = self.output_population()
-            inh = self.inh_output_population()
-            ew = config.EXCITATORY_WEIGHT['output']
 
-            prjs['e to i'] = sim.Projection(exc, inh,
-                                sim.AllToAllConnector(),
-                                sim.StaticSynapse(weight=ew, delay=config.TIMESTEP),
-                                label='output to inh_output',
-                                receptor_type='excitatory')
+        prjs = {}
+        exc = self.output_population()
+        inh = self.inh_output_population()
+        ew = config.EXCITATORY_WEIGHT['output']
 
-            prjs['i to e'] = sim.Projection(inh, exc,
-                                sim.AllToAllConnector(),
-                                sim.StaticSynapse(weight=config.INHIBITORY_WEIGHT['output'], delay=config.TIMESTEP),
-                                label='inh_output to output',
-                                receptor_type='inhibitory')
+        prjs['e to i'] = sim.Projection(exc, inh,
+                            sim.AllToAllConnector(),
+                            sim.StaticSynapse(weight=ew, delay=config.TIMESTEP),
+                            label='output to inh_output',
+                            receptor_type='excitatory')
 
-            # prjs['i to e'] = sim.Projection(exc, exc,
-            #                     sim.AllToAllConnector(),
-            #                     sim.StaticSynapse(weight=INHIBITORY_WEIGHT['output'],
-            #                                       delay=TIMESTEP),
-            #                     label='wta - output to output',
-            #                     receptor_type='inhibitory')
+        prjs['i to e'] = sim.Projection(inh, exc,
+                            sim.AllToAllConnector(),
+                            sim.StaticSynapse(weight=config.INHIBITORY_WEIGHT['output'], delay=config.TIMESTEP),
+                            label='inh_output to output',
+                            receptor_type='inhibitory')
 
-            return prjs
+        # prjs['i to e'] = sim.Projection(exc, exc,
+        #                     sim.AllToAllConnector(),
+        #                     sim.StaticSynapse(weight=INHIBITORY_WEIGHT['output'],
+        #                                       delay=TIMESTEP),
+        #                     label='wta - output to output',
+        #                     receptor_type='inhibitory')
+
+        return prjs
 
 
     def _get_recorded(self, layer):
