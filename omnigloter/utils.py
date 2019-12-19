@@ -221,6 +221,9 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
                 cols, rows = np.meshgrid(np.arange(col_l, col_h,),
                                          np.arange(row_l, row_h))
 
+                if len(cols) == 0 or len(rows) == 0:
+                    continue
+
                 # how many indices to select at random
                 n_idx = int(np.round(rows.size * prob))
 

@@ -225,7 +225,10 @@ def main():
                       optimizee_create_individual=optimizee.create_individual,
                       optimizee_fitness_weights=fit_weights,
                       parameters=parameters,
-                      optimizee_bounding_func=optimizee.bounding_func)
+                      optimizee_bounding_func=optimizee.bounding_func,
+                      percent_hall_of_fame = 0.1,
+                      percent_elite = 0.5,
+                    )
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?
