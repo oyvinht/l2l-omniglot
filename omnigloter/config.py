@@ -204,6 +204,8 @@ ATTR_STEPS_DEVS = {
 # cheap attempt to scale the variance for normal-distributed mutation
 ATTR_STEPS_BASE = {
     k: ATTR_STEPS_DEVS[k] * ((ATTR_RANGES[k][1] - ATTR_RANGES[k][0]) / 4.0)
+      if len(ATTR_RANGES[k]) > 1 else
+       ATTR_STEPS_DEVS[k] * ((ATTR_RANGES[k][0]) / 4.0)
         for k in ATTR_RANGES
 }
 
