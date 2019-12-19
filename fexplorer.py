@@ -69,9 +69,9 @@ def main():
     # Template file for the particular scheduler
     traj.f_add_parameter_to_group("JUBE_params", "job_file", "job.run")
     # Number of nodes to request for each run
-    traj.f_add_parameter_to_group("JUBE_params", "nodes", "1")
+    traj.f_add_parameter_to_group("JUBE_params", "nodes", "25")
     # Requested time for the compute resources
-    traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:01:00")
+    traj.f_add_parameter_to_group("JUBE_params", "walltime", "24:00:00")
     # MPI Processes per node
     traj.f_add_parameter_to_group("JUBE_params", "ppn", "1")
     # CPU cores per MPI process
@@ -88,7 +88,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "out_file", "stdout")
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
-    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "100")
     # The execution command
     if ON_JEWELS:
         # -N num nodes
@@ -96,7 +96,7 @@ def main():
         # -n num sub-procs
         # -p gpus --gres=gpu:1 --ntasks=8 --ntasks-per-node=4 --ntasks-per-core=1
         traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 01:00:00 -c 1 --gres=gpu:1 " + \
+            "srun -t 05:00:00 -c 1 --gres=gpu:1 " + \
             " -N 1 -n 1 " + \
             " python " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
     else:
@@ -208,7 +208,7 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 100
+        population_size = 50
         # population_size = 8
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
