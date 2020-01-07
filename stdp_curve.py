@@ -27,7 +27,7 @@ base_params = {
 }
 
 timestep = 0.1
-max_w = 0.01
+max_w = 0.1
 start_w = max_w / 2.0
 
 delays = [0.1]
@@ -35,7 +35,7 @@ time_dep_vars = {
     "A_plus": 0.10,
     "A_minus": 0.01,
     "mean": 0.0,
-    "std": 2.0,
+    "std": 10.0,
     "displace": 0.0,
     "maxDt": 80.0,
 }
@@ -101,6 +101,7 @@ for delay in pprojs:
 
 sim.end()
 
+np.savez_compressed('genn_stdp_experiments.npz', experiments=experiments)
 
 
 plt.figure()
@@ -144,4 +145,3 @@ plt.legend()
 plt.grid()
 plt.show()
 
-np.savez_compressed('delay_experiments.npz', experiments=experiments)

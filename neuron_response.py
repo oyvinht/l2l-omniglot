@@ -60,10 +60,13 @@ sim.end()
 
 # vthresh = data.segments[0].filter(name='v_thresh_adapt')
 
+np.savez_compressed("genn_spiking_behaviour.npz", spikes=data.segments[0])
+
 plt.figure()
 ax = plt.subplot()
 # plt.plot(vthresh[0])
 plot_spiketrains(data.segments[0])
 plt.grid()
 plt.show()
+
 
