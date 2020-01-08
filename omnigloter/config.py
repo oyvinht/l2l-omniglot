@@ -299,10 +299,8 @@ TIME_DEP = 'MyTemporalDependence'
 TIME_DEP_VARS = {
     "A_plus": 0.10,
     "A_minus": 0.01,
-    "mean": 0.0,
-    "std": 3.0,
-    "displace": 0.0,
-    "maxDt": 80.0,
+    "tau_plus": 3.0,
+    "tau_minus": 80.0,
 }
 
 WEIGHT_DEP = 'MyWeightDependence'
