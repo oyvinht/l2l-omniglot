@@ -12,7 +12,7 @@ USE_GABOR_LAYER = bool(0)
 SIM_NAME = 'genn'
 
 
-TIMESTEP = 0.1 #ms
+TIMESTEP = 1.0 #ms
 SAMPLE_DT = 50.0 #ms
 # iw = 28
 # iw = 32
@@ -33,7 +33,7 @@ N_TEST = 4 if DEBUG else 4
 TOTAL_SAMPLES = N_SAMPLES * N_EPOCHS + N_TEST
 DURATION = N_CLASSES * TOTAL_SAMPLES * SAMPLE_DT
 PROB_NOISE_SAMPLE = 0.1
-
+STEPS = 100
 
 KERNEL_W = 7
 N_INPUT_LAYERS = 4
@@ -230,7 +230,6 @@ BASE_PARAMS = {
     'cm': 0.09,  # nF
     'v_reset': -70.,  # mV
     'v_rest': -65.,  # mV
-    'v_thresh': VTHRESH,  # mV
     'tau_m': 10.,  # ms
     'tau_refrac': 1.,  # ms
     'tau_syn_E': 1., # ms
@@ -244,18 +243,20 @@ mult_thresh = 1.8
 
 GABOR_PARAMS = BASE_PARAMS.copy()
 MUSHROOM_PARAMS = BASE_PARAMS.copy()
-MUSHROOM_PARAMS['v_thresh_adapt'] = MUSHROOM_PARAMS['v_thresh']
-MUSHROOM_PARAMS['tau_thresh'] = tau_thresh
-MUSHROOM_PARAMS['mult_thresh'] = mult_thresh
+MUSHROOM_PARAMS['v_threshold'] = VTHRESH  # mV
+# MUSHROOM_PARAMS['v_thresh_adapt'] = MUSHROOM_PARAMS['v_threshold']
+MUSHROOM_PARAMS['tau_threshold'] = tau_thresh
+MUSHROOM_PARAMS['w_threshold'] = mult_thresh
 MUSHROOM_PARAMS['tau_syn_I'] = 5.
 
 INH_MUSHROOM_PARAMS = BASE_PARAMS.copy()
 INH_OUTPUT_PARAMS = BASE_PARAMS.copy()
 
 OUTPUT_PARAMS = BASE_PARAMS.copy()
-OUTPUT_PARAMS['v_thresh_adapt'] = OUTPUT_PARAMS['v_thresh']
-OUTPUT_PARAMS['tau_thresh'] = tau_thresh
-OUTPUT_PARAMS['mult_thresh'] = mult_thresh
+OUTPUT_PARAMS['v_threshold'] = VTHRESH  # mV
+# OUTPUT_PARAMS['v_thresh_adapt'] = OUTPUT_PARAMS['v_threshold']
+OUTPUT_PARAMS['tau_threshold'] = tau_thresh
+OUTPUT_PARAMS['w_threshold'] = mult_thresh
 OUTPUT_PARAMS['tau_syn_I'] = 5.
 
 

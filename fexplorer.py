@@ -23,7 +23,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-MULTIPROCESSING = (ON_JEWELS or bool(0))
+MULTIPROCESSING = (ON_JEWELS or bool(1))
 
 def main():
 
@@ -111,6 +111,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
+    traj.f_add_parameter_to_group("simulation", 'steps', config.STEPS)  # ms
     traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
     traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
     traj.f_add_parameter_to_group("simulation", 'input_shape', config.INPUT_SHAPE)  # rows, cols

@@ -535,3 +535,18 @@ def add_noise(prob, spikes, start_t, end_t):
         spikes[tog][:] = [float(np.random.randint(start_t, end_t))]
 
     return spikes
+
+def split_ssa(ssa, n_steps, duration):
+    dt = duration // n_steps
+    s = {}
+    for st in np.arange(0, duration, dt):
+        et = st + dt
+        s[st] = {}
+        for i in ssa:
+            s[st][i] = []
+            for times in ssa[i]:
+                ts = np.asarray(times)
+                whr = np.where(np.logical_and(st <= ts, ts < et))
+                s[st][i].append(ts[whr].tolist())
+            
+    return s
