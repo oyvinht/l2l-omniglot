@@ -5,7 +5,8 @@ import random as pyrand
 from glob import glob
 import numpy as np
 import os
-import pynn_genn as sim
+import pyNN.spiNNaker as sim
+# import pynn_genn as sim
 import sys
 import time
 import datetime
@@ -51,11 +52,14 @@ class Decoder(object):
         logging.info("Setting up simulator")
         sim.setup(self._network['timestep'],
                   self._network['min_delay'],
-                  model_name=self.name,
-                  backend=config.BACKEND,
-                  selected_gpu_id=0,
+#                   model_name=self.name,
+#                   backend=config.BACKEND,
+#                   selected_gpu_id=0,
                 )
-
+        
+        sim.set_number_of_neurons_per_core(__neuron__.IF_curr_exp_i, 150)
+        sim.set_number_of_neurons_per_core(sim.SpikeSourceArray, 150)
+        
         logging.info("\tGenerating spikes")
         self.in_labels, self.in_shapes, self.inputs = self.get_in_spikes(params)
 
@@ -130,6 +134,8 @@ class Decoder(object):
                 (db, in_shape[0], in_divs[0], nclass, nepochs, total_fs)
         fname = os.path.join(in_path, fname)
         print(fname)
+        duration = params['sim']['duration']
+        steps = params['sim']['steps']
         if os.path.isfile(fname):
             # try:
                 t_creation_start = time.time()
@@ -137,7 +143,7 @@ class Decoder(object):
                 data = np.load(fname, allow_pickle=True)
                 labels=data['labels']
                 shapes=data['shapes'].item()
-                spikes=data['spikes'].item()
+                spikes = utils.split_ssa(data['spikes'].item(), steps, duration)
 
                 total_t_creation = time.time() - t_creation_start
                 hours = total_t_creation // 3600
@@ -303,7 +309,7 @@ class Decoder(object):
 
         np.savez_compressed(fname, labels=labels, shapes=shapes, spikes=spikes)
 
-        return labels, shapes, spikes
+        return labels, shapes, utils.split_ssa(spikes, steps, duration)
 
 
     ### ----------------------------------------------------------------------
@@ -318,10 +324,10 @@ class Decoder(object):
             return self._network['populations']['input']
 
         ins = {}
-        for i in self.inputs:
-            s = len(self.inputs[i])
+        for i in self.inputs[0]:
+            s = len(self.inputs[0][i])
             p = sim.Population(s, sim.SpikeSourceArray,
-                               {'spike_times': self.inputs[i]},
+                               {'spike_times': self.inputs[0][i]},
                                label='input layer %s'%i)
             if 'input' in config.RECORD_SPIKES:
                 p.record('spikes')
@@ -685,7 +691,7 @@ class Decoder(object):
         max_w = ind_par['out_weight'] / exp_size
 
         conn_list = utils.output_connection_list(pre.size, post.size, prob,
-                                                 max_w, 1.0# , seed=123
+                                                 max_w, 0.01,max_pre=100# , seed=123
                                                 )
 
         tdeps = {k: ind_par[k] if k in ind_par else config.TIME_DEP_VARS[k] \
@@ -697,6 +703,10 @@ class Decoder(object):
 
         p = sim.Projection(pre, post, sim.FromListConnector(conn_list), stdp,
                            label='mushroom to output', receptor_type='excitatory')
+
+#         p = sim.Projection(pre, post, sim.FixedProbabilityConnector(prob), stdp,
+#                            label='mushroom to output', receptor_type='excitatory')
+
         return p
 
 
@@ -755,11 +765,25 @@ class Decoder(object):
 
     def run_pynn(self):
         net = self._network
+        steps = self.params['sim']['steps']
+        duration = self.params['sim']['duration']//steps
         # pprint(net)
 
         logging.info("\tRunning experiment for {} milliseconds".format(net['run_time']))
-
-        sim.run(net['run_time'])
+        
+        sys.stdout.write("\n\n\tRunning step {} out of {}\n\n".format(1, steps))
+        sys.stdout.flush()
+        sim.run(duration)
+        
+        for step, st in enumerate(self.inputs):
+            ssa = self.inputs[st]
+            pops = self.input_populations()
+            for layer in ssa:
+                pops[layer].set(spike_times=ssa[layer])
+                
+            sys.stdout.write("\n\n\tRunning step {} out of {}\n\n".format(step + 1, steps))
+            sys.stdout.flush()
+            sim.run(duration)
 
         records = {}
         for pop in net['populations']:
