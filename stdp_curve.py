@@ -3,10 +3,14 @@ import matplotlib.pyplot as plt
 import sys
 import argparse
 from pprint import pprint
-import pynn_genn as sim
+
 import stdp_mech as __stdp__
 import neuron_model as __model__
-backend = 'genn'
+from omnigloter import config
+
+
+import pynn_genn as sim
+
 neuron_class = __model__.IF_curr_exp_i
 # heidelberg's brainscales seems to like these params
 e_rev = 92 #mV

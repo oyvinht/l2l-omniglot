@@ -1,5 +1,7 @@
 import numpy as np
 import os
+GENN = 'genn'
+SPINNAKER = 'spinnaker'
 
 DEBUG = bool(0)
 ONE_TO_ONE_EXCEPTION = bool(0)
@@ -9,7 +11,7 @@ INF = float(10e10)
 
 USE_GABOR_LAYER = bool(0)
 
-SIM_NAME = 'genn'
+SIM_NAME = GENN
 
 
 TIMESTEP = 1.0 #ms

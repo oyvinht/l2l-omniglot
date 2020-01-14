@@ -5,8 +5,7 @@ import random as pyrand
 from glob import glob
 import numpy as np
 import os
-import pyNN.spiNNaker as sim
-# import pynn_genn as sim
+
 import sys
 import time
 import datetime
@@ -15,7 +14,16 @@ from omnigloter import neuron_model as __neuron__
 from omnigloter import config
 from omnigloter import utils
 
+if config.SIM_NAME == config.SPINNAKER:
+    import pyNN.spiNNaker as sim
+elif config.SIM_NAME == config.GENN:
+    import pynn_genn as sim
+
+
 import matplotlib.pyplot as plt
+
+
+
 
 if config.DEBUG:
     class Logging:

@@ -1,9 +1,13 @@
-import pyNN.spiNNaker as sim
+from omnigloter import config
 
-from python_models8.neuron.plasticity.stdp.timing_dependence.timing_dependence_step import \
-    TimingDependenceStep as MyTemporalDependence
+if config.SIM_NAME == config.SPINNAKER:
+    import pyNN.spiNNaker as sim
 
-MyWeightDependence = sim.MultiplicativeWeightDependence
-MySTDPMechanism = sim.STDPMechanism
+    from python_models8.neuron.plasticity.stdp.timing_dependence.timing_dependence_step import \
+        TimingDependenceStep as MyTemporalDependence
 
-# from stdp_mech_genn import MySTDPMechanism, MyWeightDependence, MyTemporalDependence
+    MyWeightDependence = sim.MultiplicativeWeightDependence
+    MySTDPMechanism = sim.STDPMechanism
+
+elif config.SIM_NAME == config.GENN:
+    from stdp_mech_genn import MySTDPMechanism, MyWeightDependence, MyTemporalDependence
