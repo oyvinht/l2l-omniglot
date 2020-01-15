@@ -72,7 +72,7 @@ _genn_neuron_defs['IFAdapt'] = GeNNDefinitions(
         ("v",           "V"),
         ("i",           "I"),
         ("w_threshold", "UpThresh"),
-        ("tau_threshold",  "DownThresh",    partial(tau_to_decay, "tau_thresh"), None),
+        ("tau_threshold",  "DownThresh",    partial(tau_to_decay, "tau_threshold"), None),
         ("v_thresh_adapt",    "VThreshAdapt"),
     ),
     extra_param_values = {

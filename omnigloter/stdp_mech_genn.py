@@ -146,7 +146,7 @@ class MyTemporalDependence(synapses.STDPTimingDependence):
         // std::cout << "post(" << dt << ")" << std::endl;
         if (dt >= 0){
             scalar update = 0.0;
-            if (dt <= $(std)){
+            if (dt <= $(tau_plus)){
                 update = $(Aplus);
                 
             }
@@ -175,10 +175,8 @@ class MyTemporalDependence(synapses.STDPTimingDependence):
     )
 
     default_parameters = {
-        'mean':      0.0,
-        'std':       1.0,
-        'displace':  0.0,
-        'maxDt':     20.0,
+        'tau_plus':       1.0,
+        'tau_minus':     20.0,
         'A_plus':    0.01,
         'A_minus':   0.0,
     }

@@ -58,15 +58,21 @@ class Decoder(object):
         logging.info("\n\nCurrent time is: {}\n".format(datetime.datetime.now()))
 
         logging.info("Setting up simulator")
-        sim.setup(self._network['timestep'],
-                  self._network['min_delay'],
-#                   model_name=self.name,
-#                   backend=config.BACKEND,
-#                   selected_gpu_id=0,
-                )
-        
-        sim.set_number_of_neurons_per_core(__neuron__.IF_curr_exp_i, 150)
-        sim.set_number_of_neurons_per_core(sim.SpikeSourceArray, 150)
+        setup_args = {
+            'timestep': self._network['timestep'],
+            'min_delay': self._network['min_delay'],
+        }
+
+        if config.SIM_NAME == config.GENN:
+            setup_args['model_name'] = self.name
+            setup_args['backend'] = config.BACKEND
+            setup_args['selected_gpu_id'] = 0
+
+        sim.setup(**setup_args)
+
+        if config.SIM_NAME == config.SPINNAKER:
+            sim.set_number_of_neurons_per_core(__neuron__.IF_curr_exp_i, 150)
+            sim.set_number_of_neurons_per_core(sim.SpikeSourceArray, 150)
         
         logging.info("\tGenerating spikes")
         self.in_labels, self.in_shapes, self.inputs = self.get_in_spikes(params)
