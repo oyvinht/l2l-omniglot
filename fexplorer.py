@@ -24,7 +24,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 USE_MPI = bool(1)
-MULTIPROCESSING = (ON_JEWELS or bool(0))
+MULTIPROCESSING = (ON_JEWELS or bool(1))
 
 def main():
 
