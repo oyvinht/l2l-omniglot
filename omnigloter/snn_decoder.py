@@ -58,6 +58,7 @@ class Decoder(object):
         logging.info("\n\nCurrent time is: {}\n".format(datetime.datetime.now()))
 
         logging.info("Setting up simulator")
+
         setup_args = {
             'timestep': self._network['timestep'],
             'min_delay': self._network['min_delay'],
