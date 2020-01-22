@@ -1,5 +1,7 @@
 import numpy as np
 import os
+GENN = 'genn'
+SPINNAKER = 'spinnaker'
 
 DEBUG = bool(0)
 ONE_TO_ONE_EXCEPTION = bool(0)
@@ -9,10 +11,10 @@ INF = float(10e10)
 
 USE_GABOR_LAYER = bool(0)
 
-SIM_NAME = 'genn'
+SIM_NAME = GENN
 
 
-TIMESTEP = 0.1 #ms
+TIMESTEP = 1.0 #ms
 SAMPLE_DT = 50.0 #ms
 # iw = 28
 # iw = 32
@@ -21,19 +23,19 @@ iw = 56
 # iw = 64
 # iw = 105
 INPUT_SHAPE = (iw, iw)
-# INPUT_DIVS = (3, 5)
+INPUT_DIVS = (3, 5)
 # INPUT_DIVS = (3, 3)
-INPUT_DIVS = (2, 2)
+# INPUT_DIVS = (2, 2)
 # INPUT_DIVS = (1, 1)
 # INPUT_DIVS = (2, 3)
-N_CLASSES = 2 if DEBUG else 14
-N_SAMPLES = 1 if DEBUG else 16
-N_EPOCHS = 1 if DEBUG else 50
+N_CLASSES = 14 if DEBUG else 14
+N_SAMPLES = 16 if DEBUG else 16
+N_EPOCHS = 10 if DEBUG else 100
 N_TEST = 4 if DEBUG else 4
 TOTAL_SAMPLES = N_SAMPLES * N_EPOCHS + N_TEST
 DURATION = N_CLASSES * TOTAL_SAMPLES * SAMPLE_DT
 PROB_NOISE_SAMPLE = 0.1
-
+STEPS = 100
 
 KERNEL_W = 7
 N_INPUT_LAYERS = 4
@@ -46,18 +48,18 @@ if ONE_TO_ONE_EXCEPTION:
     EXPANSION_RANGE = (1., 1.0000000000000000000001)
 else:
     # EXPANSION_RANGE = (10., 10.0001) if DEBUG else (0.25, 11.0)
-    EXPANSION_RANGE = (0.25, 1.0) if DEBUG else (0.25, 11.0)
+    EXPANSION_RANGE = (20., 21.0) if DEBUG else (0.25, 21.0)
 
-EXP_PROB_RANGE = (0.01, 0.5000001) if DEBUG else (0.05, 0.3)
-OUTPUT_PROB_RANGE = (0.01, 0.50000001) if DEBUG else (0.05, 0.3)
+EXP_PROB_RANGE = (0.5, 0.75000001) if DEBUG else (0.05, 0.5)
+OUTPUT_PROB_RANGE = (0.5, 0.750000001) if DEBUG else (0.05, 0.8)
 A_PLUS = (0.1, 5.0000000001) if DEBUG else (0.01, 5.0)
-A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 1.0)
+A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 5.0)
 STD_DEV = (3.0, 3.00000001) if DEBUG else (0.5, 5.0)
 DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
 MAX_DT = (80.0, 80.00000001) if DEBUG else (float(SAMPLE_DT), SAMPLE_DT*2.0)
-W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-2.0, 0.0)
+W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-5.0, 0.0)
 W_MAX_MULT = (1.2,)# 1.200000001) if DEBUG else (0.1, 2.0)
-CONN_DIST = (5, 15) if DEBUG else (3, 25)
+CONN_DIST = (5, 15) if DEBUG else (3, 30)
 
 
 GABOR_WEIGHT_RANGE = (2.0, 5.000001) if DEBUG else (1.0, 5.0)
@@ -171,21 +173,42 @@ ATTR_RANGES = {
     'w_min_mult': W_MIN_MULT,
 
 }
-
-ATTR_STEPS_BASE = {
+ATTR_STEPS_DEVS = {
     'out_weight': 1.0,
     'mushroom_weight': 1.0,
-    'expand': 5.0,
-    'exp_prob': 0.05,
-    'out_prob': 0.05,
-    'A_plus': 0.1,
-    'A_minus': 0.1,
-    'std': 0.5,
-    'displace': 0.01,
-    'maxDt': 10.0,
-    'w_max_mult': 0.05,
-    'w_min_mult': 0.05,
-    'conn_dist': 5.0,
+    'expand': 1.0,
+    'exp_prob': 1.0,
+    'out_prob': 1.0,
+    'A_plus': 1.0,
+    'A_minus': 1.0,
+    'std': 1.0,
+    'displace': 1.0,
+    'maxDt': 1.0,
+    'w_max_mult': 1.0,
+    'w_min_mult': 1.0,
+    'conn_dist': 1.0,
+}
+# ATTR_STEPS_BASE = {
+#     'out_weight': 1.0,
+#     'mushroom_weight': 1.0,
+#     'expand': 5.0,
+#     'exp_prob': 0.05,
+#     'out_prob': 0.05,
+#     'A_plus': 0.1,
+#     'A_minus': 0.1,
+#     'std': 0.5,
+#     'displace': 0.01,
+#     'maxDt': 10.0,
+#     'w_max_mult': 0.05,
+#     'w_min_mult': 0.05,
+#     'conn_dist': 5.0,
+# }
+# cheap attempt to scale the variance for normal-distributed mutation
+ATTR_STEPS_BASE = {
+    k: ATTR_STEPS_DEVS[k] * ((ATTR_RANGES[k][1] - ATTR_RANGES[k][0]) / 4.0)
+      if len(ATTR_RANGES[k]) > 1 else
+       ATTR_STEPS_DEVS[k] * ((ATTR_RANGES[k][0]) / 4.0)
+        for k in ATTR_RANGES
 }
 
 ATTR_STEPS = {k: ATTR_STEPS_BASE[k] for k in ATTR_STEPS_BASE}
@@ -209,7 +232,6 @@ BASE_PARAMS = {
     'cm': 0.09,  # nF
     'v_reset': -70.,  # mV
     'v_rest': -65.,  # mV
-    'v_thresh': VTHRESH,  # mV
     'tau_m': 10.,  # ms
     'tau_refrac': 1.,  # ms
     'tau_syn_E': 1., # ms
@@ -223,18 +245,20 @@ mult_thresh = 1.8
 
 GABOR_PARAMS = BASE_PARAMS.copy()
 MUSHROOM_PARAMS = BASE_PARAMS.copy()
-MUSHROOM_PARAMS['v_thresh_adapt'] = MUSHROOM_PARAMS['v_thresh']
-MUSHROOM_PARAMS['tau_thresh'] = tau_thresh
-MUSHROOM_PARAMS['mult_thresh'] = mult_thresh
+MUSHROOM_PARAMS['v_threshold'] = VTHRESH  # mV
+# MUSHROOM_PARAMS['v_thresh_adapt'] = MUSHROOM_PARAMS['v_threshold']
+MUSHROOM_PARAMS['tau_threshold'] = tau_thresh
+MUSHROOM_PARAMS['w_threshold'] = mult_thresh
 MUSHROOM_PARAMS['tau_syn_I'] = 5.
 
 INH_MUSHROOM_PARAMS = BASE_PARAMS.copy()
 INH_OUTPUT_PARAMS = BASE_PARAMS.copy()
 
 OUTPUT_PARAMS = BASE_PARAMS.copy()
-OUTPUT_PARAMS['v_thresh_adapt'] = OUTPUT_PARAMS['v_thresh']
-OUTPUT_PARAMS['tau_thresh'] = tau_thresh
-OUTPUT_PARAMS['mult_thresh'] = mult_thresh
+OUTPUT_PARAMS['v_threshold'] = VTHRESH  # mV
+# OUTPUT_PARAMS['v_thresh_adapt'] = OUTPUT_PARAMS['v_threshold']
+OUTPUT_PARAMS['tau_threshold'] = tau_thresh
+OUTPUT_PARAMS['w_threshold'] = mult_thresh
 OUTPUT_PARAMS['tau_syn_I'] = 5.
 
 
@@ -278,10 +302,8 @@ TIME_DEP = 'MyTemporalDependence'
 TIME_DEP_VARS = {
     "A_plus": 0.10,
     "A_minus": 0.01,
-    "mean": 0.0,
-    "std": 3.0,
-    "displace": 0.0,
-    "maxDt": 80.0,
+    "tau_plus": 3.0,
+    "tau_minus": 80.0,
 }
 
 WEIGHT_DEP = 'MyWeightDependence'
