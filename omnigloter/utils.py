@@ -223,6 +223,9 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
                 cols, rows = np.meshgrid(np.arange(col_l, col_h,),
                                          np.arange(row_l, row_h))
 
+                if len(cols) == 0 or len(rows) == 0:
+                    continue
+
                 # how many indices to select at random
                 n_idx = int(np.round(rows.size * prob))
 
@@ -282,7 +285,7 @@ def wta_mush_conn_list(in_shapes, num_zones, out_size, iweight, eweight, delay):
 
 
 def output_connection_list(kenyon_size, decision_size, prob_active, active_weight,
-                           inactive_scaling, seed=None, max_pre=10000):
+                           inactive_scaling, seed=None, max_pre=50000):
     n_pre = min(max_pre, kenyon_size)
     n_conns = n_pre * decision_size
     print("output_connection_list: n_conns = {}".format(n_conns))
@@ -532,3 +535,22 @@ def add_noise(prob, spikes, start_t, end_t):
         spikes[tog][:] = [float(np.random.randint(start_t, end_t))]
 
     return spikes
+
+def split_ssa(ssa, n_steps, duration):
+    dt = duration // n_steps
+    s = {}
+    for loop, st in enumerate(np.arange(0, duration, dt)):
+        sys.stdout.write("\r{:6.2f}%".format(float(loop)/float(n_steps)))
+        sys.stdout.flush()
+        et = st + dt
+        s[st] = {}
+        for i in ssa:
+            s[st][i] = []
+            for times in ssa[i]:
+                ts = np.asarray(times)
+                whr = np.where(np.logical_and(st <= ts, ts < et))
+                s[st][i].append(ts[whr].tolist())
+    sys.stdout.write("\n\n")
+    sys.stdout.flush()
+
+    return s
