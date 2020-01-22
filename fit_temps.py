@@ -19,7 +19,8 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-MULTIPROCESSING = (ON_JEWELS or bool(0))
+USE_MPI = bool(1)
+MULTIPROCESSING = (ON_JEWELS or bool(1))
 
 def main():
 
@@ -60,16 +61,18 @@ def main():
     # Scheduler parameters
     # Name of the scheduler
     # traj.f_add_parameter_to_group("JUBE_params", "scheduler", "Slurm")
+
     # Command to submit jobs to the schedulers
-    traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
+    # traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
+
     # Template file for the particular scheduler
     traj.f_add_parameter_to_group("JUBE_params", "job_file", "job.run")
     # Number of nodes to request for each run
     traj.f_add_parameter_to_group("JUBE_params", "nodes", "1")
     # Requested time for the compute resources
-    traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:01:00")
+    traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:10:00")
     # MPI Processes per node
-    traj.f_add_parameter_to_group("JUBE_params", "ppn", "1")
+    traj.f_add_parameter_to_group("JUBE_params", "ppn", "10")
     # CPU cores per MPI process
     traj.f_add_parameter_to_group("JUBE_params", "cpu_pp", "1")
     # Threads per process
@@ -84,18 +87,21 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "out_file", "stdout")
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
-    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "10")
+
+
     # The execution command
-    if ON_JEWELS:
+    run_filename = os.path.join(paths.root_dir_path, "run_files/run_optimizee.py")
+    command = "python3 {}".format(run_filename)
+    if ON_JEWELS and not USE_MPI:
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
-        traj.f_add_parameter_to_group("JUBE_params", "exec",
-                  "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
-                  " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
-    else:
-        traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
-                                      os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+        command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
+    elif USE_MPI:
+        command = "mpirun -np 1 {}".format(command)
+
+    traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
     # Ready file for a generation
     traj.f_add_parameter_to_group("JUBE_params", "ready_file",
