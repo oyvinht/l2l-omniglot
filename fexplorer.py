@@ -89,7 +89,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "out_file", "stdout")
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
-    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "1")
 
     # The execution command
     run_filename = os.path.join(paths.root_dir_path, "run_files/run_optimizee.py")
@@ -100,7 +100,7 @@ def main():
         # -n num sub-procs
         command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
-        command = "mpirun -np 1 {}".format(command)
+        command = "mpiexec -bind-to none -np 1 {}".format(command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
