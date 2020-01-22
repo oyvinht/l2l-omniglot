@@ -23,6 +23,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
+USE_MPI = bool(1)
 MULTIPROCESSING = (ON_JEWELS or bool(0))
 
 def main():
@@ -89,17 +90,19 @@ def main():
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
     traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
+
     # The execution command
-    if ON_JEWELS:
+    run_filename = os.path.join(paths.root_dir_path, "run_files/run_optimizee.py")
+    command = "python3 {}".format(run_filename)
+    if ON_JEWELS and not USE_MPI:
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
-        traj.f_add_parameter_to_group("JUBE_params", "exec",
-                  "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
-                  " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
-    else:
-        traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
-                                      os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+        command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
+    elif USE_MPI:
+        command = "mpirun -np 1 {}".format(command)
+
+    traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
     # Ready file for a generation
     traj.f_add_parameter_to_group("JUBE_params", "ready_file",
