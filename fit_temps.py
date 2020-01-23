@@ -72,7 +72,7 @@ def main():
     # Requested time for the compute resources
     traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:10:00")
     # MPI Processes per node
-    traj.f_add_parameter_to_group("JUBE_params", "ppn", "10")
+    traj.f_add_parameter_to_group("JUBE_params", "ppn", "1")
     # CPU cores per MPI process
     traj.f_add_parameter_to_group("JUBE_params", "cpu_pp", "1")
     # Threads per process
@@ -87,7 +87,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "out_file", "stdout")
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
-    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "10")
+    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "1")
 
 
     # The execution command
@@ -99,7 +99,7 @@ def main():
         # -n num sub-procs
         command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
-        command = "mpirun -np 1 {}".format(command)
+        command = "mpiexec --bind-to none -np 1  {}".format(command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -138,7 +138,7 @@ def main():
 
     fit_weights = [1.0,]# 0.1]
     num_generations = 10000
-    population_size = 200
+    population_size = 50
     # population_size = 5
     parameters = GeneticAlgorithmParameters(seed=0,
                     popsize=population_size,
