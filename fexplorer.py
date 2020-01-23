@@ -92,7 +92,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "1")
 
     # The execution command
-    run_filename = os.path.join(paths.root_dir_path, "run_files/run_optimizee.py")
+    run_filename = os.path.join(paths.root_dir_path, "run_files","run_optimizee.py")
     command = "python3 {}".format(run_filename)
     if ON_JEWELS and not USE_MPI:
         # -N num nodes
