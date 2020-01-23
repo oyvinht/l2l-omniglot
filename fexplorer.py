@@ -23,8 +23,8 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-USE_MPI = bool(1)
-MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(1))
+USE_MPI = bool(0)
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
 
@@ -179,7 +179,7 @@ def main():
         parameters = RMSPropParameters(learning_rate=0.0001,
                                        exploration_step_size=step_size,
                                        n_random_steps=n_random_steps,
-                                      momentum_decay=0.5,
+                                       momentum_decay=0.5,
                                        n_iteration=n_iteration,
                                        stop_criterion=np.inf,
                                        seed=99)
@@ -209,7 +209,7 @@ def main():
             parameters=parameters,
             optimizee_bounding_func=optimizee.bounding_func)
     else:
-        num_generations = 20
+        num_generations = 1000
         population_size = 50
         # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
