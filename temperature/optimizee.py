@@ -74,6 +74,13 @@ class FitOptimizee(Optimizee):
         return individual
 
     def simulate(self, traj, queue=None):
+        ind_idx = traj.individual.ind_idx
+        generation = traj.individual.generation
+
+        for i in range(5):
+            print("generation, ind_idx = (%s, %s)\tt = %02d"%(generation, ind_idx, i))
+            time.sleep(1)
+
         ipr = self.ind_param_ranges
         ind_params = {k: getattr(traj.individual, k) for k in ipr}
         ps = [ind_params[k] for k in sorted(list(ind_params.keys()))]
@@ -85,8 +92,6 @@ class FitOptimizee(Optimizee):
         mse = EPSILON if mse <= EPSILON else mse
         fitness = 1.0/mse
 
-        ind_idx = traj.individual.ind_idx
-        generation = traj.individual.generation
         name = 'gen{:05d}_ind{:05d}'.format(generation, ind_idx)
 
         p = '/home/gp283/l2l-omniglot'
