@@ -3,10 +3,14 @@ import matplotlib.pyplot as plt
 import sys
 import argparse
 from pprint import pprint
-import pynn_genn as sim
+
 import stdp_mech as __stdp__
 import neuron_model as __model__
-backend = 'genn'
+from omnigloter import config
+
+
+import pynn_genn as sim
+
 neuron_class = __model__.IF_curr_exp_i
 # heidelberg's brainscales seems to like these params
 e_rev = 92 #mV
@@ -27,7 +31,7 @@ base_params = {
 }
 
 timestep = 0.1
-max_w = 0.01
+max_w = 0.1
 start_w = max_w / 2.0
 
 delays = [0.1]
@@ -35,7 +39,7 @@ time_dep_vars = {
     "A_plus": 0.10,
     "A_minus": 0.01,
     "mean": 0.0,
-    "std": 2.0,
+    "std": 10.0,
     "displace": 0.0,
     "maxDt": 80.0,
 }
@@ -101,6 +105,7 @@ for delay in pprojs:
 
 sim.end()
 
+np.savez_compressed('genn_stdp_experiments.npz', experiments=experiments)
 
 
 plt.figure()
@@ -144,4 +149,3 @@ plt.legend()
 plt.grid()
 plt.show()
 
-np.savez_compressed('delay_experiments.npz', experiments=experiments)

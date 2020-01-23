@@ -23,7 +23,8 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-MULTIPROCESSING = (ON_JEWELS or bool(0))
+USE_MPI = bool(1)
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(1))
 
 def main():
 
@@ -88,18 +89,20 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "out_file", "stdout")
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
-    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "1")
+
     # The execution command
-    if ON_JEWELS:
+    run_filename = os.path.join(paths.root_dir_path, "run_files","run_optimizee.py")
+    command = "python3 {}".format(run_filename)
+    if ON_JEWELS and not USE_MPI:
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
-        traj.f_add_parameter_to_group("JUBE_params", "exec",
-                  "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
-                  " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
-    else:
-        traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
-                                      os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+        command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
+    elif USE_MPI:
+        command = "mpiexec -bind-to none -np 1 {}".format(command)
+
+    traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
     # Ready file for a generation
     traj.f_add_parameter_to_group("JUBE_params", "ready_file",
@@ -111,6 +114,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
+    traj.f_add_parameter_to_group("simulation", 'steps', config.STEPS)  # ms
     traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
     traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
     traj.f_add_parameter_to_group("simulation", 'input_shape', config.INPUT_SHAPE)  # rows, cols
@@ -175,7 +179,7 @@ def main():
         parameters = RMSPropParameters(learning_rate=0.0001,
                                        exploration_step_size=step_size,
                                        n_random_steps=n_random_steps,
-                                       momentum_decay=0.5,
+                                      momentum_decay=0.5,
                                        n_iteration=n_iteration,
                                        stop_criterion=np.inf,
                                        seed=99)
@@ -205,8 +209,8 @@ def main():
             parameters=parameters,
             optimizee_bounding_func=optimizee.bounding_func)
     else:
-        num_generations = 1000
-        population_size = 20
+        num_generations = 20
+        population_size = 50
         # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
@@ -223,7 +227,10 @@ def main():
                       optimizee_create_individual=optimizee.create_individual,
                       optimizee_fitness_weights=fit_weights,
                       parameters=parameters,
-                      optimizee_bounding_func=optimizee.bounding_func)
+                      optimizee_bounding_func=optimizee.bounding_func,
+                      percent_hall_of_fame = 0.1,
+                      percent_elite = 0.5,
+                    )
 
     # Add post processing
     ### guess this is where we want to split results from multiple runs?

@@ -1,5 +1,7 @@
 import numpy as np
 import os
+GENN = 'genn'
+SPINNAKER = 'spinnaker'
 
 DEBUG = bool(0)
 ONE_TO_ONE_EXCEPTION = bool(0)
@@ -9,10 +11,10 @@ INF = float(10e10)
 
 USE_GABOR_LAYER = bool(0)
 
-SIM_NAME = 'genn'
+SIM_NAME = GENN
 
 
-TIMESTEP = 0.1 #ms
+TIMESTEP = 1.0 #ms
 SAMPLE_DT = 50.0 #ms
 # iw = 28
 # iw = 32
@@ -33,7 +35,7 @@ N_TEST = 4 if DEBUG else 4
 TOTAL_SAMPLES = N_SAMPLES * N_EPOCHS + N_TEST
 DURATION = N_CLASSES * TOTAL_SAMPLES * SAMPLE_DT
 PROB_NOISE_SAMPLE = 0.1
-
+STEPS = 100
 
 KERNEL_W = 7
 N_INPUT_LAYERS = 4
@@ -201,10 +203,11 @@ ATTR_STEPS_DEVS = {
 #     'w_min_mult': 0.05,
 #     'conn_dist': 5.0,
 # }
-
+# cheap attempt to scale the variance for normal-distributed mutation
 ATTR_STEPS_BASE = {
-    # cheap attempt to scale the variance for normal-distributed mutation
-    k: ATTR_STEPS_DEVS * ((ATTR_RANGES[1] - ATTR_RANGES[1]) / 4.0)
+    k: ATTR_STEPS_DEVS[k] * ((ATTR_RANGES[k][1] - ATTR_RANGES[k][0]) / 4.0)
+      if len(ATTR_RANGES[k]) > 1 else
+       ATTR_STEPS_DEVS[k] * ((ATTR_RANGES[k][0]) / 4.0)
         for k in ATTR_RANGES
 }
 
@@ -229,7 +232,6 @@ BASE_PARAMS = {
     'cm': 0.09,  # nF
     'v_reset': -70.,  # mV
     'v_rest': -65.,  # mV
-    'v_thresh': VTHRESH,  # mV
     'tau_m': 10.,  # ms
     'tau_refrac': 1.,  # ms
     'tau_syn_E': 1., # ms
@@ -243,18 +245,20 @@ mult_thresh = 1.8
 
 GABOR_PARAMS = BASE_PARAMS.copy()
 MUSHROOM_PARAMS = BASE_PARAMS.copy()
-MUSHROOM_PARAMS['v_thresh_adapt'] = MUSHROOM_PARAMS['v_thresh']
-MUSHROOM_PARAMS['tau_thresh'] = tau_thresh
-MUSHROOM_PARAMS['mult_thresh'] = mult_thresh
+MUSHROOM_PARAMS['v_threshold'] = VTHRESH  # mV
+# MUSHROOM_PARAMS['v_thresh_adapt'] = MUSHROOM_PARAMS['v_threshold']
+MUSHROOM_PARAMS['tau_threshold'] = tau_thresh
+MUSHROOM_PARAMS['w_threshold'] = mult_thresh
 MUSHROOM_PARAMS['tau_syn_I'] = 5.
 
 INH_MUSHROOM_PARAMS = BASE_PARAMS.copy()
 INH_OUTPUT_PARAMS = BASE_PARAMS.copy()
 
 OUTPUT_PARAMS = BASE_PARAMS.copy()
-OUTPUT_PARAMS['v_thresh_adapt'] = OUTPUT_PARAMS['v_thresh']
-OUTPUT_PARAMS['tau_thresh'] = tau_thresh
-OUTPUT_PARAMS['mult_thresh'] = mult_thresh
+OUTPUT_PARAMS['v_threshold'] = VTHRESH  # mV
+# OUTPUT_PARAMS['v_thresh_adapt'] = OUTPUT_PARAMS['v_threshold']
+OUTPUT_PARAMS['tau_threshold'] = tau_thresh
+OUTPUT_PARAMS['w_threshold'] = mult_thresh
 OUTPUT_PARAMS['tau_syn_I'] = 5.
 
 
@@ -298,10 +302,8 @@ TIME_DEP = 'MyTemporalDependence'
 TIME_DEP_VARS = {
     "A_plus": 0.10,
     "A_minus": 0.01,
-    "mean": 0.0,
-    "std": 3.0,
-    "displace": 0.0,
-    "maxDt": 80.0,
+    "tau_plus": 3.0,
+    "tau_minus": 80.0,
 }
 
 WEIGHT_DEP = 'MyWeightDependence'
