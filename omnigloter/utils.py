@@ -552,7 +552,7 @@ def split_ssa(ssa, n_steps, duration):
             for times in ssa[i]:
                 ts = np.asarray(times)
                 whr = np.where(np.logical_and(st <= ts, ts < et))
-                s[st][i].append(ts[whr].tolist())
+                s[st][i].append(np.round(ts[whr]).tolist())
     sys.stdout.write("\n\n")
     sys.stdout.flush()
 
