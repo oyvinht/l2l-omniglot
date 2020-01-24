@@ -175,7 +175,8 @@ def o2o_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
         for pre in range(max_pre):
             post = start_post + pre
             conns[pre_pop].append([pre, post, weight, delay])
-            sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (float(post+1.0) / out_size)))
+            pc = (100.0 * (float(post+1.0) / out_size))
+            sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % pc)
             sys.stdout.flush()
 
         start_post += max_pre
@@ -251,7 +252,8 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
                             print("pre_c, col_l, col_h = {} {} {}".format(pre_c, col_l, col_h))
 
                 zone_idx += 1
-                sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
+                pc = (100.0 * (zone_idx) / num_zones['total'])
+                sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % pc)
                 sys.stdout.flush()
 
     sys.stdout.write("\n")
@@ -276,7 +278,8 @@ def wta_mush_conn_list(in_shapes, num_zones, out_size, iweight, eweight, delay):
                     iconns.append((zone_idx, post, iweight, delay))
 
                 zone_idx += 1
-                sys.stdout.write("\r\tWTA to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
+                pc = (100.0 * (zone_idx) / num_zones['total'])
+                sys.stdout.write("\r\tWTA to Mushroom\t%6.2f%%" % pc)
                 sys.stdout.flush()
 
     sys.stdout.write("\n")
