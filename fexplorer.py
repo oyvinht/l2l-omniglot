@@ -101,7 +101,7 @@ def main():
         command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
-        command = "mpiexec -timeout {} -bind-to none -np 1 {}".format(60*40, command)
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*60, command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -212,7 +212,7 @@ def main():
     else:
         num_generations = 1000
         population_size = 50
-        population_size = 5
+#         population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
