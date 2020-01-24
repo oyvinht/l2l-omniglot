@@ -120,36 +120,39 @@ class OmniglotOptimizee(Optimizee):
 
             snn = Decoder(name, params)
             data = snn.run_pynn()
+            diff_class_dots = []
+            if not data['died']:
+                ### Analyze results
+                dt = self.sim_params['sample_dt']
+                out_spikes = data['recs']['output'][0]['spikes']
+                labels = data['input']['labels']
+                end_t = self.sim_params['duration']
+                start_t = end_t - n_class * n_test * dt
+                apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
-            ### Analyze results
-            dt = self.sim_params['sample_dt']
-            out_spikes = data['recs']['output'][0]['spikes']
-            labels = data['input']['labels']
-            end_t = self.sim_params['duration']
-            start_t = end_t - n_class * n_test * dt
-            apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
 
+                diff_class_vectors = [np.zeros(n_out) for _ in apc]
+                for c in apc:
+                    if len(apc[c]):
+                        kv = np.array(list(apc[c].keys()), dtype='int')
+                        diff_class_vectors[c - 1][kv] += 1
 
-            diff_class_vectors = [np.zeros(n_out) for _ in apc]
-            for c in apc:
-                if len(apc[c]):
-                    kv = np.array(list(apc[c].keys()), dtype='int')
-                    diff_class_vectors[c - 1][kv] += 1
-
-            # punish inactivity on output cells,
-            # every test sample should produce at least one spike in
-            # the output population
-            any_zero = False
-            all_zero = True
-            n_out_class = 0
-            for v in diff_class_vectors:
-                if np.sum(v) > 0:
-                    all_zero = False
-                    n_out_class += 1
-                    continue
+                # punish inactivity on output cells,
+                # every test sample should produce at least one spike in
+                # the output population
+                any_zero = False
+                all_zero = True
+                n_out_class = 0
+                for v in diff_class_vectors:
+                    if np.sum(v) > 0:
+                        all_zero = False
+                        n_out_class += 1
+                        continue
+                    any_zero = True
+            else:
                 any_zero = True
-
+                all_zero = True
 
 
             if (not all_zero) and (SOFT_ZERO_PUNISH or not any_zero):
