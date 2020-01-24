@@ -406,8 +406,8 @@ class Decoder(object):
             for l in gshapes:
                 count += int(gshapes[l][0]*gshapes[l][1]*ndivs)
         else:
-            for i in self.inputs:
-                count += len(self.inputs[i])
+            for i in self.inputs[0]:
+                count += len(self.inputs[0][i])
 
         expand = params['ind']['expand']
         sys.stdout.write("\tCount: {}\tExpand: {}\n".format(count, expand))
@@ -424,10 +424,16 @@ class Decoder(object):
         nz = {}
         for k in in_shapes:
             d = (1, 1) if k < 2 else divs
-            max_div = max(d[0], d[1])
-            r = max(1.0, np.round((2.0 * radius) // max_div))
-            nz[k] = [max(1.0, v//r) for v in in_shapes[k]]
+            nz[k] = []
+            for i in range(len(d)):
+                r = max(1.0, np.round((2.0 * radius) / d[i]))
+                nz[k].append( max(1.0, in_shapes[k][i]//r) )
+
             total += np.prod(nz[k])
+            # max_div = max(d[0], d[1])
+            # r = max(1.0, np.round((2.0 * radius) / max_div))
+            # nz[k] = [max(1.0, v//r) for v in in_shapes[k]]
+            # total += np.prod(nz[k])
 
         nz['total'] = total
 
