@@ -23,7 +23,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-USE_MPI = bool(0)
+USE_MPI = bool(1)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
@@ -66,7 +66,7 @@ def main():
     # Name of the scheduler
     # traj.f_add_parameter_to_group("JUBE_params", "scheduler", "Slurm")
     # Command to submit jobs to the schedulers
-    traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
+    # traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
     # Template file for the particular scheduler
     traj.f_add_parameter_to_group("JUBE_params", "job_file", "job.run")
     # Number of nodes to request for each run
@@ -100,7 +100,8 @@ def main():
         # -n num sub-procs
         command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
-        command = "mpiexec -bind-to none -np 1 {}".format(command)
+        # -timeout <seconds>
+        command = "mpiexec -timeout {} -bind-to none -np 1 {}".format(60*40, command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -211,7 +212,7 @@ def main():
     else:
         num_generations = 1000
         population_size = 50
-        # population_size = 5
+        population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
