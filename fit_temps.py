@@ -99,7 +99,7 @@ def main():
         # -n num sub-procs
         command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
-        command = "mpiexec --bind-to none -np 1  {}".format(command)
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60, command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
