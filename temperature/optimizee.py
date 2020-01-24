@@ -77,7 +77,7 @@ class FitOptimizee(Optimizee):
         ind_idx = traj.individual.ind_idx
         generation = traj.individual.generation
 
-        for i in range(5):
+        for i in range(120):
             print("generation, ind_idx = (%s, %s)\tt = %02d"%(generation, ind_idx, i))
             time.sleep(1)
 
