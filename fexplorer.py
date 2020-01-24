@@ -23,7 +23,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-USE_MPI = bool(0)
+USE_MPI = bool(1)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
@@ -101,7 +101,7 @@ def main():
         command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
-        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*60, command)
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*120, command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -212,7 +212,7 @@ def main():
     else:
         num_generations = 1000
         population_size = 50
-        population_size = 5
+        # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
