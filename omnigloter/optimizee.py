@@ -121,6 +121,7 @@ class OmniglotOptimizee(Optimizee):
             snn = Decoder(name, params)
             data = snn.run_pynn()
             diff_class_dots = []
+            apc, ipc = None, None
             if not data['died']:
                 ### Analyze results
                 dt = self.sim_params['sample_dt']
