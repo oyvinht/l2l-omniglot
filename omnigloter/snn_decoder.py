@@ -238,11 +238,11 @@ class Decoder(object):
         dt_idx = 0
         total_fs = float(len(fnames) + len(test_fnames))
         for i, f in enumerate(fnames):
-            if (i % (nclass * nsamp)) == 0 :
-                plt.close('all')
-                plt.figure()
-                plt.hist(labels, bins=nclass)
-                plt.savefig("label_histogram_{:09d}.pdf".format(i))
+            # if (i % (nclass * nsamp)) == 0 :
+            #     plt.close('all')
+            #     plt.figure()
+            #     plt.hist(labels, bins=nclass)
+            #     plt.savefig("label_histogram_{:09d}.pdf".format(i))
             #     plt.show()
 
             spk = np.load(f, allow_pickle=True)
@@ -279,10 +279,10 @@ class Decoder(object):
             sys.stdout.flush()
 
 
-        plt.close('all')
-        plt.figure()
-        plt.hist(labels[-nclass*nsamp:], bins=nclass)
-        plt.savefig("label_histogram_last.pdf")
+        # plt.close('all')
+        # plt.figure()
+        # plt.hist(labels[-nclass*nsamp:], bins=nclass)
+        # plt.savefig("label_histogram_last.pdf")
 
         # plt.show()
 
@@ -426,8 +426,8 @@ class Decoder(object):
             d = (1, 1) if k < 2 else divs
             nz[k] = []
             for i in range(len(d)):
-                r = max(1.0, np.round((2.0 * radius) / d[i]))
-                nz[k].append( max(1.0, in_shapes[k][i]//r) )
+                r = max(1.0, np.floor((2.0 * radius) / d[i]))
+                nz[k].append( max(1.0, np.ceil(in_shapes[k][i]/r)) )
 
             total += np.prod(nz[k])
             # max_div = max(d[0], d[1])
@@ -605,7 +605,7 @@ class Decoder(object):
         shapes = self.in_shapes
         divs = params['sim']['input_divs']
         nz = self.num_zones_mushroom(shapes, radius, divs)
-        if config.ONE_TO_ONE_EXCEPTION:
+        if config.ONE_TO_ONE_EXCEPTION == True:
             conns = utils.o2o_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
         else:
             conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
@@ -794,33 +794,53 @@ class Decoder(object):
         
         sys.stdout.write("\n\n\tRunning step {} out of {}\n\n".format(1, steps))
         sys.stdout.flush()
-        sim.run(duration)
-        
-        for step, st in enumerate(self.inputs):
-            ssa = self.inputs[st]
-            pops = self.input_populations()
-            for layer in ssa:
-                pops[layer].set(spike_times=ssa[layer])
-                
-            sys.stdout.write("\n\n\tRunning step {} out of {}\n\n".format(step + 1, steps))
-            sys.stdout.flush()
-            sim.run(duration)
 
+        __died__ = False
         records = {}
-        for pop in net['populations']:
-            if pop in config.RECORD_SPIKES:
-                records[pop] = self._get_recorded(pop)
-
         weights = {}
-        for proj in net['projections']:
-            if proj in config.RECORD_WEIGHTS:
-                if proj == 'input to mushroom':
-                    weights[proj] = self._in_to_mush_conns
-                else:
-                    weights[proj] = grab_weights(net['projections'][proj])
 
 
-        sim.end()
+        try:
+            sim.run(duration)
+        except:
+            sys.stdout.write("\n\n\tExperiment died in first run!!!\n\n")
+            sys.stdout.flush()
+            __died__ = True
+
+        if not __died__:
+            for step, st in enumerate(self.inputs):
+                ssa = self.inputs[st]
+                pops = self.input_populations()
+                for layer in ssa:
+                    pops[layer].set(spike_times=ssa[layer])
+
+                sys.stdout.write("\n\n\tRunning step {} out of {}\n\n".format(step + 1, steps))
+                sys.stdout.flush()
+                try:
+                    sim.run(duration)
+                except:
+                    sys.stdout.write("\n\n\tExperiment died!!!\n\n")
+                    sys.stdout.flush()
+                    __died__ = True
+                    break
+
+
+        if not __died__:
+            for pop in net['populations']:
+                if pop in config.RECORD_SPIKES:
+                    records[pop] = self._get_recorded(pop)
+
+            for proj in net['projections']:
+                if proj in config.RECORD_WEIGHTS:
+                    if proj == 'input to mushroom':
+                        weights[proj] = self._in_to_mush_conns
+                    else:
+                        weights[proj] = grab_weights(net['projections'][proj])
+
+        try:
+            sim.end()
+        except:
+            pass
 
 
         ### todo: change start and end for labels and runtimes
@@ -848,7 +868,7 @@ class Decoder(object):
             },
             'params': self.params,
             'db_name': self._db_name,
-
+            'died': __died__,
             # 'analysis':{
             #     'per_class': spk_p_class
             # }
