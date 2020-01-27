@@ -186,12 +186,12 @@ def o2o_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
     return conns
 
 def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
-    print("in dist_con_list")
-    print(" pre shapes {}".format(in_shapes))
-    print(" num zones {}".format(num_zones))
-    print("out size {}".format(out_size))
-    print("radius {}".format(radius))
-    print("prob {}".format(prob))
+    print("\tin dist_con_list")
+    print("\t\tpre shapes {}".format(in_shapes))
+    print("\t\tnum zones {}".format(num_zones))
+    print("\t\tout size {}".format(out_size))
+    print("\t\tradius {}".format(radius))
+    print("\t\tprob {}".format(prob))
 
     div = max(in_shapes[0][0]//in_shapes[2][0],
               in_shapes[0][1]//in_shapes[2][1])
