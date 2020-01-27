@@ -211,7 +211,7 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 50
+        population_size = 20
         # population_size = 5
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
@@ -219,7 +219,7 @@ def main():
                         MUTPB=0.8,  # probability of individual to mutate
                         NGEN=num_generations,
                         indpb=0.1,  # probability of "gene" to mutate
-                        tournsize=100,  # number of best individuals to mate
+                        tournsize=population_size,  # number of best individuals to mate
                         matepar=0.5,  # how much to mix two genes when mating
                         mutpar=2.0 / 4.0,  # standard deviations for normal distribution
                         )
