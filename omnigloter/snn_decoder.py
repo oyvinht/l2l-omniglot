@@ -426,8 +426,8 @@ class Decoder(object):
             d = (1, 1) if k < 2 else divs
             nz[k] = []
             for i in range(len(d)):
-                r = max(1.0, np.round((2.0 * radius) / d[i]))
-                nz[k].append( max(1.0, in_shapes[k][i]//r) )
+                r = max(1.0, np.floor((2.0 * radius) / d[i]))
+                nz[k].append( max(1.0, np.ceil(in_shapes[k][i]/r)) )
 
             total += np.prod(nz[k])
             # max_div = max(d[0], d[1])
@@ -605,7 +605,7 @@ class Decoder(object):
         shapes = self.in_shapes
         divs = params['sim']['input_divs']
         nz = self.num_zones_mushroom(shapes, radius, divs)
-        if config.ONE_TO_ONE_EXCEPTION:
+        if config.ONE_TO_ONE_EXCEPTION == True:
             conns = utils.o2o_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
         else:
             conns = utils.dist_conn_list(shapes, nz, post.size, radius, prob, weight, delay)
