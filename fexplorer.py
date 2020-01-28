@@ -41,7 +41,8 @@ def main():
 
     # Create an environment that handles running our simulation
     # This initializes an environment
-    env = Environment(trajectory=name, filename=traj_file,
+    env = Environment(trajectory=name,
+                      filename=traj_file,
                       file_title="{} data".format(name),
                       comment="{} data".format(name),
                       add_time=bool(1),
