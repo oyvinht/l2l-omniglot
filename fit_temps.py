@@ -2,6 +2,8 @@ import logging.config
 import os
 import sys
 
+import glob
+
 sys.path.append('.')
 sys.path.append("./temperature")
 import numpy as np
@@ -20,7 +22,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 USE_MPI = bool(1)
-MULTIPROCESSING = (ON_JEWELS or bool(1))
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
 
@@ -32,12 +34,14 @@ def main():
     print("All output logs can be found in directory ", paths.logs_path)
 
     traj_file = os.path.join(paths.output_dir_path, "data.h5")
+    print(traj_file)
     os.makedirs(paths.output_dir_path, exist_ok=True)
     print("Trajectory file is: {}".format(traj_file))
 
     # Create an environment that handles running our simulation
     # This initializes an environment
-    env = Environment(trajectory=name, filename=traj_file,
+    env = Environment(trajectory=name,
+                      filename=traj_file,
                       file_title="{} data".format(name),
                       comment="{} data".format(name),
                       add_time=bool(1),
@@ -51,6 +55,7 @@ def main():
                               sim_name=name,
                               log_directory=paths.logs_path)
     configure_loggers()
+
 
     # Get the trajectory from the environment
     traj = env.trajectory
@@ -137,7 +142,7 @@ def main():
     # step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
 
     fit_weights = [1.0,]# 0.1]
-    num_generations = 10000
+    num_generations = 10#000
     population_size = 50
     # population_size = 5
     parameters = GeneticAlgorithmParameters(seed=0,
@@ -174,7 +179,25 @@ def main():
     env.disable_logging()
 
 
+def load_last_trajs(path):
+    import pickle
+    def g_i(txt):
+        x = os.path.basename(txt).split('.bin')[0]
+        ind, gen = [int(n) for n in x.split('_')[-2:]]
+        return [gen, ind]
 
+    files = glob.glob(path, '*.bin')
+    gen_inds = np.asarray([g_i(f) for f in files])
+    max_gen = np.max(gen_inds[:, 0])
+    rows = np.where(gen_inds[:, 0] == max_gen)[0]
+    last_fnames = {gen_inds[r, 1]: files[r] for r in rows}
+
+    trajs = {k: pickle.load(open(last_fnames[k], 'rb'))\
+                                    for k in last_fnames}
+
+    trajs['generation'] = max_gen
+
+    return trajs
 
 
 if __name__ == '__main__':
