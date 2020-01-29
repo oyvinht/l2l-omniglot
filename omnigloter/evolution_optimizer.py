@@ -105,7 +105,18 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         # ------- Initialize Population and Trajectory -------- #
         # NOTE: The Individual object implements the list interface.
+
         self.pop = toolbox.population(n=traj.popsize)
+
+        g = -1
+        if g in traj.individuals:
+            for idx, ind in enumerate(traj.individuals[g]):
+                for k in ind.keys:
+                    sk = k.split('.')[-1]
+                    v = getattr(ind, sk)
+                    setattr(self.pop[idx], k, v)
+            traj.individuals.clear()
+
         self.eval_pop_inds = [ind for ind in self.pop if not ind.fitness.valid]
         self.eval_pop = [list_to_dict(ind, self.optimizee_individual_dict_spec)
                          for ind in self.eval_pop_inds]
@@ -194,14 +205,14 @@ class GeneticAlgorithmOptimizer(Optimizer):
             bob_ids = np.argsort([to_fit(o)  for o in bob_inds])[::-1]
             max_score = to_fit(bob_inds[bob_ids[0]])
             min_score = 0.5 * max_score
-            for i in range(n_bobs):
-                off_i = int(offsp_ids[i])
-                bob_i = int(bob_ids[i])
-                off_f = to_fit(offspring[off_i])
-                bob_f = to_fit(bob_inds[bob_i])
-                if bob_f > off_f:
-                    logger.info("Inserting BoB {} to population".format(i+1))
-                    offspring[int(offsp_ids[i])][:] = bob_inds[int(bob_ids[i])]
+            # for i in range(n_bobs):
+            #     off_i = int(offsp_ids[i])
+            #     bob_i = int(bob_ids[i])
+            #     off_f = to_fit(offspring[off_i])
+            #     bob_f = to_fit(bob_inds[bob_i])
+            #     if bob_f > off_f:
+            #         logger.info("Inserting BoB {} to population".format(i+1))
+            #         offspring[int(offsp_ids[i])][:] = bob_inds[int(bob_ids[i])]
 
             # Apply crossover and mutation on the offspring
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -240,6 +251,14 @@ class GeneticAlgorithmOptimizer(Optimizer):
                                 # self.toolbox.mutate(o2)
                                 o2[:] = spawn()
                                 del o2.fitness.values
+
+
+            # for i in range(n_bobs):
+            #     off_i = int(offsp_ids[i])
+            #     bob_i = int(bob_ids[i])
+            #     logger.info("Inserting BoB {} to population".format(i+1))
+            #     offspring[off_i][:] = bob_inds[bob_i]
+            #     del offspring[off_i].fitness.values
 
             # The population is entirely replaced by the offspring
             self.pop[:] = offspring

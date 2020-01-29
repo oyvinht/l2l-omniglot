@@ -141,10 +141,18 @@ def main():
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
     # step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
 
+
     fit_weights = [1.0,]# 0.1]
     num_generations = 10#000
     population_size = 50
     # population_size = 5
+
+
+    trajectories = load_last_trajs('./FIT-TEMPS/trajectories')
+    if len(trajectories):
+        traj.individuals = trajectories_to_individuals(
+                                trajectories, population_size, optimizee, generation=-1)
+
     parameters = GeneticAlgorithmParameters(seed=0,
                     popsize=population_size,
                     CXPB=0.5, # probability of mating 2 individuals
@@ -186,7 +194,11 @@ def load_last_trajs(path):
         ind, gen = [int(n) for n in x.split('_')[-2:]]
         return [gen, ind]
 
-    files = glob.glob(path, '*.bin')
+    files = glob.glob(os.path.join(path, '*.bin'))
+
+    if not files:
+        return {}
+
     gen_inds = np.asarray([g_i(f) for f in files])
     max_gen = np.max(gen_inds[:, 0])
     rows = np.where(gen_inds[:, 0] == max_gen)[0]
@@ -198,6 +210,22 @@ def load_last_trajs(path):
     trajs['generation'] = max_gen
 
     return trajs
+
+def trajectories_to_individuals(trajs, target_number, optimizee, generation=0):
+    ind_ids = sorted( [k for k in trajs if k != 'generation'] )
+    inds = [trajs[i].individual for i in ind_ids]
+    max_id = np.max(ind_ids)
+    if len(ind_ids) < target_number:
+        from l2l.utils.individual import Individual
+        for i in range(target_number - len(ind_ids)):
+            zee = optimizee.bounding_func(
+                    optimizee.create_individual())
+            ind_idx = max_id + i + 1
+            params = [{'individual.{}'.format(k): zee[k]} for k in zee]
+            inds.append(Individual(ind_idx=ind_idx, params=params))
+
+    return {generation: inds}
+
 
 
 if __name__ == '__main__':
