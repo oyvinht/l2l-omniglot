@@ -58,7 +58,11 @@ class GeneticAlgorithmOptimizer(Optimizer):
             dict_to_list(optimizee_create_individual(), get_dict_spec=True)
         self.optimizee_create_individual = optimizee_create_individual
         traj.f_add_parameter('seed', parameters.seed, comment='Seed for RNG')
-        traj.f_add_parameter('popsize', parameters.popsize, comment='Population size')  # 185
+        if len(traj.individuals):
+            popsize = max(parameters.popsize, len(traj.individuals[-1]))
+        else:
+            popsize = parameters.popsize
+        traj.f_add_parameter('popsize', popsize, comment='Population size')  # 185
         traj.f_add_parameter('CXPB', parameters.CXPB, comment='Crossover term')
         traj.f_add_parameter('MUTPB', parameters.MUTPB, comment='Mutation probability')
         traj.f_add_parameter('n_iteration', parameters.NGEN, comment='Number of generations')
@@ -111,11 +115,13 @@ class GeneticAlgorithmOptimizer(Optimizer):
         g = -1
         if g in traj.individuals:
             for idx, ind in enumerate(traj.individuals[g]):
-                for k in ind.keys:
+                for k_idx, k in enumerate(sorted(ind.keys)):
                     sk = k.split('.')[-1]
                     v = getattr(ind, sk)
-                    setattr(self.pop[idx], k, v)
-            traj.individuals.clear()
+                    self.pop[idx][k_idx] = v
+                    del self.pop[idx].fitness.values
+
+            # traj.individuals.clear()
 
         self.eval_pop_inds = [ind for ind in self.pop if not ind.fitness.valid]
         self.eval_pop = [list_to_dict(ind, self.optimizee_individual_dict_spec)
@@ -123,7 +129,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         self.g = 0  # the current generation
         self.toolbox = toolbox  # the DEAP toolbox
-        self.n_hof = max(percent_hall_of_fame * traj.popsize, 20)
+        self.n_hof = int(max(percent_hall_of_fame * traj.popsize, 2))
         self.n_bobs = int(max(1, percent_elite * self.n_hof))
         self.hall_of_fame = HallOfFame(self.n_hof)
 
@@ -166,7 +172,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         logger.info("-- End of generation {} --".format(self.g))
         print("-- End of generation {} --".format(self.g))
-        best_inds = tools.selBest(self.eval_pop_inds, 2)
+        # best_inds = tools.selBest(self.eval_pop_inds, 2)
         # for best_ind in best_inds:
         #     print("Best individual is %s, %s" % (
         #         list_to_dict(best_ind, self.optimizee_individual_dict_spec),
@@ -177,7 +183,8 @@ class GeneticAlgorithmOptimizer(Optimizer):
         self.hall_of_fame.update(self.eval_pop_inds)
 
         logger.info("-- Hall of fame --")
-        for hof_ind in tools.selBest(self.hall_of_fame, 2):
+        n_bobs = self.n_bobs
+        for hof_ind in tools.selBest(self.hall_of_fame, n_bobs):
             logger.info("HOF individual is %s, %s" % (
                 list_to_dict(hof_ind, self.optimizee_individual_dict_spec),
                 hof_ind.fitness.values))
@@ -185,7 +192,6 @@ class GeneticAlgorithmOptimizer(Optimizer):
                 list_to_dict(hof_ind, self.optimizee_individual_dict_spec),
                 hof_ind.fitness.values))
 
-        n_bobs = self.n_bobs
         bob_inds = tools.selBest(self.hall_of_fame, n_bobs)
         bob_inds = list(map(self.toolbox.clone, bob_inds))
 
@@ -205,14 +211,14 @@ class GeneticAlgorithmOptimizer(Optimizer):
             bob_ids = np.argsort([to_fit(o)  for o in bob_inds])[::-1]
             max_score = to_fit(bob_inds[bob_ids[0]])
             min_score = 0.5 * max_score
-            # for i in range(n_bobs):
-            #     off_i = int(offsp_ids[i])
-            #     bob_i = int(bob_ids[i])
-            #     off_f = to_fit(offspring[off_i])
-            #     bob_f = to_fit(bob_inds[bob_i])
-            #     if bob_f > off_f:
-            #         logger.info("Inserting BoB {} to population".format(i+1))
-            #         offspring[int(offsp_ids[i])][:] = bob_inds[int(bob_ids[i])]
+            for i in range(n_bobs):
+                off_i = int(offsp_ids[i])
+                bob_i = int(bob_ids[i])
+                off_f = to_fit(offspring[off_i])
+                bob_f = to_fit(bob_inds[bob_i])
+                if bob_f > off_f:
+                    logger.info("Inserting BoB {} to population".format(i+1))
+                    offspring[off_i][:] = bob_inds[bob_i]
 
             # Apply crossover and mutation on the offspring
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -252,13 +258,15 @@ class GeneticAlgorithmOptimizer(Optimizer):
                                 o2[:] = spawn()
                                 del o2.fitness.values
 
-
-            # for i in range(n_bobs):
-            #     off_i = int(offsp_ids[i])
-            #     bob_i = int(bob_ids[i])
-            #     logger.info("Inserting BoB {} to population".format(i+1))
-            #     offspring[off_i][:] = bob_inds[bob_i]
-            #     del offspring[off_i].fitness.values
+            if self.g == 0:
+                off_ids = np.random.choice(len(offspring), size=n_bobs, replace=False)
+                for i in range(n_bobs):
+                    # off_i = int(offsp_ids[i])
+                    off_i = int(off_ids[i])
+                    bob_i = int(bob_ids[i])
+                    logger.info("Inserting BoB {} to population".format(i+1))
+                    offspring[off_i][:] = bob_inds[bob_i]
+                    del offspring[off_i].fitness.values
 
             # The population is entirely replaced by the offspring
             self.pop[:] = offspring
