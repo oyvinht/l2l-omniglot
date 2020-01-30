@@ -14,6 +14,7 @@ from l2l.utils import JUBE_runner
 from l2l import dict_to_list
 from temperature.optimizee import FitOptimizee, config
 from omnigloter.evolution_optimizer import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
+from omnigloter.utils import load_last_trajs, trajectories_to_individuals
 
 logger = logging.getLogger("bin.temperature")
 GRADDESC, EVOSTRAT, GENALG = range(3)
@@ -148,10 +149,10 @@ def main():
     # population_size = 5
 
 
-    trajectories = load_last_trajs('./FIT-TEMPS/trajectories')
+    trajectories = load_last_trajs(os.path.join(paths.root_dir_path,'trajectories'))
     if len(trajectories):
         traj.individuals = trajectories_to_individuals(
-                                trajectories, population_size, optimizee, generation=-1)
+                                trajectories, population_size, optimizee)
 
     parameters = GeneticAlgorithmParameters(seed=0,
                     popsize=population_size,
@@ -187,44 +188,7 @@ def main():
     env.disable_logging()
 
 
-def load_last_trajs(path):
-    import pickle
-    def g_i(txt):
-        x = os.path.basename(txt).split('.bin')[0]
-        ind, gen = [int(n) for n in x.split('_')[-2:]]
-        return [gen, ind]
 
-    files = glob.glob(os.path.join(path, '*.bin'))
-
-    if not files:
-        return {}
-
-    gen_inds = np.asarray([g_i(f) for f in files])
-    max_gen = np.max(gen_inds[:, 0])
-    rows = np.where(gen_inds[:, 0] == max_gen)[0]
-    last_fnames = {gen_inds[r, 1]: files[r] for r in rows}
-
-    trajs = {k: pickle.load(open(last_fnames[k], 'rb'))\
-                                    for k in last_fnames}
-
-    trajs['generation'] = max_gen
-
-    return trajs
-
-def trajectories_to_individuals(trajs, target_number, optimizee, generation=0):
-    ind_ids = sorted( [k for k in trajs if k != 'generation'] )
-    inds = [trajs[i].individual for i in ind_ids]
-    max_id = np.max(ind_ids)
-    if len(ind_ids) < target_number:
-        from l2l.utils.individual import Individual
-        for i in range(target_number - len(ind_ids)):
-            zee = optimizee.bounding_func(
-                    optimizee.create_individual())
-            ind_idx = max_id + i + 1
-            params = [{'individual.{}'.format(k): zee[k]} for k in zee]
-            inds.append(Individual(ind_idx=ind_idx, params=params))
-
-    return {generation: inds}
 
 
 
