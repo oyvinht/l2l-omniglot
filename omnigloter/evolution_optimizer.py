@@ -47,7 +47,8 @@ class GeneticAlgorithmOptimizer(Optimizer):
                  parameters,
                  optimizee_bounding_func=None,
                  percent_hall_of_fame=0.2,
-                 percent_elite=0.4):
+                 percent_elite=0.4,
+                 load_last_trajectories=True):
 
         super().__init__(traj,
                          optimizee_create_individual=optimizee_create_individual,
@@ -112,14 +113,8 @@ class GeneticAlgorithmOptimizer(Optimizer):
 
         self.pop = toolbox.population(n=traj.popsize)
 
-        g = -1
-        if g in traj.individuals:
-            for idx, ind in enumerate(traj.individuals[g]):
-                for k_idx, k in enumerate(sorted(ind.keys)):
-                    sk = k.split('.')[-1]
-                    v = getattr(ind, sk)
-                    self.pop[idx][k_idx] = v
-                    del self.pop[idx].fitness.values
+        if load_last_trajectories:
+            self._load_last_trajectories(traj)
 
             # traj.individuals.clear()
 
@@ -134,6 +129,16 @@ class GeneticAlgorithmOptimizer(Optimizer):
         self.hall_of_fame = HallOfFame(self.n_hof)
 
         self._expand_trajectory(traj)
+
+    def _load_last_trajectories(self, traj):
+        g = -1
+        if g in traj.individuals:
+            for idx, ind in enumerate(traj.individuals[g]):
+                for k_idx, k in enumerate(sorted(ind.keys)):
+                    sk = k.split('.')[-1]
+                    v = getattr(ind, sk)
+                    self.pop[idx][k_idx] = v
+                    del self.pop[idx].fitness.values
 
     def post_process(self, traj, fitnesses_results):
         """
