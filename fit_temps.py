@@ -143,8 +143,8 @@ def main():
 
 
     fit_weights = [1.0,]# 0.1]
-    num_generations = 10#000
-    population_size = 50
+    num_generations = 100#000
+    population_size = 20
     # population_size = 5
 
 
@@ -169,7 +169,7 @@ def main():
                   optimizee_fitness_weights=fit_weights,
                   parameters=parameters,
                   optimizee_bounding_func=optimizee.bounding_func,
-                  percent_hall_of_fame=0.1,
+                  percent_hall_of_fame=0.3,
                   percent_elite=0.5,
                   )
 
