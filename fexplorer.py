@@ -163,6 +163,8 @@ def main():
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
+
+
     ## Innerloop simulator
     grad_desc = OPTIMIZER == GRADDESC
     optimizee = OmniglotOptimizee(traj, 1234, grad_desc)
@@ -215,6 +217,12 @@ def main():
         num_generations = 1000
         population_size = 50
         # population_size = 5
+
+        last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))
+        if len(last_trajs):
+            traj.individuals = trajectories_to_individuals(
+                last_trajs, population_size, optimizee)
+
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
