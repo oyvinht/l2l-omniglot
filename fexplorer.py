@@ -227,7 +227,7 @@ def main():
                         MUTPB=0.8,  # probability of individual to mutate
                         NGEN=num_generations,
                         indpb=0.1,  # probability of "gene" to mutate
-                        tournsize=100,  # number of best individuals to mate
+                        tournsize=population_size,  # number of best individuals to mate
                         matepar=0.5,  # how much to mix two genes when mating
                         mutpar=step_size,  # standard deviations for normal distribution
                         )
