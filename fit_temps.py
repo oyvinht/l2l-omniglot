@@ -2,6 +2,8 @@ import logging.config
 import os
 import sys
 
+import glob
+
 sys.path.append('.')
 sys.path.append("./temperature")
 import numpy as np
@@ -12,6 +14,7 @@ from l2l.utils import JUBE_runner
 from l2l import dict_to_list
 from temperature.optimizee import FitOptimizee, config
 from omnigloter.evolution_optimizer import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
+from omnigloter.utils import load_last_trajs, trajectories_to_individuals
 
 logger = logging.getLogger("bin.temperature")
 GRADDESC, EVOSTRAT, GENALG = range(3)
@@ -20,7 +23,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 USE_MPI = bool(1)
-MULTIPROCESSING = (ON_JEWELS or bool(1))
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
 
@@ -32,12 +35,14 @@ def main():
     print("All output logs can be found in directory ", paths.logs_path)
 
     traj_file = os.path.join(paths.output_dir_path, "data.h5")
+    print(traj_file)
     os.makedirs(paths.output_dir_path, exist_ok=True)
     print("Trajectory file is: {}".format(traj_file))
 
     # Create an environment that handles running our simulation
     # This initializes an environment
-    env = Environment(trajectory=name, filename=traj_file,
+    env = Environment(trajectory=name,
+                      filename=traj_file,
                       file_title="{} data".format(name),
                       comment="{} data".format(name),
                       add_time=bool(1),
@@ -51,6 +56,7 @@ def main():
                               sim_name=name,
                               log_directory=paths.logs_path)
     configure_loggers()
+
 
     # Get the trajectory from the environment
     traj = env.trajectory
@@ -136,10 +142,18 @@ def main():
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
     # step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
 
+
     fit_weights = [1.0,]# 0.1]
-    num_generations = 10000
-    population_size = 50
+    num_generations = 100#000
+    population_size = 20
     # population_size = 5
+
+
+    trajectories = load_last_trajs(os.path.join(paths.root_dir_path,'trajectories'))
+    if len(trajectories):
+        traj.individuals = trajectories_to_individuals(
+                                trajectories, population_size, optimizee)
+
     parameters = GeneticAlgorithmParameters(seed=0,
                     popsize=population_size,
                     CXPB=0.5, # probability of mating 2 individuals
@@ -156,7 +170,7 @@ def main():
                   optimizee_fitness_weights=fit_weights,
                   parameters=parameters,
                   optimizee_bounding_func=optimizee.bounding_func,
-                  percent_hall_of_fame=0.1,
+                  percent_hall_of_fame=0.3,
                   percent_elite=0.5,
                   )
 
@@ -172,6 +186,7 @@ def main():
 
     # Finally disable logging and close all log-files
     env.disable_logging()
+
 
 
 
