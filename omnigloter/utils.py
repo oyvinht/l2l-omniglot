@@ -174,7 +174,8 @@ def o2o_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
         for pre in range(max_pre):
             post = start_post + pre
             conns[pre_pop].append([pre, post, weight, delay])
-            sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (float(post+1.0) / out_size)))
+            pc = (100.0 * (float(post+1.0) / out_size))
+            sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % pc)
             sys.stdout.flush()
 
         start_post += max_pre
@@ -184,12 +185,12 @@ def o2o_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
     return conns
 
 def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
-    print("in dist_con_list")
-    print(" pre shapes {}".format(in_shapes))
-    print(" num zones {}".format(num_zones))
-    print("out size {}".format(out_size))
-    print("radius {}".format(radius))
-    print("prob {}".format(prob))
+    print("\tin dist_con_list")
+    print("\t\tpre shapes {}".format(in_shapes))
+    print("\t\tnum zones {}".format(num_zones))
+    print("\t\tout size {}".format(out_size))
+    print("\t\tradius {}".format(radius))
+    print("\t\tprob {}".format(prob))
 
     div = max(in_shapes[0][0]//in_shapes[2][0],
               in_shapes[0][1]//in_shapes[2][1])
@@ -249,7 +250,8 @@ def dist_conn_list(in_shapes, num_zones, out_size, radius, prob, weight, delay):
                             print("pre_c, col_l, col_h = {} {} {}".format(pre_c, col_l, col_h))
 
                 zone_idx += 1
-                sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
+                pc = (100.0 * (zone_idx) / num_zones['total'])
+                sys.stdout.write("\r\tIn to Mushroom\t%6.2f%%" % pc)
                 sys.stdout.flush()
 
     sys.stdout.write("\n")
@@ -274,7 +276,8 @@ def wta_mush_conn_list(in_shapes, num_zones, out_size, iweight, eweight, delay):
                     iconns.append((zone_idx, post, iweight, delay))
 
                 zone_idx += 1
-                sys.stdout.write("\r\tWTA to Mushroom\t%6.2f%%" % (100.0 * (zone_idx) / num_zones['total']))
+                pc = (100.0 * (zone_idx) / num_zones['total'])
+                sys.stdout.write("\r\tWTA to Mushroom\t%6.2f%%" % pc)
                 sys.stdout.flush()
 
     sys.stdout.write("\n")
@@ -533,3 +536,63 @@ def add_noise(prob, spikes, start_t, end_t):
         spikes[tog][:] = [float(np.random.randint(start_t, end_t))]
 
     return spikes
+
+def split_ssa(ssa, n_steps, duration):
+    dt = duration // n_steps
+    s = {}
+    for loop, st in enumerate(np.arange(0, duration, dt)):
+        sys.stdout.write("\r{:6.2f}%".format(float(loop)/float(n_steps)))
+        sys.stdout.flush()
+        et = st + dt
+        s[st] = {}
+        for i in ssa:
+            s[st][i] = []
+            for times in ssa[i]:
+                ts = np.asarray(times)
+                whr = np.where(np.logical_and(st <= ts, ts < et))
+                s[st][i].append(np.round(ts[whr]).tolist())
+    sys.stdout.write("\n\n")
+    sys.stdout.flush()
+
+    return s
+
+
+
+def load_last_trajs(path):
+    import pickle
+    def g_i(txt):
+        x = os.path.basename(txt).split('.bin')[0]
+        ind, gen = [int(n) for n in x.split('_')[-2:]]
+        return [gen, ind]
+
+    files = glob.glob(os.path.join(path, '*.bin'))
+
+    if not files:
+        return {}
+
+    gen_inds = np.asarray([g_i(f) for f in files])
+    max_gen = np.max(gen_inds[:, 0])
+    rows = np.where(gen_inds[:, 0] == max_gen)[0]
+    last_fnames = {gen_inds[r, 1]: files[r] for r in rows}
+
+    trajs = {k: pickle.load(open(last_fnames[k], 'rb'))\
+                                    for k in last_fnames}
+
+    trajs['generation'] = max_gen
+
+    return trajs
+
+def trajectories_to_individuals(trajs, target_number, optimizee, generation=-1):
+    ind_ids = sorted( [k for k in trajs if k != 'generation'] )
+    inds = [trajs[i].individual for i in ind_ids]
+    max_id = np.max(ind_ids)
+    if len(ind_ids) < target_number:
+        from l2l.utils.individual import Individual
+        for i in range(target_number - len(ind_ids)):
+            zee = optimizee.bounding_func(
+                    optimizee.create_individual())
+            ind_idx = max_id + i + 1
+            params = [{'individual.{}'.format(k): zee[k]} for k in zee]
+            inds.append(Individual(ind_idx=ind_idx, params=params))
+
+    return {generation: inds}

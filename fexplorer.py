@@ -16,14 +16,16 @@ from l2l import dict_to_list
 from omnigloter.optimizee import OmniglotOptimizee
 from omnigloter import config
 from omnigloter.evolution_optimizer import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
+from omnigloter.utils import load_last_trajs, trajectories_to_individuals
 
 logger = logging.getLogger("bin.l2l-omniglot")
 GRADDESC, EVOSTRAT, GENALG = range(3)
-# OPTIMIZER = EVOSTRAT
-# OPTIMIZER = GRADDESC
+#OPTIMIZER = EVOSTRAT
+#OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(1)
-MULTIPROCESSING = (ON_JEWELS or bool(1))
+USE_MPI = bool(0)
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
 
@@ -40,7 +42,8 @@ def main():
 
     # Create an environment that handles running our simulation
     # This initializes an environment
-    env = Environment(trajectory=name, filename=traj_file,
+    env = Environment(trajectory=name,
+                      filename=traj_file,
                       file_title="{} data".format(name),
                       comment="{} data".format(name),
                       add_time=bool(1),
@@ -65,7 +68,7 @@ def main():
     # Name of the scheduler
     # traj.f_add_parameter_to_group("JUBE_params", "scheduler", "Slurm")
     # Command to submit jobs to the schedulers
-    traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
+    # traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
     # Template file for the particular scheduler
     traj.f_add_parameter_to_group("JUBE_params", "job_file", "job.run")
     # Number of nodes to request for each run
@@ -90,18 +93,19 @@ def main():
     # MPI Processes per job
     traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "100")
     # The execution command
-    if ON_JEWELS:
+    run_filename = os.path.join(paths.root_dir_path, "run_files","run_optimizee.py")
+    command = "python3 {}".format(run_filename)
+    if ON_JEWELS and not USE_MPI:
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
         # -p gpus --gres=gpu:1 --ntasks=8 --ntasks-per-node=4 --ntasks-per-core=1
-        traj.f_add_parameter_to_group("JUBE_params", "exec",
-            "srun -t 05:00:00 -c 1 --gres=gpu:1 " + \
-            " -N 1 -n 1 " + \
-            " python " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
-    else:
-        traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
-                                      os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+        command = "srun -t 05:00:00 -c 1 --gres=gpu:1  -N 1 -n 1 {}".format(command)
+    elif USE_MPI:
+        # -timeout <seconds>
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60 * 60, command)
+
+    traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
     # Ready file for a generation
     traj.f_add_parameter_to_group("JUBE_params", "ready_file",
@@ -113,6 +117,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
+    traj.f_add_parameter_to_group("simulation", 'steps', config.STEPS)  # ms
     traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
     traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
     traj.f_add_parameter_to_group("simulation", 'input_shape', config.INPUT_SHAPE)  # rows, cols
@@ -209,7 +214,13 @@ def main():
     else:
         num_generations = 1000
         population_size = 50
-        # population_size = 8
+        # population_size = 5
+
+        last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))
+        if len(last_trajs):
+            traj.individuals = trajectories_to_individuals(
+                last_trajs, population_size, optimizee)
+
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals

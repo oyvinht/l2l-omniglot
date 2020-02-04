@@ -2,6 +2,8 @@ import logging.config
 import os
 import sys
 
+import glob
+
 sys.path.append('.')
 sys.path.append("./temperature")
 import numpy as np
@@ -12,6 +14,7 @@ from l2l.utils import JUBE_runner
 from l2l import dict_to_list
 from temperature.optimizee import FitOptimizee, config
 from omnigloter.evolution_optimizer import GeneticAlgorithmOptimizer, GeneticAlgorithmParameters
+from omnigloter.utils import load_last_trajs, trajectories_to_individuals
 
 logger = logging.getLogger("bin.temperature")
 GRADDESC, EVOSTRAT, GENALG = range(3)
@@ -19,7 +22,8 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-MULTIPROCESSING = (ON_JEWELS or bool(0))
+USE_MPI = bool(1)
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
 
@@ -31,12 +35,14 @@ def main():
     print("All output logs can be found in directory ", paths.logs_path)
 
     traj_file = os.path.join(paths.output_dir_path, "data.h5")
+    print(traj_file)
     os.makedirs(paths.output_dir_path, exist_ok=True)
     print("Trajectory file is: {}".format(traj_file))
 
     # Create an environment that handles running our simulation
     # This initializes an environment
-    env = Environment(trajectory=name, filename=traj_file,
+    env = Environment(trajectory=name,
+                      filename=traj_file,
                       file_title="{} data".format(name),
                       comment="{} data".format(name),
                       add_time=bool(1),
@@ -51,6 +57,7 @@ def main():
                               log_directory=paths.logs_path)
     configure_loggers()
 
+
     # Get the trajectory from the environment
     traj = env.trajectory
 
@@ -60,14 +67,16 @@ def main():
     # Scheduler parameters
     # Name of the scheduler
     # traj.f_add_parameter_to_group("JUBE_params", "scheduler", "Slurm")
+
     # Command to submit jobs to the schedulers
-    traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
+    # traj.f_add_parameter_to_group("JUBE_params", "submit_cmd", "sbatch")
+
     # Template file for the particular scheduler
     traj.f_add_parameter_to_group("JUBE_params", "job_file", "job.run")
     # Number of nodes to request for each run
     traj.f_add_parameter_to_group("JUBE_params", "nodes", "1")
     # Requested time for the compute resources
-    traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:01:00")
+    traj.f_add_parameter_to_group("JUBE_params", "walltime", "00:10:00")
     # MPI Processes per node
     traj.f_add_parameter_to_group("JUBE_params", "ppn", "1")
     # CPU cores per MPI process
@@ -84,18 +93,21 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "out_file", "stdout")
     # JUBE parameters for multiprocessing. Relevant even without scheduler.
     # MPI Processes per job
-    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "2")
+    traj.f_add_parameter_to_group("JUBE_params", "tasks_per_job", "1")
+
+
     # The execution command
-    if ON_JEWELS:
+    run_filename = os.path.join(paths.root_dir_path, "run_files/run_optimizee.py")
+    command = "python3 {}".format(run_filename)
+    if ON_JEWELS and not USE_MPI:
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
-        traj.f_add_parameter_to_group("JUBE_params", "exec",
-                  "srun -t 15 -N 1 --exclusive -n 4 -c 1 --gres=gpu:1 " + \
-                  " python3 " + os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
-    else:
-        traj.f_add_parameter_to_group("JUBE_params", "exec", "python3 " + \
-                                      os.path.join(paths.root_dir_path, "run_files/run_optimizee.py"))
+        command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
+    elif USE_MPI:
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60, command)
+
+    traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
     # Ready file for a generation
     traj.f_add_parameter_to_group("JUBE_params", "ready_file",
@@ -130,10 +142,18 @@ def main():
     _, dict_spec = dict_to_list(optimizee.create_individual(), get_dict_spec=True)
     # step_size = np.asarray([config.ATTR_STEPS[k] for (k, spec, length) in dict_spec])
 
+
     fit_weights = [1.0,]# 0.1]
-    num_generations = 10000
-    population_size = 200
+    num_generations = 100#000
+    population_size = 20
     # population_size = 5
+
+
+    trajectories = load_last_trajs(os.path.join(paths.root_dir_path,'trajectories'))
+    if len(trajectories):
+        traj.individuals = trajectories_to_individuals(
+                                trajectories, population_size, optimizee)
+
     parameters = GeneticAlgorithmParameters(seed=0,
                     popsize=population_size,
                     CXPB=0.5, # probability of mating 2 individuals
@@ -150,7 +170,7 @@ def main():
                   optimizee_fitness_weights=fit_weights,
                   parameters=parameters,
                   optimizee_bounding_func=optimizee.bounding_func,
-                  percent_hall_of_fame=0.1,
+                  percent_hall_of_fame=0.3,
                   percent_elite=0.5,
                   )
 
@@ -166,6 +186,7 @@ def main():
 
     # Finally disable logging and close all log-files
     env.disable_logging()
+
 
 
 
