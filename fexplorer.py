@@ -215,7 +215,7 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 20
+        population_size = 100
         # population_size = 5
         p_hof = 0.25 if population_size < 100 else 0.1
         p_bob = 0.5
