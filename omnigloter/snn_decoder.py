@@ -66,7 +66,7 @@ class Decoder(object):
 
         if config.SIM_NAME == config.GENN:
             setup_args['model_name'] = self.name
-            # setup_args['backend'] = config.BACKEND
+            setup_args['backend'] = config.BACKEND
             setup_args['selected_gpu_id'] = 0
 
         sim.setup(**setup_args)
