@@ -58,6 +58,11 @@ def main():
     configure_loggers()
 
 
+
+    trajectories = load_last_trajs(os.path.join(paths.root_dir_path,'trajectories'))
+
+    # env.trajectory.individuals[0] = trajectories
+
     # Get the trajectory from the environment
     traj = env.trajectory
 
@@ -144,12 +149,11 @@ def main():
 
 
     fit_weights = [1.0,]# 0.1]
-    num_generations = 100#000
+    num_generations = 50#000
     population_size = 20
     # population_size = 5
 
 
-    trajectories = load_last_trajs(os.path.join(paths.root_dir_path,'trajectories'))
     if len(trajectories):
         traj.individuals = trajectories_to_individuals(
                                 trajectories, population_size, optimizee)

@@ -215,9 +215,10 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 20
+        population_size = 100
         # population_size = 5
-
+        p_hof = 0.25 if population_size < 100 else 0.1
+        p_bob = 0.5
         last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))
         if len(last_trajs):
             traj.individuals = trajectories_to_individuals(
@@ -229,9 +230,9 @@ def main():
                         MUTPB=0.8,  # probability of individual to mutate
                         NGEN=num_generations,
                         indpb=0.1,  # probability of "gene" to mutate
-                        tournsize=100,  # number of best individuals to mate
+                        tournsize=population_size,  # number of best individuals to mate
                         matepar=0.5,  # how much to mix two genes when mating
-                        mutpar=2.0 / 4.0,  # standard deviations for normal distribution
+                        mutpar=config.ATTR_STEPS,  # standard deviations for normal distribution
                         )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
@@ -239,8 +240,8 @@ def main():
                       optimizee_fitness_weights=fit_weights,
                       parameters=parameters,
                       optimizee_bounding_func=optimizee.bounding_func,
-                      percent_hall_of_fame = 0.1,
-                      percent_elite = 0.5,
+                      percent_hall_of_fame = p_hof,
+                      percent_elite = p_bob,
                     )
 
     # Add post processing
