@@ -11,7 +11,7 @@ INF = float(10e10)
 
 USE_GABOR_LAYER = bool(0)
 
-SIM_NAME = SPINNAKER
+SIM_NAME = GENN
 
 
 TIMESTEP = 1.0 #ms
