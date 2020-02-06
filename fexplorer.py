@@ -24,7 +24,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-USE_MPI = bool(1)
+USE_MPI = bool(0)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
 
 def main():
@@ -215,15 +215,15 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 20
-        # population_size = 5
+        # population_size = 20
+        population_size = 5
         p_hof = 0.25 if population_size < 100 else 0.1
         p_bob = 0.5
         last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))
         if len(last_trajs):
             traj.individuals = trajectories_to_individuals(
                 last_trajs, population_size, optimizee)
-
+        attr_steps = [config.ATTR_STEPS[k[0]] for k in dict_spec]
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
@@ -232,7 +232,7 @@ def main():
                         indpb=0.1,  # probability of "gene" to mutate
                         tournsize=population_size,  # number of best individuals to mate
                         matepar=0.5,  # how much to mix two genes when mating
-                        mutpar=config.ATTR_STEPS,  # standard deviations for normal distribution
+                        mutpar=attr_steps,  # standard deviations for normal distribution
                         )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
