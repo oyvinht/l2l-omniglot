@@ -215,7 +215,7 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 100
+        population_size = 50
         # population_size = 5
         p_hof = 0.25 if population_size < 100 else 0.1
         p_bob = 0.5
@@ -223,6 +223,7 @@ def main():
         if len(last_trajs):
             traj.individuals = trajectories_to_individuals(
                 last_trajs, population_size, optimizee)
+        attr_steps = [config.ATTR_STEPS[k[0]] for k in dict_spec]
 
         parameters = GeneticAlgorithmParameters(seed=0,
                         popsize=population_size,
@@ -232,7 +233,7 @@ def main():
                         indpb=0.1,  # probability of "gene" to mutate
                         tournsize=population_size,  # number of best individuals to mate
                         matepar=0.5,  # how much to mix two genes when mating
-                        mutpar=config.ATTR_STEPS,  # standard deviations for normal distribution
+                        mutpar=attr_steps,  # standard deviations for normal distribution
                         )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
