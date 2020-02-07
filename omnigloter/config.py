@@ -51,7 +51,7 @@ else:
     EXPANSION_RANGE = (20., 21.0) if DEBUG else (0.25, 21.0)
 
 EXP_PROB_RANGE = (0.5, 0.75000001) if DEBUG else (0.05, 0.5)
-OUTPUT_PROB_RANGE = (0.5, 0.750000001) if DEBUG else (0.05, 0.8)
+OUTPUT_PROB_RANGE = (0.5, 0.750000001) if DEBUG else (0.05, 0.5)
 A_PLUS = (0.1, 5.0000000001) if DEBUG else (0.01, 5.0)
 A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 5.0)
 STD_DEV = (3.0, 3.00000001) if DEBUG else (0.5, 5.0)
@@ -59,7 +59,7 @@ DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
 MAX_DT = (80.0, 80.00000001) if DEBUG else (float(SAMPLE_DT), SAMPLE_DT*2.0)
 W_MIN_MULT = (0.0, 0.00000001) if DEBUG else (-5.0, 0.0)
 W_MAX_MULT = (1.2,)# 1.200000001) if DEBUG else (0.1, 2.0)
-CONN_DIST = (5, 15) if DEBUG else (3, 30)
+CONN_DIST = (5, 15) if DEBUG else (3, 20)
 
 
 GABOR_WEIGHT_RANGE = (2.0, 5.000001) if DEBUG else (1.0, 5.0)
