@@ -10,7 +10,7 @@ from pprint import pprint
 from matplotlib.lines import Line2D
 from glob import glob
 import sys
-
+from datetime import datetime
 from scipy.special import comb
 
 
@@ -19,6 +19,8 @@ from scipy.special import comb
 PREFIX = 'GD'
 # PREFIX = 'ES'
 
+TIME_SUFFIX = datetime.now().strftime("%d-%m-%Y-%H-%M")
+print("generating plot on {}".format(TIME_SUFFIX))
 
 def plot_input_spikes(in_spikes, start_t, total_t, dt=1.0, img_shape=(28, 28), in_divs=(5, 3)):
     for lyr in sorted(in_spikes.keys()):
@@ -130,7 +132,7 @@ ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig("{}_fitness_per_generation.pdf".format(PREFIX))
+plt.savefig("{}_fitness_per_generation_{}.pdf".format(PREFIX, TIME_SUFFIX))
 
 
 #####################################################################
@@ -151,7 +153,7 @@ ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig("{}_max_fitness_per_generation.pdf".format(PREFIX))
+plt.savefig("{}_max_fitness_per_generation_{}.pdf".format(PREFIX, TIME_SUFFIX))
 
 
 #####################################################################
@@ -175,7 +177,7 @@ for g in fitnesses:
 #     ax.set_xticks(np.arange(0, total+11, 10))
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig("{}_histogram_per_gen.pdf".format(PREFIX))
+plt.savefig("{}_histogram_per_gen_{}.pdf".format(PREFIX, TIME_SUFFIX ))
 
 
 #####################################################################
@@ -210,5 +212,5 @@ for i in range(n_params):
         plt_idx += 1
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig('{}_parameter_pairs.pdf'.format(PREFIX))
+plt.savefig('{}_parameter_pairs_{}.pdf'.format(PREFIX, TIME_SUFFIX))
 
