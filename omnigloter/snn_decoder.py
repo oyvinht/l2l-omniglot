@@ -802,8 +802,9 @@ class Decoder(object):
 
         try:
             sim.run(duration)
-        except:
-            sys.stdout.write("\n\n\tExperiment died in first run!!!\n\n")
+        except Exception as inst:
+            sys.stdout.write("\n\n\tExperiment died in first run!!!\n")
+            sys.stdout.write("Exception is {}\n\n\n".format(inst))
             sys.stdout.flush()
             __died__ = True
 
