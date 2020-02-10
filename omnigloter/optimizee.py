@@ -108,7 +108,12 @@ class OmniglotOptimizee(Optimizee):
 
         snn = Decoder(name, params)
         data = snn.run_pynn()
+        
+        if data['died']:
+            print(data['recs'])
+
         diff_class_dots = []
+        min_v = -1.0 if data['died'] else 0.0
         apc, ipc = None, None
         if not data['died']:
             ### Analyze results
@@ -119,7 +124,11 @@ class OmniglotOptimizee(Optimizee):
             start_t = end_t - n_class * n_test * dt
             apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
-
+            print("\n\n\napc")
+            print(apc)
+            
+            print("\nipc")
+            print(ipc)
 
             diff_class_vectors = [np.zeros(n_out) for _ in apc]
             for c in apc:
@@ -251,6 +260,8 @@ class OmniglotOptimizee(Optimizee):
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
+        vmin = -1.0 if all_zero else 0.0
+        
         if len(diff_class_dots) == 0:# or any_zero:
             print("dots == 0, fitness = ", 0)
             same_class_vectors = []
@@ -262,15 +273,15 @@ class OmniglotOptimizee(Optimizee):
             same_class_norms = []
             same_class_dots = []
 
-            diff_class_fitness = 0#n_dots
-            same_class_fitness = 0
+            diff_class_fitness = min_v#n_dots
+            same_class_fitness = min_v
 
             diff_class_distances = []
             same_class_distances = []
-            diff_dist = 0
+            diff_dist = min_v
 
-            diff_class_overlap = 0
-            diff_class_repr = 0
+            diff_class_overlap = min_v
+            diff_class_repr = min_v
 
             apc = []
 
