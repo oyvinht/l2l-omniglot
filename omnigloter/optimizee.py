@@ -109,6 +109,7 @@ class OmniglotOptimizee(Optimizee):
         snn = Decoder(name, params)
         data = snn.run_pynn()
         diff_class_dots = []
+        min_v = -1.0 if data['died'] else 0.0
         apc, ipc = None, None
         if not data['died']:
             ### Analyze results
@@ -262,15 +263,15 @@ class OmniglotOptimizee(Optimizee):
             same_class_norms = []
             same_class_dots = []
 
-            diff_class_fitness = 0#n_dots
-            same_class_fitness = 0
+            diff_class_fitness = min_v#n_dots
+            same_class_fitness = min_v
 
             diff_class_distances = []
             same_class_distances = []
-            diff_dist = 0
+            diff_dist = min_v
 
-            diff_class_overlap = 0
-            diff_class_repr = 0
+            diff_class_overlap = min_v
+            diff_class_repr = min_v
 
             apc = []
 
