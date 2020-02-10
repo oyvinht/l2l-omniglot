@@ -35,7 +35,7 @@ N_TEST = 4 if DEBUG else 4
 TOTAL_SAMPLES = N_SAMPLES * N_EPOCHS + N_TEST
 DURATION = N_CLASSES * TOTAL_SAMPLES * SAMPLE_DT
 PROB_NOISE_SAMPLE = 0.1
-STEPS = 100
+STEPS = 1 if SIM_NAME == GENN else 100
 
 KERNEL_W = 7
 N_INPUT_LAYERS = 4
@@ -53,7 +53,7 @@ else:
 EXP_PROB_RANGE = (0.5, 0.75000001) if DEBUG else (0.05, 0.5)
 OUTPUT_PROB_RANGE = (0.5, 0.750000001) if DEBUG else (0.05, 0.5)
 A_PLUS = (0.1, 5.0000000001) if DEBUG else (0.01, 5.0)
-A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 5.0)
+A_MINUS = (0.1, 1.000000001) if DEBUG else (0.001, 2.0)
 STD_DEV = (3.0, 3.00000001) if DEBUG else (0.5, 5.0)
 DISPLACE = (0.0,)#01, 0.00100000001) if DEBUG else (0.0001, 0.1)
 MAX_DT = (80.0, 80.00000001) if DEBUG else (float(SAMPLE_DT), SAMPLE_DT*2.0)
@@ -68,7 +68,7 @@ GABOR_WEIGHT_RANGE = (2.0, 5.000001) if DEBUG else (1.0, 5.0)
 if ONE_TO_ONE_EXCEPTION:
     OUT_WEIGHT_RANGE = (0.1, 0.1000000001)
 else:
-    OUT_WEIGHT_RANGE = (2.0, 5.000000001) if DEBUG else (1.0, 10.0)
+    OUT_WEIGHT_RANGE = (2.0, 5.000000001) if DEBUG else (0.1, 10.0)
 # OUT_WEIGHT_RANGE = (1.5, 1.500001) if DEBUG else (0.01, 0.5) ### 64x64
 
 if ONE_TO_ONE_EXCEPTION:
@@ -265,7 +265,7 @@ OUTPUT_PARAMS['tau_syn_I'] = 5.
 
 
 RECORD_SPIKES = [
-    # 'input',
+    'input',
     # 'gabor',
     # 'mushroom',
     # 'inh_mushroom',

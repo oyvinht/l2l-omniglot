@@ -158,7 +158,8 @@ class Decoder(object):
                 data = np.load(fname, allow_pickle=True)
                 labels=data['labels']
                 shapes=data['shapes'].item()
-                spikes = utils.split_ssa(data['spikes'].item(), steps, duration)
+                spikes = utils.split_ssa(
+                    data['spikes'].item(), steps, duration, config.SIM_NAME==config.SPINNAKER)
 
                 total_t_creation = time.time() - t_creation_start
                 hours = total_t_creation // 3600
@@ -324,7 +325,7 @@ class Decoder(object):
 
         np.savez_compressed(fname, labels=labels, shapes=shapes, spikes=spikes)
 
-        return labels, shapes, utils.split_ssa(spikes, steps, duration)
+        return labels, shapes, utils.split_ssa(spikes, steps, duration, config.SIM_NAME==config.SPINNAKER)
 
 
     ### ----------------------------------------------------------------------
@@ -803,8 +804,9 @@ class Decoder(object):
         for step, st in enumerate(sorted(self.inputs.keys())):
             ssa = self.inputs[st]
             pops = self.input_populations()
-            for layer in ssa:
-                pops[layer].set(spike_times=ssa[layer])
+            if config.SIM_NAME == config.SPINNAKER:
+                for layer in ssa:
+                    pops[layer].set(spike_times=ssa[layer])
 
             sys.stdout.write("\n\n\tRunning step {} out of {}\t".format(step + 1, steps))
             sys.stdout.write("From {} to {} \n\n\n".format(st, st + duration))
