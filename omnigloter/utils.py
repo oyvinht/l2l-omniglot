@@ -317,9 +317,9 @@ def output_connection_list(kenyon_size, decision_size, prob_active, active_weigh
 
     return matrix
 
-
-def load_mnist_spike_file(dataset, digit, index,
-                          base_dir="/home/gp283/brainscales-recognition/codebase/images_to_spikes"):
+DEFAULT_SPIKE_DIR = "/home/gp283/brainscales-recognition/codebase/images_to_spikes"
+def load_mnist_spike_file(
+        dataset, digit, index, base_dir=DEFAULT_SPIKE_DIR):
     if dataset not in ['train', 't10k']:
         dataset = 'train'
 
