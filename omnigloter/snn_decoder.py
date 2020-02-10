@@ -800,30 +800,23 @@ class Decoder(object):
         weights = {}
 
 
-        try:
-            sim.run(duration)
-        except Exception as inst:
-            sys.stdout.write("\n\n\tExperiment died in first run!!!\n")
-            sys.stdout.write("Exception is {}\n\n\n".format(inst))
+        for step, st in enumerate(sorted(self.inputs.keys())):
+            ssa = self.inputs[st]
+            pops = self.input_populations()
+            for layer in ssa:
+                pops[layer].set(spike_times=ssa[layer])
+
+            sys.stdout.write("\n\n\tRunning step {} out of {}\t".format(step + 1, steps))
+            sys.stdout.write("From {} to {} \n\n\n".format(st, st + duration))
             sys.stdout.flush()
-            __died__ = True
-
-        if not __died__:
-            for step, st in enumerate(self.inputs):
-                ssa = self.inputs[st]
-                pops = self.input_populations()
-                for layer in ssa:
-                    pops[layer].set(spike_times=ssa[layer])
-
-                sys.stdout.write("\n\n\tRunning step {} out of {}\n\n".format(step + 1, steps))
+            try:
+                sim.run(duration)
+            except Exception as inst:
+                sys.stdout.write("\n\n\tExperiment died!!!\n\n")
+                sys.stdout.write("Exception is {}\n\n\n".format(inst))
                 sys.stdout.flush()
-                try:
-                    sim.run(duration)
-                except:
-                    sys.stdout.write("\n\n\tExperiment died!!!\n\n")
-                    sys.stdout.flush()
-                    __died__ = True
-                    break
+                __died__ = True
+                break
 
 
         if not __died__:
@@ -840,9 +833,9 @@ class Decoder(object):
 
         try:
             sim.end()
-        except:
-            pass
-
+        except Exception as inst:
+            sys.stdout.write("Exception is {}\n\n\n".format(inst))
+            sys.stdout.flush()
 
         ### todo: change start and end for labels and runtimes
         # dt = self.params['sim']['sample_dt']
