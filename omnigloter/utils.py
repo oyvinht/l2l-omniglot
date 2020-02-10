@@ -539,11 +539,11 @@ def add_noise(prob, spikes, start_t, end_t):
 
     return spikes
 
-def split_ssa(ssa, n_steps, duration):
+def split_ssa(ssa, n_steps, duration, round_times):
     dt = duration // n_steps
     s = {}
     for loop, st in enumerate(np.arange(0, duration, dt)):
-        sys.stdout.write("\r{:6.2f}%".format(float(loop)/float(n_steps)))
+        sys.stdout.write("\rsplitting spikes to steps {:6.2f}%".format(100.0*float(loop+1)/float(n_steps)))
         sys.stdout.flush()
         et = st + dt
         s[st] = {}
@@ -552,7 +552,9 @@ def split_ssa(ssa, n_steps, duration):
             for times in ssa[i]:
                 ts = np.asarray(times)
                 whr = np.where(np.logical_and(st <= ts, ts < et))
-                s[st][i].append(np.round(ts[whr]).tolist())
+                arr = np.round(ts[whr]) if round_times else ts[whr]
+                s[st][i].append(arr.tolist())
+
     sys.stdout.write("\n\n")
     sys.stdout.flush()
 
