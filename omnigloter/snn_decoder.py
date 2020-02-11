@@ -66,8 +66,8 @@ class Decoder(object):
 
         if config.SIM_NAME == config.GENN:
             setup_args['model_name'] = self.name
-            setup_args['backend'] = config.BACKEND
-            setup_args['selected_gpu_id'] = 0
+            # setup_args['backend'] = config.BACKEND
+            # setup_args['selected_gpu_id'] = 0
 
         sim.setup(**setup_args)
 
@@ -345,8 +345,15 @@ class Decoder(object):
             p = sim.Population(s, sim.SpikeSourceArray,
                                {'spike_times': self.inputs[0][i]},
                                label='input layer %s'%i)
+            # for c in p.all_cells:
+            #     print(i, c, c.local)
+
             if 'input' in config.RECORD_SPIKES:
                 p.record('spikes')
+
+            for c in p.all_cells:
+                print(i, c, c.local)
+
             ins[i] = p
         return ins
 
