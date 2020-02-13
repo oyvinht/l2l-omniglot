@@ -28,4 +28,6 @@ and the SpiNNaker neuromorphic system as compute backends.
    through an unsupervised learning algorithm, together with a sWTA circuit to 
    promote specialization of _Output_ neurons.
 
- 
+ * To tune the network hyperparameters we use the 
+ [Learning-to-Learn framework](https://github.com/IGITUGraz/L2L) 
+ developed by colleagues from the TU Graz and the Jülich Supercomputing Centre. 
