@@ -345,8 +345,10 @@ class Decoder(object):
             p = sim.Population(s, sim.SpikeSourceArray,
                                {'spike_times': self.inputs[0][i]},
                                label='input layer %s'%i)
+
             if 'input' in config.RECORD_SPIKES:
                 p.record('spikes')
+
             ins[i] = p
         return ins
 
