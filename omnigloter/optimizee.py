@@ -74,6 +74,19 @@ class OmniglotOptimizee(Optimizee):
         queue.put(data)
 
     def simulate(self, traj, queue=None):
+        # TODO: trying to run many (N) simulations per GPU
+        #  in Juwels.
+        #  We need to:
+        #    - make N copies of the trajectory and
+        #      slightly alter them
+        #    - obtain the results and grade them accordingly
+        #    - replace the current trajectory with the best one
+        #    - return the winning fitness
+        #  This will (temporarily) increase the population size
+        #  and help explore the parameter space faster.
+        return self.simulate_one(traj, queue)
+
+    def simulate_one(self, traj, queue=None):
         work_path = traj._parameters.JUBE_params.params['work_path']
         results_path = os.path.join(work_path, 'run_results')
         os.makedirs(results_path, exist_ok=True)

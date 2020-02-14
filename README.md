@@ -29,6 +29,11 @@ and the SpiNNaker neuromorphic system as compute backends.
    rule, together with a sWTA circuit to promote specialization of _Output_ 
    neurons.
 
- * To tune the network hyperparameters we use the 
+* To tune the network hyper-parameters we use the 
  [Learning-to-Learn framework](https://github.com/IGITUGraz/L2L) 
- developed by colleagues from the TU Graz and the Jülich Supercomputing Centre. 
+ developed by colleagues from the TU Graz and the Jülich Supercomputing Centre.
+ 
+* Currently working on:
+   * Juwels super-computer (GPU and SLURM)
+   * HBP neuromorphic platform (SpiNNaker machine and MPI)
+   * Desktop (GPU and MPI)
