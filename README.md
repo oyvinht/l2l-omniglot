@@ -24,9 +24,10 @@ and the SpiNNaker neuromorphic system as compute backends.
    
    * The _Output_ layer is another region of insects' mushroom body. The main 
    purpose in our experiment is to have a readout region for the classification
-   of the input patten. The synapses coming from the _Middle_ layer are tuned
-   through an unsupervised learning algorithm, together with a sWTA circuit to 
-   promote specialization of _Output_ neurons.
+   of the input patten. The synapses coming from the _Middle_ layer are modified
+   through an unsupervised spike-timing-dependent plasticity (STDP) 
+   rule, together with a sWTA circuit to promote specialization of _Output_ 
+   neurons.
 
  * To tune the network hyperparameters we use the 
  [Learning-to-Learn framework](https://github.com/IGITUGraz/L2L) 
