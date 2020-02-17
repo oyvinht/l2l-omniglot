@@ -138,8 +138,8 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
 
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
-    db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d' % \
-              config.INPUT_SHAPE[0]
+    db_path = '../omniglot_output_%d' % config.INPUT_SHAPE[0]
+
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
@@ -157,9 +157,10 @@ def main():
 
     # dbs = ['Alphabet_of_the_Magi']
     # dbs = ['Futurama']
-    dbs = ['Latin']
+    # dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
+    dbs = ['Latin', 'Futurama', 'Braille']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
@@ -224,7 +225,7 @@ def main():
             traj.individuals = trajectories_to_individuals(
                 last_trajs, population_size, optimizee)
         attr_steps = [config.ATTR_STEPS[k[0]] for k in dict_spec]
-        parameters = GeneticAlgorithmParameters(seed=0,
+        parameters = GeneticAlgorithmParameters(seed=None,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
                         MUTPB=0.8,  # probability of individual to mutate
