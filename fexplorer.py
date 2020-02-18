@@ -139,7 +139,7 @@ def main():
 
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
     db_path = '../omniglot_output_%d' % config.INPUT_SHAPE[0]
-
+    db_path = os.path.abspath(db_path)
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
