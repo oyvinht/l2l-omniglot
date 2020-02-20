@@ -5,8 +5,6 @@ from collections import OrderedDict
 
 def spiking_per_class(indices, spikes, start_t, end_t, dt):
     uindices = np.unique(indices)
-    # aggregate_per_class = {u-1: {} for u in uindices}
-    # individual_per_class = {u-1: {} for u in uindices}
     aggregate_per_class = {}
     individual_per_class = {}
     for st in np.arange(start_t, end_t, dt):
@@ -30,11 +28,12 @@ def spiking_per_class(indices, spikes, start_t, end_t, dt):
                 apc[nid] = narray
 
         aggregate_per_class[cls] = apc
-        
+
         ipc[class_idx] = ind
         individual_per_class[cls] = ipc
 
     return aggregate_per_class, individual_per_class
+
 
 def spiking_per_class_split(indices, spikes, start_t, end_t, dt):
     uindices = np.unique(indices)

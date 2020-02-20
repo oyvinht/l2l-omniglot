@@ -11,14 +11,15 @@ def spikes_from_data(data):
     return spikes
 
 
+np.random.seed(1)
+
 sim.setup(timestep=1.0, min_delay=1.0)
 
-n_neurons = 1000
 max_t = 50 #ms
 spikes_per_neuron = int(max_t * 0.1)
-n_ssa = 4
+n_ssa = 5
+n_neurons = [np.random.randint(100, 1000) for _ in range(n_ssa)]
 
-np.random.seed(1)
 
 sources = {}
 
@@ -26,7 +27,7 @@ for ssa_id in range(n_ssa):
     sources[ssa_id] = {}
 
     spike_times = []
-    for nid in range(n_neurons):
+    for nid in range(n_neurons[ssa_id]):
         n_spikes = int(np.random.choice(spikes_per_neuron))
         spikes = np.round(np.random.choice(max_t, size=n_spikes, replace=False)).tolist()
         spikes[:] = sorted(spikes)
@@ -34,7 +35,7 @@ for ssa_id in range(n_ssa):
 
     sources[ssa_id]['times'] = spike_times
 
-    ssa = sim.Population(n_neurons,
+    ssa = sim.Population(n_neurons[ssa_id],
              sim.SpikeSourceArray(spike_times=spike_times), label='ssa %d'%ssa_id)
     ssa.record(['spikes'])
 
@@ -54,7 +55,7 @@ sim.end()
 for ssa_id in range(n_ssa):
 
     plt.figure()
-    for nid in range(n_neurons):
+    for nid in range(n_neurons[ssa_id]):
         in_spikes = sources[ssa_id]['times']
         out_spikes = sources[ssa_id]['spikes']
         plt.plot(in_spikes[nid], nid * np.ones_like(in_spikes[nid]),

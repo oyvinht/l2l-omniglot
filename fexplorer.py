@@ -24,8 +24,9 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-USE_MPI = bool(1)
+USE_MPI = bool(0)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
+NUM_SIMS = 1#10 if ON_JEWELS else 1
 
 def main():
 
@@ -100,10 +101,10 @@ def main():
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
-        command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
+        command = "srun -N 1 -n 1 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
-        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to socket  -np 1 {}".format(60*120, command)
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*120, command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -117,6 +118,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
+    traj.f_add_parameter_to_group("simulation", 'num_sims', NUM_SIMS)  # ms
     traj.f_add_parameter_to_group("simulation", 'steps', config.STEPS)  # ms
     traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
     traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
@@ -139,7 +141,6 @@ def main():
 
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
     db_path = '../omniglot_output_%d' % config.INPUT_SHAPE[0]
-    db_path = os.path.abspath(db_path)
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
@@ -157,10 +158,10 @@ def main():
 
     # dbs = ['Alphabet_of_the_Magi']
     # dbs = ['Futurama']
-    # dbs = ['Latin']
+    dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
-    dbs = ['Latin', 'Futurama', 'Braille']
+    # dbs = ['Latin', 'Futurama', 'Braille']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
@@ -216,8 +217,8 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 16
-        # population_size = 5
+        # population_size = 20
+        population_size = 5
         p_hof = 0.25 if population_size < 100 else 0.1
         p_bob = 0.5
         last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))

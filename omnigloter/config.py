@@ -3,16 +3,17 @@ import os
 GENN = 'genn'
 SPINNAKER = 'spinnaker'
 
-DEBUG = bool(0)
+DEBUG = bool(1)
 ONE_TO_ONE_EXCEPTION = bool(0)
 BACKEND = 'SingleThreadedCPU' if bool(0) else 'CUDA'
 
-INF = float(10e10)
+INF = float(1e12)
 
 USE_GABOR_LAYER = bool(0)
 
 SIM_NAME = GENN
 
+GPU_ID = 1
 
 TIMESTEP = 1.0 #ms
 SAMPLE_DT = 50.0 #ms

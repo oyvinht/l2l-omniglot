@@ -44,8 +44,14 @@ def plot_input_spikes(in_spikes, start_t, total_t, dt=1.0, img_shape=(28, 28), i
             plt.imshow(img)
         plt.show()
 
+if len(sys.argv) == 1:
+    input_path = os.path.abspath('./L2L-OMNIGLOT/run_results')
+    base_dir = input_path
+else:
+    input_path = os.path.abspath(sys.argv[1])
+    base_dir = os.path.abspath('.')
 
-result_files = sorted(glob('./L2L-OMNIGLOT/run_results/*.npz'))
+result_files = sorted(glob(os.path.join(input_path, '*.npz')))
 
 total_different = 1.0 #comb(14, 2)
 total_same = 0.1 # 4 * 14 * 0.1
@@ -59,10 +65,12 @@ for k in tmp:
     except:
         data[k] = tmp[k]
 # print( list(all_individuals[0]['params']['ind'].keys()) )
-all_params = {k: [] for k in data['params']['ind'].keys() \
-              if not (k == 'w_max_mult')}
+pkeys = [k for k in data['params']['ind'].keys() \
+                            if not (k == 'w_max_mult')]
+all_params = {}
 all_scores = []
 fitnesses = {}
+data = {}
 for rf in result_files[:]:
     sys.stdout.write("\r{}".format(rf))
     sys.stdout.flush()
@@ -70,34 +78,42 @@ for rf in result_files[:]:
     fns = (fn.split('.')[0]).split('_')
     gen = int(fns[1].split('gen')[-1])
     ind = int(fns[2].split('ind')[-1])
+    data.clear()
     try:
-        tmp = np.load(rf, allow_pickle=True)
-        data = {}
-        for k in tmp:
-            try:
-                data[k] = tmp[k].item()
-            except:
-                data[k] = tmp[k]
+        with np.load(rf, allow_pickle=True) as tmp:
+            for k in tmp:
+                try:
+                    data[k] = tmp[k].item()
+                except:
+                    data[k] = tmp[k]
     except:
         continue
     ag = data['analysis']['aggregate_per_class']['fitness']
     ig = data['analysis']['individual_per_class']['fitness']
-    fit0 = 0.3 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
-           0.3 * data['analysis']['aggregate_per_class']['euc_dist'] + \
-           0.3 * data['analysis']['aggregate_per_class']['class_dist']
-    fit1 = data['analysis']['individual_per_class']['cos_dist']
-    _fit = (fit0 + 0.1*fit1)#/2.0
-
+    # fit0 = 0.3 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+    #        0.3 * data['analysis']['aggregate_per_class']['euc_dist'] + \
+    #        0.3 * data['analysis']['aggregate_per_class']['class_dist']
+    # fit1 = data['analysis']['individual_per_class']['cos_dist']
+    # _fit = (fit0 + 0.1*fit1)#/2.0
+    _fit = data['fitness']
     # _fit = ag + ig
     all_scores.append(_fit)
-
-    for k in all_params:
-        all_params[k].append(data['params']['ind'][k])
-
     l = fitnesses.get(gen, [])
     l.append(_fit)
 
     fitnesses[gen] = l
+
+    ap = {k: data['params']['ind'][k] for k in pkeys}
+    apl = all_params.get(gen, [])
+    apl.append(ap)
+    all_params[gen] = apl
+
+
+
+
+fit_fname = "{}_fitness_and_params_data_per_generation_{}.npz".format(PREFIX, TIME_SUFFIX)
+np.savez_compressed(os.path.join(base_dir, fit_fname),
+                    fitnesses=fitnesses, params=all_params)
 
 print()
 n_bins = int(np.ceil(total / 5.0) + 1)
@@ -132,7 +148,8 @@ ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig("{}_fitness_per_generation_{}.pdf".format(PREFIX, TIME_SUFFIX))
+fname = "{}_fitness_per_generation_{}.pdf".format(PREFIX, TIME_SUFFIX)
+plt.savefig(os.path.join(base_dir, fname))
 
 
 #####################################################################
@@ -153,8 +170,8 @@ ax.set_ylabel('fitness')
 plt.legend(loc='upper left', bbox_to_anchor=(1.0, 1.025))
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig("{}_max_fitness_per_generation_{}.pdf".format(PREFIX, TIME_SUFFIX))
-
+fname = "{}_max_fitness_per_generation_{}.pdf".format(PREFIX, TIME_SUFFIX)
+plt.savefig(os.path.join(base_dir, fname))
 
 #####################################################################
 #####################################################################
@@ -177,8 +194,8 @@ for g in fitnesses:
 #     ax.set_xticks(np.arange(0, total+11, 10))
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig("{}_histogram_per_gen_{}.pdf".format(PREFIX, TIME_SUFFIX ))
-
+fname = "{}_histogram_per_gen_{}.pdf".format(PREFIX, TIME_SUFFIX )
+plt.savefig(os.path.join(base_dir, fname))
 
 #####################################################################
 #####################################################################
@@ -198,11 +215,11 @@ for i in range(n_params):
         ax = plt.subplot(n_rows, n_cols, plt_idx)
         im = plt.scatter(all_params[keys[i]], all_params[keys[j]],
                          c=scores,
-                         #                           s=(100.0 - scores)+ 5.0,
-                         #                           s=scores + 5.0,
-  #                       vmin=0.0, vmax=total,
+#                           s=(100.0 - scores)+ 5.0,
+#                           s=scores + 5.0,
+#                       vmin=0.0, vmax=total,
                          cmap='bwr_r',
-                         #                           alpha=0.15
+#                           alpha=0.15
                          )
         plt.colorbar(im)
 
@@ -210,7 +227,8 @@ for i in range(n_params):
         ax.set_ylabel(keys[j])
 
         plt_idx += 1
+
 ax.margins(0.1)
 plt.tight_layout()
-plt.savefig('{}_parameter_pairs_{}.pdf'.format(PREFIX, TIME_SUFFIX))
-
+fname = '{}_parameter_pairs_{}.pdf'.format(PREFIX, TIME_SUFFIX)
+plt.savefig(os.path.join(base_dir, fname))
