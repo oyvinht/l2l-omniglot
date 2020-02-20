@@ -13,7 +13,7 @@ USE_GABOR_LAYER = bool(0)
 
 SIM_NAME = GENN
 
-GPU_ID = 1
+GPU_ID = 0
 
 TIMESTEP = 1.0 #ms
 SAMPLE_DT = 50.0 #ms
