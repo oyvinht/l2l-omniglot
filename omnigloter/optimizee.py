@@ -63,7 +63,8 @@ class OmniglotOptimizee(Optimizee):
         #  This will (temporarily) increase the population size
         #  and help explore the parameter space faster.
         if self.sim_params['num_sims'] == 1:
-            return self.simulate_one(traj, queue)
+            res = self.simulate_one(traj, queue)
+
         else:
             n_params = len(traj.individual.keys)
             p_change = 1.0/n_params
@@ -114,11 +115,13 @@ class OmniglotOptimizee(Optimizee):
                 v = getattr(trajs[win_idx].individual, k)
                 setattr(traj.individual, k, v)
 
-            if queue is not None:
-                queue.put(res[win_idx])
-                return
+            res = res[win_idx]
 
-            return res[win_idx]
+        if queue is not None:
+            queue.put(res)
+            return
+
+        return res
 
 
 
