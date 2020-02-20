@@ -15,7 +15,7 @@ L2L-OMNIGLOT/run_files/
 L2L-OMNIGLOT/trajectories/
 L2L-OMNIGLOT/work/
 L2L-OMNIGLOT/optimizee.bin
-L2L-OMNIGLOT/*npz
+
 **/__pycache__/
 **/*_CODE/
 .ipynb_checkpoints/

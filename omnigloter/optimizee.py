@@ -161,6 +161,10 @@ class OmniglotOptimizee(Optimizee):
 
         snn = Decoder(name, params)
         data = snn.run_pynn()
+
+        if data['died']:
+            print(data['recs'])
+
         diff_class_dots = []
         min_v = -1.0 if data['died'] else 0.0
         apc, ipc = None, None
@@ -173,7 +177,11 @@ class OmniglotOptimizee(Optimizee):
             start_t = end_t - n_class * n_test * dt
             apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
+            print("\n\n\napc")
+            print(apc)
 
+            print("\nipc")
+            print(ipc)
 
             diff_class_vectors = [np.zeros(n_out) for _ in apc]
             for c in apc:
@@ -307,6 +315,8 @@ class OmniglotOptimizee(Optimizee):
         #     diff_class_dots = []
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
+
+        vmin = -1.0 if all_zero else 0.0
 
         if len(diff_class_dots) == 0:# or any_zero:
             print("dots == 0, fitness = ", 0)
