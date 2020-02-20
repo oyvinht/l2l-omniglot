@@ -26,6 +26,7 @@ OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 USE_MPI = bool(0)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
+NUM_SIMS = 1#10 if ON_JEWELS else 1
 
 def main():
 
@@ -100,7 +101,7 @@ def main():
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
-        command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
+        command = "srun -N 1 -n 1 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
         command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*120, command)
@@ -117,6 +118,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
+    traj.f_add_parameter_to_group("simulation", 'num_sims', NUM_SIMS)  # ms
     traj.f_add_parameter_to_group("simulation", 'steps', config.STEPS)  # ms
     traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
     traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
@@ -138,8 +140,7 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
 
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
-    db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d' % \
-              config.INPUT_SHAPE[0]
+    db_path = '../omniglot_output_%d' % config.INPUT_SHAPE[0]
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
@@ -157,9 +158,10 @@ def main():
 
     # dbs = ['Alphabet_of_the_Magi']
     # dbs = ['Futurama']
-    dbs = ['Latin']
+    # dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
+    dbs = ['Latin', 'Futurama', 'Braille']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
@@ -224,7 +226,7 @@ def main():
             traj.individuals = trajectories_to_individuals(
                 last_trajs, population_size, optimizee)
         attr_steps = [config.ATTR_STEPS[k[0]] for k in dict_spec]
-        parameters = GeneticAlgorithmParameters(seed=0,
+        parameters = GeneticAlgorithmParameters(seed=None,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
                         MUTPB=0.8,  # probability of individual to mutate

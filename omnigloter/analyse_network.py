@@ -5,30 +5,35 @@ from collections import OrderedDict
 
 def spiking_per_class(indices, spikes, start_t, end_t, dt):
     uindices = np.unique(indices)
-    aggregate_per_class = {u: {} for u in uindices}
-    individual_per_class = {u: {} for u in uindices}
+    aggregate_per_class = {}
+    individual_per_class = {}
     for st in np.arange(start_t, end_t, dt):
         et = st + dt
         class_idx = int(st // dt)
         cls = int(indices[class_idx])
+        apc = aggregate_per_class.get(cls, {})
+        ipc = individual_per_class.get(cls, {})
         ind = {}
         for nid, ts in enumerate(spikes):
             times = np.array(ts)
             whr = np.where(np.logical_and(st <= times, times < et))[0]
             if len(whr):
-                narray = aggregate_per_class[cls].get(nid, None)
+                narray = apc.get(nid, None)
                 if narray is None:
                     narray = times[whr]
                 else:
                     narray = np.append(narray, times[whr])
 
                 ind[nid] = times[whr]
+                apc[nid] = narray
 
-                aggregate_per_class[cls][nid] = narray
+        aggregate_per_class[cls] = apc
 
-        individual_per_class[cls][class_idx] = ind
+        ipc[class_idx] = ind
+        individual_per_class[cls] = ipc
 
     return aggregate_per_class, individual_per_class
+
 
 def spiking_per_class_split(indices, spikes, start_t, end_t, dt):
     uindices = np.unique(indices)
