@@ -70,6 +70,7 @@ pkeys = [k for k in data['params']['ind'].keys() \
 all_params = {}
 all_scores = []
 fitnesses = {}
+data = {}
 for rf in result_files[:]:
     sys.stdout.write("\r{}".format(rf))
     sys.stdout.flush()
@@ -77,14 +78,14 @@ for rf in result_files[:]:
     fns = (fn.split('.')[0]).split('_')
     gen = int(fns[1].split('gen')[-1])
     ind = int(fns[2].split('ind')[-1])
+    data.clear()
     try:
-        tmp = np.load(rf, allow_pickle=True)
-        data = {}
-        for k in tmp:
-            try:
-                data[k] = tmp[k].item()
-            except:
-                data[k] = tmp[k]
+        with np.load(rf, allow_pickle=True) as tmp:
+            for k in tmp:
+                try:
+                    data[k] = tmp[k].item()
+                except:
+                    data[k] = tmp[k]
     except:
         continue
     ag = data['analysis']['aggregate_per_class']['fitness']
