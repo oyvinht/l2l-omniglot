@@ -204,11 +204,11 @@ class OmniglotOptimizee(Optimizee):
             print("{}\tdiff dots".format(name))
             print(diff_class_dots)
 
-            same_class_vectors = {c-1: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
+            same_class_vectors = {c: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
             for c in ipc:
                 for i, x in enumerate(ipc[c]):
                     for nid in ipc[c][x]:
-                        same_class_vectors[c - 1][i][nid] = 1
+                        same_class_vectors[c][i][nid] = 1
 
             # punish inactivity on output cells,
             # every test sample should produce at least one spike in
@@ -219,9 +219,12 @@ class OmniglotOptimizee(Optimizee):
                         continue
                     any_zero = True
                     break
+            for c in same_class_vectors:
+                print(c)
+                print(same_class_vectors[c])
 
             if SOFT_ZERO_PUNISH or not any_zero:
-                same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
+                same_class_norms = {c: np.linalg.norm(np.asarray(same_class_vectors[c]), axis=1) 
                                                             for c in same_class_vectors}
 
                 print("{}\tsame vectors - norms".format(name))

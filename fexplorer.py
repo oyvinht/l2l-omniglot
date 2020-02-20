@@ -103,7 +103,7 @@ def main():
         command = "srun -t 15 -N 1 -n 4 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
-        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*120, command)
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to socket  -np 1 {}".format(60*120, command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -216,7 +216,7 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 20
+        population_size = 16
         # population_size = 5
         p_hof = 0.25 if population_size < 100 else 0.1
         p_bob = 0.5
