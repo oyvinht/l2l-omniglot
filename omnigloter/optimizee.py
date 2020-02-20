@@ -219,9 +219,6 @@ class OmniglotOptimizee(Optimizee):
                         continue
                     any_zero = True
                     break
-            for c in same_class_vectors:
-                print(c)
-                print(same_class_vectors[c])
 
             if SOFT_ZERO_PUNISH or not any_zero:
                 same_class_norms = {c: np.linalg.norm(np.asarray(same_class_vectors[c]), axis=1) 
