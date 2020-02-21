@@ -51,7 +51,7 @@ class OmniglotOptimizee(Optimizee):
         return individual
 
 
-    def simulate(self, traj, queue=None):
+    def simulate(self, traj):
         # TODO: trying to run many (N) simulations per GPU
         #  in Juwels.
         #  We need to:
@@ -62,66 +62,61 @@ class OmniglotOptimizee(Optimizee):
         #    - return the winning fitness
         #  This will (temporarily) increase the population size
         #  and help explore the parameter space faster.
-        if self.sim_params['num_sims'] == 1:
-            res = self.simulate_one(traj, queue)
+        n_params = len(traj.individual.keys)
+        p_change = 1.0/n_params
+        n_sims = self.sim_params['num_sims']
+        ipr = self.ind_param_ranges
+        q = Queue()
+        trajs = [traj.copy() for _ in range(n_sims)]
+        n_inds = len(traj.individuals[0])
+        for tid, t in enumerate(trajs):
+            if tid == 0:
+                continue
+            ind_idx = t.individual.ind_idx
+            new_ind_idx = t.individual.ind_idx
+            new_ind_idx *= n_inds
+            new_ind_idx += tid
+            t.individual.ind_idx = new_ind_idx
+            for k in t.individual.keys:
+                if np.random.uniform(0., 1.) <= p_change:
+                    print(tid, k)
+                    dv = np.random.normal(0., 0.1)
+                    k = k.split('.')[1]
+                    v = utils.bound(
+                            getattr(t.individual, k) + dv,
+                            ipr[k])
 
-        else:
-            n_params = len(traj.individual.keys)
-            p_change = 1.0/n_params
-            n_sims = self.sim_params['num_sims']
-            ipr = self.ind_param_ranges
-            q = Queue()
-            trajs = [traj.copy() for _ in range(n_sims)]
-            n_inds = len(traj.individuals[0])
-            for tid, t in enumerate(trajs):
-                if tid == 0:
-                    continue
-                ind_idx = t.individual.ind_idx
-                new_ind_idx = t.individual.ind_idx
-                new_ind_idx *= n_inds
-                new_ind_idx += tid
-                t.individual.ind_idx = new_ind_idx
-                for k in t.individual.keys:
-                    if np.random.uniform(0., 1.) <= p_change:
-                        print(tid, k)
-                        dv = np.random.normal(0., 0.1)
-                        k = k.split('.')[1]
-                        v = utils.bound(
-                                getattr(t.individual, k) + dv,
-                                ipr[k])
-
-                        setattr(t.individual, k, v)
+                    setattr(t.individual, k, v)
 
 
-            procs = [
-                Process(target=self.simulate_one, args=(trajs[i], q))
-                for i in range(n_sims)]
+        procs = [
+            Process(target=self.simulate_one, args=(trajs[i], q))
+            for i in range(n_sims)]
 
-            for p in procs:
-                p.start()
+        for p in procs:
+            p.start()
 
-            res = []
-            for p in procs:
-                p.join()
-                res.append(q.get())
 
-            wfits = []
-            for r in res:
-                wfits.append(np.sum(r))
+        for p in procs:
+            p.join()
 
-            win_idx = np.argmax(wfits)
-            for k in traj.individual.keys:
-                k = k.split('.')[1]
-                v = getattr(trajs[win_idx].individual, k)
-                setattr(traj.individual, k, v)
+        res = []
+        for _ in procs:
+            res.append(q.get())
 
-            res = res[win_idx]
+        wfits = []
+        for r in res:
+            wfits.append(np.sum(r))
 
-        if queue is not None:
-            queue.put(res)
-            return
+        win_idx = np.argmax(wfits)
+        for k in traj.individual.keys:
+            k = k.split('.')[1]
+            v = getattr(trajs[win_idx].individual, k)
+            setattr(traj.individual, k, v)
 
-        return res
+        return res[win_idx]
+
+
 
 
 
@@ -432,6 +427,9 @@ class OmniglotOptimizee(Optimizee):
         gc.collect()
         print("Done running simulation")
 
+        if queue is not None:
+            queue.put([fit0])
+            return
 
 
 
