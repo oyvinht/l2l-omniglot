@@ -11,6 +11,7 @@ from matplotlib.lines import Line2D
 from glob import glob
 import sys
 from datetime import datetime
+import time
 from scipy.special import comb
 
 
@@ -106,7 +107,8 @@ for rf in result_files[:]:
     fns = (fn.split('.')[0]).split('_')
     gen = int(fns[1].split('gen')[-1])
 
-    if gen < last_gen - 1:
+    if gen < last_gen:
+        time.sleep(0.01)
         continue
 
     ind = int(fns[2].split('ind')[-1])
