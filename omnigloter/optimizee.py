@@ -11,10 +11,12 @@ import os
 import logging
 from omnigloter import config, utils, analyse_network as analysis
 from omnigloter.snn_decoder import Decoder
+import copy
 
 logger = logging.getLogger("optimizee.mushroom_body")
 
 # L2L imports
+
 from l2l.optimizees.functions.optimizee import Optimizee
 from six import iterkeys, iteritems
 
@@ -49,31 +51,77 @@ class OmniglotOptimizee(Optimizee):
         return individual
 
 
-    def snn_multiproc(self, name, params):
-        # trying to avoid huge memory consumption after many individuals
+    def simulate(self, traj):
+        # TODO: trying to run many (N) simulations per GPU
+        #  in Juwels.
+        #  We need to:
+        #    - make N copies of the trajectory and
+        #      slightly alter them
+        #    - obtain the results and grade them accordingly
+        #    - replace the current trajectory with the best one
+        #    - return the winning fitness
+        #  This will (temporarily) increase the population size
+        #  and help explore the parameter space faster.
+        n_params = len(traj.individual.keys)
+        p_change = 1.0/n_params
+        n_sims = self.sim_params['num_sims']
+        ipr = self.ind_param_ranges
+        q = Queue()
+        trajs = [traj.copy() for _ in range(n_sims)]
+        n_inds = len(traj.individuals[0])
+        for tid, t in enumerate(trajs):
+            if tid == 0:
+                continue
+            ind_idx = t.individual.ind_idx
+            new_ind_idx = t.individual.ind_idx
+            new_ind_idx *= n_inds
+            new_ind_idx += tid
+            t.individual.ind_idx = new_ind_idx
+            for k in t.individual.keys:
+                if np.random.uniform(0., 1.) <= p_change:
+                    print(tid, k)
+                    dv = np.random.normal(0., 0.1)
+                    k = k.split('.')[1]
+                    v = utils.bound(
+                            getattr(t.individual, k) + dv,
+                            ipr[k])
+
+                    setattr(t.individual, k, v)
 
 
-        # queue = Queue()
-        # p = Process(target=self.create_and_run, args=(name, params, queue))
-        # p.start()
-        # print("launched process, waiting ...")
-        # p.join()  # this blocks until the process terminates
-        # print("done running!")
-        # data = queue.get()
-        # return data
-        queue = None
-        return self.create_and_run(name, params, queue)
+        procs = [
+            Process(target=self.simulate_one, args=(trajs[i], q))
+            for i in range(n_sims)]
 
-    def create_and_run(self, name, params, queue=None):
-        print("Creating and running SNN")
-        snn = Decoder(name, params)
-        data = snn.run_pynn()
-        print("Done running simulation")
-        if queue is None:
-            return data
-        queue.put(data)
+        for p in procs:
+            p.start()
 
-    def simulate(self, traj, queue=None):
+
+        for p in procs:
+            p.join()
+
+        res = []
+        for _ in procs:
+            res.append(q.get())
+
+        wfits = []
+        for r in res:
+            wfits.append(np.sum(r))
+
+        win_idx = np.argmax(wfits)
+        for k in traj.individual.keys:
+            k = k.split('.')[1]
+            v = getattr(trajs[win_idx].individual, k)
+            setattr(traj.individual, k, v)
+
+        return res[win_idx]
+
+
+
+
+
+
+    def simulate_one(self, traj, queue=None):
         work_path = traj._parameters.JUBE_params.params['work_path']
         results_path = os.path.join(work_path, 'run_results')
         os.makedirs(results_path, exist_ok=True)
@@ -96,7 +144,7 @@ class OmniglotOptimizee(Optimizee):
         # ind_idx = np.random.randint(0, 1000)
         ind_idx = traj.individual.ind_idx
         generation = traj.individual.generation
-        name = 'gen{:05d}_ind{:05d}'.format(generation, ind_idx)
+        name = 'gen{:010d}_ind{:010d}'.format(generation, ind_idx)
         ind_params = {k: getattr(traj.individual, k) for k in ipr}
         print("ind_params:")
         print(ind_params)
@@ -108,7 +156,12 @@ class OmniglotOptimizee(Optimizee):
 
         snn = Decoder(name, params)
         data = snn.run_pynn()
+
+        if data['died']:
+            print(data['recs'])
+
         diff_class_dots = []
+        min_v = -1.0 if data['died'] else 0.0
         apc, ipc = None, None
         if not data['died']:
             ### Analyze results
@@ -119,7 +172,11 @@ class OmniglotOptimizee(Optimizee):
             start_t = end_t - n_class * n_test * dt
             apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
+            print("\n\n\napc")
+            print(apc)
 
+            print("\nipc")
+            print(ipc)
 
             diff_class_vectors = [np.zeros(n_out) for _ in apc]
             for c in apc:
@@ -179,7 +236,8 @@ class OmniglotOptimizee(Optimizee):
                 diff_class_repr = float(n_out_class) / float(n_class)
                 # diff_class_overlap = overlap_len - np.sum(overlap)
 
-            diff_class_norms = np.linalg.norm(diff_class_vectors, axis=1)
+            diff_class_norms = np.linalg.norm(
+                                np.asarray(diff_class_vectors), axis=1)
             print("{}\tdiff vectors - norms".format(name))
             print(diff_class_norms)
 
@@ -195,11 +253,11 @@ class OmniglotOptimizee(Optimizee):
             print("{}\tdiff dots".format(name))
             print(diff_class_dots)
 
-            same_class_vectors = {c-1: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
+            same_class_vectors = {c: [np.zeros(n_out) for _ in ipc[c]] for c in ipc}
             for c in ipc:
                 for i, x in enumerate(ipc[c]):
                     for nid in ipc[c][x]:
-                        same_class_vectors[c - 1][i][nid] = 1
+                        same_class_vectors[c][i][nid] = 1
 
             # punish inactivity on output cells,
             # every test sample should produce at least one spike in
@@ -212,8 +270,10 @@ class OmniglotOptimizee(Optimizee):
                     break
 
             if SOFT_ZERO_PUNISH or not any_zero:
-                same_class_norms = {c: np.linalg.norm(same_class_vectors[c], axis=1) \
-                                                            for c in same_class_vectors}
+                same_class_norms = {
+                    c: np.linalg.norm(np.asarray(same_class_vectors[c]), axis=1)
+                                                            for c in same_class_vectors
+                }
 
                 print("{}\tsame vectors - norms".format(name))
                 print(same_class_norms)
@@ -251,6 +311,8 @@ class OmniglotOptimizee(Optimizee):
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
+        vmin = -1.0 if all_zero else 0.0
+
         if len(diff_class_dots) == 0:# or any_zero:
             print("dots == 0, fitness = ", 0)
             same_class_vectors = []
@@ -262,15 +324,15 @@ class OmniglotOptimizee(Optimizee):
             same_class_norms = []
             same_class_dots = []
 
-            diff_class_fitness = 0#n_dots
-            same_class_fitness = 0
+            diff_class_fitness = min_v#n_dots
+            same_class_fitness = min_v
 
             diff_class_distances = []
             same_class_distances = []
-            diff_dist = 0
+            diff_dist = min_v
 
-            diff_class_overlap = 0
-            diff_class_repr = 0
+            diff_class_overlap = min_v
+            diff_class_repr = min_v
 
             apc = []
 
@@ -365,9 +427,10 @@ class OmniglotOptimizee(Optimizee):
         gc.collect()
         print("Done running simulation")
 
-
         if queue is not None:
-            queue.put([fit0])#, fit1,])
+            queue.put([fit0])
             return
+
+
 
         return [fit0]#, fit1,]

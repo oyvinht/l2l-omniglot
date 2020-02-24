@@ -26,6 +26,7 @@ OPTIMIZER = GENALG
 ON_JEWELS = bool(1)
 USE_MPI = bool(0)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
+NUM_SIMS = 10 if ON_JEWELS else 1
 
 def main():
 
@@ -99,11 +100,10 @@ def main():
         # -N num nodes
         # -t exec time (mins)
         # -n num sub-procs
-        # -p gpus --gres=gpu:1 --ntasks=8 --ntasks-per-node=4 --ntasks-per-core=1
-        command = "srun -t 05:00:00 -c 1 --gres=gpu:1  -N 1 -n 1 {}".format(command)
+        command = "srun -N 1 -n 1 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
-        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60 * 60, command)
+        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*120, command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -117,6 +117,7 @@ def main():
     traj.f_add_parameter_to_group("JUBE_params", "paths_obj", paths)
 
     traj.f_add_parameter_group("simulation", "Contains JUBE parameters")
+    traj.f_add_parameter_to_group("simulation", 'num_sims', NUM_SIMS)  # ms
     traj.f_add_parameter_to_group("simulation", 'steps', config.STEPS)  # ms
     traj.f_add_parameter_to_group("simulation", 'duration', config.DURATION)  # ms
     traj.f_add_parameter_to_group("simulation", 'sample_dt', config.SAMPLE_DT)  # ms
@@ -138,28 +139,28 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
 
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
-    db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes_shrink_%d' % \
-              config.INPUT_SHAPE[0]
+    db_path = '../omniglot_output_%d' % config.INPUT_SHAPE[0]
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
     # print(dbs)
-    # dbs = [
-    #     'Mkhedruli_-Georgian-', 'Tagalog', 'Ojibwe_-Canadian_Aboriginal_Syllabics-',
-    #     'Asomtavruli_-Georgian-', 'Balinese', 'Japanese_-katakana-', 'Malay_-Jawi_-_Arabic-',
-    #     'Armenian', 'Burmese_-Myanmar-', 'Arcadian', 'Futurama', 'Cyrillic',
-    #     'Alphabet_of_the_Magi', 'Sanskrit', 'Braille', 'Bengali',
-    #     'Inuktitut_-Canadian_Aboriginal_Syllabics-', 'Syriac_-Estrangelo-', 'Gujarati',
-    #     'Korean', 'Early_Aramaic', 'Japanese_-hiragana-', 'Anglo-Saxon_Futhorc', 'N_Ko',
-    #     'Grantha', 'Tifinagh', 'Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Greek',
-    #     'Hebrew', 'Latin'
-    # ]
+    dbs = [
+        'Mkhedruli_-Georgian-', 'Tagalog', 'Ojibwe_-Canadian_Aboriginal_Syllabics-',
+        'Asomtavruli_-Georgian-', 'Balinese', 'Japanese_-katakana-', 'Malay_-Jawi_-_Arabic-',
+        'Armenian', 'Burmese_-Myanmar-', 'Arcadian', 'Futurama', 'Cyrillic',
+        'Alphabet_of_the_Magi', 'Sanskrit', 'Braille', 'Bengali',
+        'Inuktitut_-Canadian_Aboriginal_Syllabics-', 'Syriac_-Estrangelo-', 'Gujarati',
+        'Korean', 'Early_Aramaic', 'Japanese_-hiragana-', 'Anglo-Saxon_Futhorc', 'N_Ko',
+        'Grantha', 'Tifinagh', 'Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Greek',
+        'Hebrew', 'Latin'
+    ]
 
     # dbs = ['Alphabet_of_the_Magi']
     # dbs = ['Futurama']
     dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
+    # dbs = ['Cyrillic', 'Futurama', 'Braille']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
@@ -215,13 +216,14 @@ def main():
         num_generations = 1000
         population_size = 50
         # population_size = 5
-
+        p_hof = 0.25 if population_size < 100 else 0.1
+        p_bob = 0.5
         last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))
         if len(last_trajs):
             traj.individuals = trajectories_to_individuals(
                 last_trajs, population_size, optimizee)
-
-        parameters = GeneticAlgorithmParameters(seed=0,
+        attr_steps = [config.ATTR_STEPS[k[0]] for k in dict_spec]
+        parameters = GeneticAlgorithmParameters(seed=None,
                         popsize=population_size,
                         CXPB=0.5,  # probability of mating 2 individuals
                         MUTPB=0.8,  # probability of individual to mutate
@@ -229,7 +231,7 @@ def main():
                         indpb=0.1,  # probability of "gene" to mutate
                         tournsize=population_size,  # number of best individuals to mate
                         matepar=0.5,  # how much to mix two genes when mating
-                        mutpar=step_size,  # standard deviations for normal distribution
+                        mutpar=attr_steps,  # standard deviations for normal distribution
                         )
 
         optimizer = GeneticAlgorithmOptimizer(traj,
@@ -237,8 +239,8 @@ def main():
                       optimizee_fitness_weights=fit_weights,
                       parameters=parameters,
                       optimizee_bounding_func=optimizee.bounding_func,
-                      percent_hall_of_fame = 0.1,
-                      percent_elite = 0.5,
+                      percent_hall_of_fame = p_hof,
+                      percent_elite = p_bob,
                     )
 
     # Add post processing

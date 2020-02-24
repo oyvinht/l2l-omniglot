@@ -59,10 +59,12 @@ class GeneticAlgorithmOptimizer(Optimizer):
             dict_to_list(optimizee_create_individual(), get_dict_spec=True)
         self.optimizee_create_individual = optimizee_create_individual
         traj.f_add_parameter('seed', parameters.seed, comment='Seed for RNG')
+
         if len(traj.individuals):
             popsize = max(parameters.popsize, len(traj.individuals[-1]))
         else:
             popsize = parameters.popsize
+
         traj.f_add_parameter('popsize', popsize, comment='Population size')  # 185
         traj.f_add_parameter('CXPB', parameters.CXPB, comment='Crossover term')
         traj.f_add_parameter('MUTPB', parameters.MUTPB, comment='Mutation probability')
@@ -116,7 +118,7 @@ class GeneticAlgorithmOptimizer(Optimizer):
         if load_last_trajectories:
             self._load_last_trajectories(traj)
 
-            # traj.individuals.clear()
+            traj.individuals.clear()
 
         self.eval_pop_inds = [ind for ind in self.pop if not ind.fitness.valid]
         self.eval_pop = [list_to_dict(ind, self.optimizee_individual_dict_spec)
@@ -131,6 +133,8 @@ class GeneticAlgorithmOptimizer(Optimizer):
         self._expand_trajectory(traj)
 
     def _load_last_trajectories(self, traj):
+        if not len(traj.individuals):
+            return
         g = -1
         if g in traj.individuals:
             for idx, ind in enumerate(traj.individuals[g]):

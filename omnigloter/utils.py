@@ -315,9 +315,9 @@ def output_connection_list(kenyon_size, decision_size, prob_active, active_weigh
 
     return matrix
 
-
-def load_mnist_spike_file(dataset, digit, index,
-                          base_dir="/home/gp283/brainscales-recognition/codebase/images_to_spikes"):
+DEFAULT_SPIKE_DIR = "/home/gp283/brainscales-recognition/codebase/images_to_spikes"
+def load_mnist_spike_file(
+        dataset, digit, index, base_dir=DEFAULT_SPIKE_DIR):
     if dataset not in ['train', 't10k']:
         dataset = 'train'
 
@@ -537,11 +537,11 @@ def add_noise(prob, spikes, start_t, end_t):
 
     return spikes
 
-def split_ssa(ssa, n_steps, duration):
+def split_ssa(ssa, n_steps, duration, round_times):
     dt = duration // n_steps
     s = {}
     for loop, st in enumerate(np.arange(0, duration, dt)):
-        sys.stdout.write("\r{:6.2f}%".format(float(loop)/float(n_steps)))
+        sys.stdout.write("\rsplitting spikes to steps {:6.2f}%".format(100.0*float(loop+1)/float(n_steps)))
         sys.stdout.flush()
         et = st + dt
         s[st] = {}
@@ -550,7 +550,9 @@ def split_ssa(ssa, n_steps, duration):
             for times in ssa[i]:
                 ts = np.asarray(times)
                 whr = np.where(np.logical_and(st <= ts, ts < et))
-                s[st][i].append(np.round(ts[whr]).tolist())
+                arr = np.round(ts[whr]) if round_times else ts[whr]
+                s[st][i].append(sorted(arr.tolist()))
+
     sys.stdout.write("\n\n")
     sys.stdout.flush()
 
