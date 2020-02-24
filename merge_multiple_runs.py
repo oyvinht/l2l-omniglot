@@ -30,7 +30,7 @@ def get_run(path):
         raise Exception('No number found in run path')
 
 def get_max_gen_in_run(run_dir):
-    files = glob.glob(os.path.join(run_dir, '*.npz'))
+    files = glob.glob(os.path.join(run_dir, 'data_gen*_ind*.npz'))
     max_gen = -1
     for f in files:
         igen, _ = get_gen_ind(f)
@@ -67,7 +67,7 @@ def merge_results(results_dirs, output_dir):
             base_gen += max_gen
             max_gen = get_max_gen_in_run(rdir)
 
-        files = sorted(glob.glob(os.path.join(rdir, '*.npz')))
+        files = sorted(glob.glob(os.path.join(rdir, 'data_gen*_ind*.npz')))
         for fid, fname in enumerate(files):
             gen, ind = get_gen_ind(fname)
             gen += base_gen
