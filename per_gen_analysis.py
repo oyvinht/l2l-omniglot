@@ -225,7 +225,7 @@ for g in fitnesses:
 #         continue
     ax = plt.subplot(nrows, ncols, g+1)
     ax.set_title("Gen %d   n_ind %d"%(g+1, len(fitnesses[g])))
-    plt.hist(fitnesses[g], range=(0.0, 1.0))#, bins=n_bins)
+    plt.hist(fitnesses[g], range=(0.0, 1.0), bins=10)
 #     ax.set_xticks(np.arange(0, total+11, 10))
 ax.margins(0.1)
 plt.tight_layout()
