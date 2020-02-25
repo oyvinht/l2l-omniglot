@@ -25,7 +25,7 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 USE_MPI = bool(0)
-MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0)) and (not config.DEBUG)
 NUM_SIMS = 10 if ON_JEWELS else 1
 
 def main():
@@ -164,8 +164,6 @@ def main():
     # dbs = ['Cyrillic', 'Futurama', 'Braille']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
-
-
 
     ## Innerloop simulator
     grad_desc = OPTIMIZER == GRADDESC
