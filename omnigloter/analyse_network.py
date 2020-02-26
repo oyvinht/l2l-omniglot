@@ -50,7 +50,7 @@ def overlap_score(apc, n_output):
             for cls1 in classes[cls0_id + 1:]:
                 nids1 = list(apc[cls1].keys())
                 if nid in nids1:
-                    print(nid, nids1, cls0, cls1)
+                    # print(nid, nids1, cls0, cls1)
                     class_overlaps[cls0] += 1
                     class_overlaps[cls1] += 1
                     neuron_overlaps[nid] += 1
