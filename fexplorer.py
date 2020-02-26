@@ -24,9 +24,9 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
-USE_MPI = bool(0)
+USE_MPI = bool(1)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0))
-NUM_SIMS = 1#10 if ON_JEWELS else 1
+NUM_SIMS = 10 if ON_JEWELS else 1
 
 def main():
 
@@ -104,7 +104,8 @@ def main():
         command = "srun -N 1 -n 1 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
-        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*120, command)
+#         command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to socket -np 1 {}".format(60*240, command)
+        command = "mpiexec -bind-to socket -np 1 {}".format(command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -140,28 +141,29 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
 
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
-    db_path = '../omniglot_output_%d' % config.INPUT_SHAPE[0]
+    db_path = os.path.abspath('../omniglot_output_%d' % config.INPUT_SHAPE[0])
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
     # print(dbs)
-    # dbs = [
-    #     'Mkhedruli_-Georgian-', 'Tagalog', 'Ojibwe_-Canadian_Aboriginal_Syllabics-',
-    #     'Asomtavruli_-Georgian-', 'Balinese', 'Japanese_-katakana-', 'Malay_-Jawi_-_Arabic-',
-    #     'Armenian', 'Burmese_-Myanmar-', 'Arcadian', 'Futurama', 'Cyrillic',
-    #     'Alphabet_of_the_Magi', 'Sanskrit', 'Braille', 'Bengali',
-    #     'Inuktitut_-Canadian_Aboriginal_Syllabics-', 'Syriac_-Estrangelo-', 'Gujarati',
-    #     'Korean', 'Early_Aramaic', 'Japanese_-hiragana-', 'Anglo-Saxon_Futhorc', 'N_Ko',
-    #     'Grantha', 'Tifinagh', 'Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Greek',
-    #     'Hebrew', 'Latin'
-    # ]
+    dbs = [
+        'Mkhedruli_-Georgian-', 'Tagalog', 'Ojibwe_-Canadian_Aboriginal_Syllabics-',
+        'Asomtavruli_-Georgian-', 'Balinese', 'Japanese_-katakana-', 'Malay_-Jawi_-_Arabic-',
+        'Armenian', 'Burmese_-Myanmar-', 'Arcadian', 'Futurama', 'Cyrillic',
+        'Alphabet_of_the_Magi', 'Sanskrit', 'Braille', 'Bengali',
+        'Inuktitut_-Canadian_Aboriginal_Syllabics-', 'Syriac_-Estrangelo-', 'Gujarati',
+        'Korean', 'Early_Aramaic', 'Japanese_-hiragana-', 'Anglo-Saxon_Futhorc', 'N_Ko',
+        'Grantha', 'Tifinagh', 'Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Greek',
+        'Hebrew', 'Latin'
+    ]
 
     # dbs = ['Alphabet_of_the_Magi']
     # dbs = ['Futurama']
-    dbs = ['Latin']
+    # dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
-    # dbs = ['Latin', 'Futurama', 'Braille']
+    dbs = [ 'Futurama', 'Braille']
+    # dbs = ['Cyrillic', 'Futurama', 'Braille']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
@@ -217,9 +219,9 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 20
+        population_size = 22
         # population_size = 5
-        p_hof = 0.25 if population_size < 100 else 0.1
+        p_hof = 0.2 if population_size < 100 else 0.1
         p_bob = 0.5
         last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))
         if len(last_trajs):
