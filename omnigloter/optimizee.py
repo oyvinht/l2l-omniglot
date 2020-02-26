@@ -65,18 +65,20 @@ class OmniglotOptimizee(Optimizee):
         n_params = len(traj.individual.keys)
         p_change = 1.0/n_params
         n_sims = self.sim_params['num_sims']
+        original_ind_idx = copy.copy(traj.individual.ind_idx)
         ipr = self.ind_param_ranges
         q = Queue()
         trajs = [traj.copy() for _ in range(n_sims)]
         n_inds = len(traj.individuals[0])
         for tid, t in enumerate(trajs):
-            if tid == 0:
-                continue
-            ind_idx = t.individual.ind_idx
             new_ind_idx = t.individual.ind_idx
             new_ind_idx *= n_inds
             new_ind_idx += tid
             t.individual.ind_idx = new_ind_idx
+
+            if tid == 0:
+                continue
+
             for k in t.individual.keys:
                 if np.random.uniform(0., 1.) <= p_change:
                     print(tid, k)
@@ -108,11 +110,13 @@ class OmniglotOptimizee(Optimizee):
         for r in res:
             wfits.append(np.sum(r))
 
-        win_idx = np.argmax(wfits)
+        win_idx = int(np.argmax(wfits))
         for k in traj.individual.keys:
             k = k.split('.')[1]
             v = getattr(trajs[win_idx].individual, k)
             setattr(traj.individual, k, v)
+
+        traj.individual.ind_idx = original_ind_idx
 
         return res[win_idx]
 
@@ -157,13 +161,25 @@ class OmniglotOptimizee(Optimizee):
         snn = Decoder(name, params)
         data = snn.run_pynn()
 
+        print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
+
         if data['died']:
             print(data['recs'])
 
-        diff_class_dots = []
-        diff_class_vectors = []
         vmin = -1.0 if data['died'] else 0.0
-        apc, ipc = None, None
+        diff_class_vectors = []
+        diff_class_distances = []
+        diff_class_fitness = vmin
+
+        same_class_vectors = []
+        same_class_distances = []
+
+        same_class_fitness = vmin
+
+        diff_class_overlap = vmin
+        diff_class_repr = vmin
+        apc, ipc = [], []
+
         any_zero, all_zero = False, False
         if not data['died']:
             ### Analyze results
@@ -188,63 +204,22 @@ class OmniglotOptimizee(Optimizee):
 
         if not all_zero:
             diff_class_distances = analysis.diff_class_dists(diff_class_vectors)
-            diff_dist = np.mean(diff_class_distances)
-
             diff_class_overlap = analysis.overlap_score(apc, n_out)
             diff_class_repr = analysis.individual_score(ipc, n_test, n_class)
 
             same_class_vectors = analysis.same_class_vectors(ipc, n_out)
 
-            same_class_distances, same_class_count = \
+            same_class_distances = \
                         analysis.same_class_distances(same_class_vectors)
 
-
-        print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
-
-        vmin += (-1.0 if all_zero else 0.0)
-
-        if all_zero:
-            print("dots == 0, fitness = ", 0)
-            same_class_vectors = []
-            diff_class_vectors = [] ###already defined
-
-            diff_class_norms = []
-            diff_class_dots = []
-
-            same_class_norms = []
-            same_class_dots = []
-
-            diff_class_fitness = vmin
-            same_class_fitness = vmin
-
-            diff_class_distances = []
-            same_class_distances = []
-            diff_dist = vmin
-
-            diff_class_overlap = vmin
-            diff_class_repr = vmin
-
-            apc = []
-
-            n_dots = 0
-            ipc = []
-            same_class_count = 0
-
-        else:
             # invert (1 - x) so that 0 == bad and 1 == good
-            diff_class_fitness = np.mean(1.0 - diff_class_distances)
+            diff_class_fitness = 1.0 - np.mean(diff_class_distances)
 
-            same_fitnesses = np.asarray([
-                np.sum(same_class_dots[c]) if len(same_class_dots[c]) else 0.0 \
-                                                for c in sorted(same_class_dots.keys())
-            ])
+            same_fitnesses = np.asarray([ np.sum(same_class_distances[c])
+                                    for c in sorted(same_class_distances.keys()) ])
 
             # 0 means orthogonal vector == bad for same class activity
-            same_fitnesses[np.where(np.isnan(same_fitnesses))] = 0.0
-            same_fitnesses[np.where(np.isinf(same_fitnesses))] = 0.0
-            same_class_fitness = np.sum(same_fitnesses)
-            same_class_fitness /= same_class_count
-
+            same_class_fitness = np.sum(same_fitnesses) / (n_class * n_test)
             print("same fitness ", same_class_fitness)
 
 
@@ -253,33 +228,42 @@ class OmniglotOptimizee(Optimizee):
             'aggregate_per_class': {
                 'spikes': apc,
                 'vectors': diff_class_vectors,
-                'norms': diff_class_norms,
-                'dots': diff_class_dots,
-                'cos_dist': diff_class_fitness,
                 'distances': diff_class_distances,
-                'euc_dist': diff_dist,
-                'fitness': diff_class_overlap,
+                'fitness': diff_class_fitness,
                 'num_dots': n_dots,
                 'overlap_dist': diff_class_overlap,
                 'class_dist': diff_class_repr,
+                'weights': {
+                    'overlap_dist': 0.3,
+                    'class_dist': 0.4,
+                    'fitness': 0.2,
+                },
             },
             'individual_per_class': {
                 'spikes': ipc,
                 'vectors': same_class_vectors,
-                'norms': same_class_norms,
-                'dots': same_class_dots,
-                'fitness': same_class_fitness,
-                'cos_dist': same_class_fitness,
                 'distances': same_class_distances,
-                'num_dots': same_class_count,
+                'fitness': same_class_fitness,
+                'weights': {
+                    'fitness': 0.1,
+                },
             },
 
         }
 
-        fit0 = 0.35 * data['analysis']['aggregate_per_class']['overlap_dist'] + \
-               0.35 * data['analysis']['aggregate_per_class']['class_dist'] + \
-               0.2 * data['analysis']['aggregate_per_class']['euc_dist'] + \
-               0.1 * data['analysis']['individual_per_class']['cos_dist']
+        # overlap of output vectors, ideally should be 0, so we inverted the average
+        woverlap = data['analysis']['aggregate_per_class']['weights']['overlap_dist']
+        # spikes active per test presentation, ideally should be 1 per presentation, average
+        wclass = data['analysis']['aggregate_per_class']['weights']['class_dist']
+        # cosine distance between output vectors, 1 is bad so we inverted the average
+        wdiff = data['analysis']['aggregate_per_class']['weights']['fitness']
+        # cosine distance between output vectors per class, 1 is bad so we inverted the average
+        wsame = data['analysis']['individual_per_class']['weights']['fitness']
+
+        fit0 = woverlap * data['analysis']['aggregate_per_class']['overlap_dist'] + \
+               wclass * data['analysis']['aggregate_per_class']['class_dist'] + \
+               wdiff * data['analysis']['aggregate_per_class']['fitness'] + \
+               wsame * data['analysis']['individual_per_class']['fitness']
 
         data['fitness'] = fit0
         ### Save results for this individual

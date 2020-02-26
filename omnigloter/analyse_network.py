@@ -52,7 +52,7 @@ def overlap_score(apc, n_output):
 
     # print("{} / {} = {}".format(np.sum(neuron_overlaps), len(uniques), np.sum(neuron_overlaps) / len(uniques)))
 
-    return np.sum(neuron_overlaps) / len(uniques)
+    return 1.0 - (np.sum(neuron_overlaps) / len(uniques))
 
 def individual_score(ipc, n_tests, n_classes):
     events = np.zeros(n_classes)
@@ -73,22 +73,33 @@ def diff_class_vectors(apc, n_output):
 
     return dcv
 
-def diff_class_dists(diff_class_vectors):
-    d = []
-    for ix, x in enumerate(diff_class_vectors):
-        for iy, y in enumerate(diff_class_vectors):
+
+def vec_list_diffs(vec_list):
+    norms = [np.sqrt(np.sum(x ** 2)) for x in vec_list]
+    dots = []
+    eucs = []
+    for ix, x in enumerate(vec_list):
+        for iy, y in enumerate(vec_list):
             if iy > ix:
-                xn = np.sqrt(np.sum(x ** 2))
+                xn = norms[ix]
                 xx = x / xn if xn > ZERO_FLOAT else x
 
-                yn = np.sqrt(np.sum(y ** 2))
+                yn = norms[iy]
                 yy = y / yn if yn > ZERO_FLOAT else y
 
                 # sqrt(2) == max distance
-                dot = np.sqrt(np.sum((xx - yy) ** 2)) / np.sqrt(2)
-                d.append(dot)
+                euc = np.sqrt(np.sum((xx - yy) ** 2)) / np.sqrt(2)
+                eucs.append(euc)
 
-    return np.asarray(d)
+                dot = np.dot(xx, yy)
+                dots.append(dot)
+
+    return np.asarray(norms), np.asarray(dots), np.asarray(eucs)
+
+
+def diff_class_dists(diff_class_vectors):
+    norms, dots, eucs = vec_list_diffs(diff_class_vectors)
+    return dots
 
 def any_all_zero(apc, ipc):
     any_zero = False
@@ -117,32 +128,12 @@ def same_class_vectors(ipc, n_out):
     return smc
 
 def same_class_distances(same_class_vectors):
-    same_class_norms = {
-        c: np.linalg.norm(np.asarray(same_class_vectors[c]), axis=1)
-        for c in same_class_vectors
-    }
-
-    same_class_distances = {}
-    same_class_count = 0.0
+    scd = {}
     for c in same_class_vectors:
-        d = []
-        for ix, x in enumerate(same_class_vectors[c]):
-            for iy, y in enumerate(same_class_vectors[c]):
-                if iy > ix:
-                    xn = same_class_norms[c][ix]
-                    yn = same_class_norms[c][iy]
+        norms, dots, eucs = vec_list_diffs(same_class_vectors[c])
+        scd[c] = np.asarray(dots)
 
-                    xnorm = x / xn if xn > ZERO_FLOAT else x
-                    ynorm = y / yn if yn > ZERO_FLOAT else y
-
-                    #sqrt(2) == max distance
-                    dist = np.sqrt(np.sum((xnorm - ynorm) ** 2)) / np.sqrt(2)
-                    d.append(dist)
-                    same_class_count += 1.0
-
-        same_class_distances[c] = np.asarray(d)
-
-    return same_class_distances, same_class_count
+    return scd
 
 def spiking_per_class_split(indices, spikes, start_t, end_t, dt):
     uindices = np.unique(indices)

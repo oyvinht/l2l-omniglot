@@ -26,7 +26,11 @@ OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 USE_MPI = bool(0)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0)) and (not config.DEBUG)
-NUM_SIMS = 10 if ON_JEWELS else 1
+NUM_SIMS = 1
+if ON_JEWELS:
+    NUM_SIMS = 10
+elif config.DEBUG:
+    NUM_SIMS = 4
 
 def main():
 
@@ -162,6 +166,8 @@ def main():
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
     # dbs = ['Cyrillic', 'Futurama', 'Braille']
+    if config.DEBUG:
+        dbs = ['Braille']
 
     traj.f_add_parameter_to_group("simulation", 'database', dbs)
 
