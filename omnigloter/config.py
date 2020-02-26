@@ -266,7 +266,7 @@ OUTPUT_PARAMS['tau_syn_I'] = 5.
 
 
 RECORD_SPIKES = [
-    'input',
+    # 'input',
     # 'gabor',
     # 'mushroom',
     # 'inh_mushroom',
