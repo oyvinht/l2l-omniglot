@@ -3,7 +3,7 @@ import os
 GENN = 'genn'
 SPINNAKER = 'spinnaker'
 
-DEBUG = bool(1)
+DEBUG = bool(0)
 ONE_TO_ONE_EXCEPTION = bool(0)
 BACKEND = 'SingleThreadedCPU' if bool(0) else 'CUDA'
 
