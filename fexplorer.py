@@ -30,7 +30,7 @@ NUM_SIMS = 1
 if ON_JEWELS:
     NUM_SIMS = 10
 elif config.DEBUG:
-    NUM_SIMS = 4
+    NUM_SIMS = 1
 
 def main():
 
