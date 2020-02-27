@@ -169,7 +169,7 @@ class OmniglotOptimizee(Optimizee):
         if data['died']:
             print(data['recs'])
 
-        vmin = -1.0 if data['died'] else 0.0
+        vmin = -1.0 if data['died'] else -0.5
         diff_class_vectors = []
         diff_class_distances = []
         diff_class_fitness = vmin
@@ -205,6 +205,7 @@ class OmniglotOptimizee(Optimizee):
             # the output population
             any_zero, all_zero = analysis.any_all_zero(apc, ipc)
 
+        print("any_zero, all_zero = {}, {}".format(any_zero, all_zero))
         if not all_zero:
             diff_class_distances = analysis.diff_class_dists(diff_class_vectors)
             diff_class_overlap = analysis.overlap_score(apc, n_out)
@@ -238,8 +239,11 @@ class OmniglotOptimizee(Optimizee):
                 'overlap_dist': diff_class_overlap,
                 'class_dist': diff_class_repr,
                 'weights': {
-                    'overlap_dist': 0.3,
-                    'class_dist': 0.4,
+                    #overlapping activity is present
+                    'overlap_dist': 0.4,
+                    #how many classes are represented
+                    'class_dist': 0.3,
+                    # different class distance
                     'fitness': 0.2,
                 },
             },
@@ -249,6 +253,7 @@ class OmniglotOptimizee(Optimizee):
                 'distances': same_class_distances,
                 'fitness': same_class_fitness,
                 'weights': {
+                    # same class distance
                     'fitness': 0.1,
                 },
             },
