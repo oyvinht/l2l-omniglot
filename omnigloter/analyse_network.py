@@ -39,6 +39,9 @@ def spiking_per_class(indices, spikes, start_t, end_t, dt):
 def overlap_score(apc, n_output):
     classes = sorted(apc.keys())
     class_overlaps_sets = [set() for _ in classes]
+    zero_counts = np.array(
+        [1 if len(apc[cls0].keys()) == 0 else 0 for cls0 in apc]
+    )
     for cls0_id, cls0 in enumerate(classes[:-1]):
         for cls1 in classes[cls0_id + 1:]:
             for nid in np.unique(list(apc[cls0].keys())):
@@ -48,12 +51,18 @@ def overlap_score(apc, n_output):
                     class_overlaps_sets[cls1] |= set([cls0])
 
     co = np.asarray( [float(len(s)) for s in class_overlaps_sets] )
+    # print(zero_counts)
+    coco = co / (len(classes) - 1)
+    coco[zero_counts != 0] = 1
+    # print(coco)
     # print(class_overlaps_sets)
     # print(co)
     # print( co / (len(classes) - 1) )
     # print( 1.0 - co / (len(classes) - 1) )
+    # print( 1.0 - coco )
     # print(np.min( 1.0 - co / (len(classes) - 1) ))
-    return np.min( 1.0 - co / (len(classes) - 1) )
+
+    return np.min( 1.0 - coco)
 
 def individual_score(ipc, n_tests, n_classes):
     events = np.zeros(n_classes)
