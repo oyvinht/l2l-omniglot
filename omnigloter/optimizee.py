@@ -288,7 +288,8 @@ class OmniglotOptimizee(Optimizee):
         del params
 
         gc.collect()
-        print("Done running simulation")
+        print("Fitness {}".format(fit0))
+        print("Done running simulation\n\n\n")
 
         if queue is not None:
             queue.put([fit0])

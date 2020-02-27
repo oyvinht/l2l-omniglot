@@ -38,31 +38,22 @@ def spiking_per_class(indices, spikes, start_t, end_t, dt):
 
 def overlap_score(apc, n_output):
     classes = sorted(apc.keys())
-    uniques = set()
-    for cls in classes:
-        uniques |= set(apc[cls].keys())
-    # print(sorted(uniques))
-
-    neuron_overlaps = np.zeros(n_output)
-    class_overlaps = np.zeros(len(classes))
+    class_overlaps_sets = [set() for _ in classes]
     for cls0_id, cls0 in enumerate(classes[:-1]):
         for cls1 in classes[cls0_id + 1:]:
             for nid in np.unique(list(apc[cls0].keys())):
                 nids1 = list(apc[cls1].keys())
                 if nid in nids1:
-                    class_overlaps[cls0] += 1
-                    class_overlaps[cls1] += 1
-                    neuron_overlaps[nid] += 1
+                    class_overlaps_sets[cls0] |= set([cls1])
+                    class_overlaps_sets[cls1] |= set([cls0])
 
-                    # print(nid, nids1, cls0, cls1)
-
-    # print(neuron_overlaps)
-    # print(class_overlaps, len(classes) - 1)
-    # print("{} / {} = {}".format(np.sum(neuron_overlaps), len(uniques), np.sum(neuron_overlaps) / len(uniques)))
-    # print((1.0 - class_overlaps/(len(classes) - 1)))
-    # return 1.0 - (np.sum(neuron_overlaps) / len(uniques))
-    # return np.mean(1.0 - class_overlaps/(len(classes) - 1))
-    return np.min(1.0 - class_overlaps/(len(classes) - 1))
+    co = np.asarray( [float(len(s)) for s in class_overlaps_sets] )
+    # print(class_overlaps_sets)
+    # print(co)
+    # print( co / (len(classes) - 1) )
+    # print( 1.0 - co / (len(classes) - 1) )
+    # print(np.min( 1.0 - co / (len(classes) - 1) ))
+    return np.min( 1.0 - co / (len(classes) - 1) )
 
 def individual_score(ipc, n_tests, n_classes):
     events = np.zeros(n_classes)
