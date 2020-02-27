@@ -104,7 +104,7 @@ def diff_class_dists(diff_class_vectors):
 
 def any_all_zero(apc, ipc):
     any_zero = False
-    all_zero = False
+    all_zero = True
     for cls in sorted(ipc.keys()):
         for idx in sorted(ipc[cls].keys()):
             if len(ipc[cls][idx]) == 0:
@@ -115,8 +115,9 @@ def any_all_zero(apc, ipc):
 
     for c in apc:
         nids = list(apc[c].keys())
-        if len(nids) == 0:
-            all_zero = True
+        if len(nids) != 0:
+            all_zero = False
+            break
 
     return any_zero, all_zero
 

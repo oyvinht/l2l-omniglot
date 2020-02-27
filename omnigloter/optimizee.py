@@ -205,6 +205,7 @@ class OmniglotOptimizee(Optimizee):
             # the output population
             any_zero, all_zero = analysis.any_all_zero(apc, ipc)
 
+        print("any_zero, all_zero = {}, {}".format(any_zero, all_zero))
         if not all_zero:
             diff_class_distances = analysis.diff_class_dists(diff_class_vectors)
             diff_class_overlap = analysis.overlap_score(apc, n_out)
@@ -239,9 +240,9 @@ class OmniglotOptimizee(Optimizee):
                 'class_dist': diff_class_repr,
                 'weights': {
                     #overlapping activity is present
-                    'overlap_dist': 0.3,
+                    'overlap_dist': 0.4,
                     #how many classes are represented
-                    'class_dist': 0.4,
+                    'class_dist': 0.3,
                     # different class distance
                     'fitness': 0.2,
                 },
