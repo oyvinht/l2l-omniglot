@@ -62,9 +62,12 @@ class OmniglotOptimizee(Optimizee):
         #    - return the winning fitness
         #  This will (temporarily) increase the population size
         #  and help explore the parameter space faster.
+        n_sims = self.sim_params['num_sims']
+        if n_sims == 1:
+            return self.simulate_one(traj)
+
         n_params = len(traj.individual.keys)
         p_change = 1.0/n_params
-        n_sims = self.sim_params['num_sims']
         original_ind_idx = copy.copy(traj.individual.ind_idx)
         ipr = self.ind_param_ranges
         q = Queue()

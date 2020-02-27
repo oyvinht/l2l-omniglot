@@ -46,21 +46,23 @@ def overlap_score(apc, n_output):
     neuron_overlaps = np.zeros(n_output)
     class_overlaps = np.zeros(len(classes))
     for cls0_id, cls0 in enumerate(classes[:-1]):
-        for nid in np.unique(list(apc[cls0].keys())):
-            for cls1 in classes[cls0_id + 1:]:
+        for cls1 in classes[cls0_id + 1:]:
+            for nid in np.unique(list(apc[cls0].keys())):
                 nids1 = list(apc[cls1].keys())
                 if nid in nids1:
-                    # print(nid, nids1, cls0, cls1)
                     class_overlaps[cls0] += 1
                     class_overlaps[cls1] += 1
                     neuron_overlaps[nid] += 1
 
+                    # print(nid, nids1, cls0, cls1)
+
     # print(neuron_overlaps)
-    # print(class_overlaps)
+    # print(class_overlaps, len(classes) - 1)
     # print("{} / {} = {}".format(np.sum(neuron_overlaps), len(uniques), np.sum(neuron_overlaps) / len(uniques)))
-    # print(1.0 - np.mean(class_overlaps))
+    # print((1.0 - class_overlaps/(len(classes) - 1)))
     # return 1.0 - (np.sum(neuron_overlaps) / len(uniques))
-    return 1.0 - np.mean(class_overlaps)
+    # return np.mean(1.0 - class_overlaps/(len(classes) - 1))
+    return np.min(1.0 - class_overlaps/(len(classes) - 1))
 
 def individual_score(ipc, n_tests, n_classes):
     events = np.zeros(n_classes)
