@@ -218,11 +218,12 @@ class OmniglotOptimizee(Optimizee):
             # invert (1 - x) so that 0 == bad and 1 == good
             diff_class_fitness = 1.0 - np.mean(diff_class_distances)
 
-            same_fitnesses = np.asarray([ np.sum(same_class_distances[c])
+            same_fitnesses = np.asarray([ np.mean(same_class_distances[c])
                                     for c in sorted(same_class_distances.keys()) ])
 
             # 0 means orthogonal vector == bad for same class activity
-            same_class_fitness = np.sum(same_fitnesses) / (n_class * n_test)
+            # same_class_fitness = np.sum(same_fitnesses) / (n_class * n_test)
+            same_class_fitness = np.mean(same_fitnesses)
             print("same fitness ", same_class_fitness)
 
 
