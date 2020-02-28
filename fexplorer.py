@@ -24,13 +24,17 @@ GRADDESC, EVOSTRAT, GENALG = range(3)
 #OPTIMIZER = GRADDESC
 OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
+ON_TITAN = bool(0)
 USE_MPI = bool(0)
 MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0)) and (not config.DEBUG)
 NUM_SIMS = 1
-if ON_JEWELS:
+
+if config.DEBUG:
+    NUM_SIMS = 1
+elif ON_JEWELS:
     NUM_SIMS = 10
-elif config.DEBUG:
-    NUM_SIMS = 2
+elif ON_TITAN:
+    NUM_SIMS = 10
 
 def main():
 
@@ -108,7 +112,8 @@ def main():
         command = "srun -N 1 -n 1 -c 1 --gres=gpu:1 {}".format(command)
     elif USE_MPI:
         # -timeout <seconds>
-        command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to none -np 1 {}".format(60*120, command)
+#         command = "MPIEXEC_TIMEOUT={} mpiexec -bind-to socket -np 1 {}".format(60*240, command)
+        command = "mpiexec -bind-to socket -np 1 {}".format(command)
 
     traj.f_add_parameter_to_group("JUBE_params", "exec", command)
 
@@ -144,7 +149,7 @@ def main():
     traj.f_add_parameter_to_group("simulation", 'noisy_spikes_path', paths.root_dir_path)
 
     # db_path = '/home/gp283/brainscales-recognition/codebase/images_to_spikes/omniglot/spikes'
-    db_path = '../omniglot_output_%d' % config.INPUT_SHAPE[0]
+    db_path = os.path.abspath('../omniglot_output_%d' % config.INPUT_SHAPE[0])
     traj.f_add_parameter_to_group("simulation", 'spikes_path', db_path)
 
     # dbs = [ name for name in os.listdir(db_path) if os.path.isdir(os.path.join(db_path, name)) ]
