@@ -75,7 +75,7 @@ class OmniglotOptimizee(Optimizee):
         n_inds = len(traj.individuals[0])
         for tid, t in enumerate(trajs):
             new_ind_idx = t.individual.ind_idx
-            new_ind_idx *= n_inds
+            new_ind_idx *= n_sims
             new_ind_idx += tid
             t.individual.ind_idx = new_ind_idx
 
