@@ -26,7 +26,7 @@ OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 ON_TITAN = bool(0)
 USE_MPI = bool(0)
-MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0)) and (not config.DEBUG)
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0)) and (not config.DEBUG or not ON_TITAN)
 NUM_SIMS = 1
 
 if config.DEBUG:
@@ -34,7 +34,7 @@ if config.DEBUG:
 elif ON_JEWELS:
     NUM_SIMS = 10
 elif ON_TITAN:
-    NUM_SIMS = 10
+    NUM_SIMS = 15
 
 def main():
 
@@ -167,7 +167,7 @@ def main():
 
     # dbs = ['Alphabet_of_the_Magi']
     # dbs = ['Futurama']
-    # dbs = ['Latin']
+    dbs = ['Latin']
     # dbs = ['Braille']
     # dbs = ['Blackfoot_-Canadian_Aboriginal_Syllabics-', 'Gujarati', 'Syriac_-Estrangelo-']
     # dbs = ['Cyrillic', 'Futurama', 'Braille']
@@ -228,7 +228,7 @@ def main():
         num_generations = 1000
         # population_size = 20
         population_size = 2
-        p_hof = 0.25 if population_size < 100 else 0.1
+        p_hof = 0.2 if population_size < 100 else 0.1
         p_bob = 0.5
         last_trajs = load_last_trajs(os.path.join(paths.root_dir_path, 'trajectories'))
         if len(last_trajs):
