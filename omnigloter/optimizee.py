@@ -34,7 +34,7 @@ class OmniglotOptimizee(Optimizee):
 
         print("In OmniglotOptimizee:")
         print(self.ind_param_ranges)
-        print(self.sim_params)
+#         print(self.sim_params)
 
     def create_individual(self):
         ipr = self.ind_param_ranges
@@ -85,7 +85,7 @@ class OmniglotOptimizee(Optimizee):
             for k in t.individual.keys:
                 if np.random.uniform(0., 1.) <= p_change:
                     print(tid, k)
-                    dv = np.random.normal(0., 0.1)
+                    dv = np.random.normal(0., 1.0)
                     k = k.split('.')[1]
                     v = utils.bound(
                             getattr(t.individual, k) + dv,
@@ -135,12 +135,12 @@ class OmniglotOptimizee(Optimizee):
 
         bench_start_t = time.time()
         ipr = self.ind_param_ranges
-        for k in traj.par:
-            try:
-                print("{}:".format(k))
-                print("\t{}\n".format(traj.par[k]))
-            except:
-                print("\tNOT FOUND!\n")
+#        for k in traj.par:
+#            try:
+#                print("{}:".format(k))
+#                print("\t{}\n".format(traj.par[k]))
+#            except:
+#                print("\tNOT FOUND!\n")
 
         n_out = self.sim_params['output_size']
         n_test = self.sim_params['test_per_class']
@@ -153,8 +153,8 @@ class OmniglotOptimizee(Optimizee):
         generation = traj.individual.generation
         name = 'gen{:010d}_ind{:010d}'.format(generation, ind_idx)
         ind_params = {k: getattr(traj.individual, k) for k in ipr}
-        print("ind_params:")
-        print(ind_params)
+#        print("ind_params:")
+#        print(ind_params)
         params = {
             'ind': ind_params,
             'sim': self.sim_params,
@@ -166,8 +166,8 @@ class OmniglotOptimizee(Optimizee):
 
         print("\n\nExperiment took {} seconds\n".format(time.time() - bench_start_t))
 
-        if data['died']:
-            print(data['recs'])
+#         if data['died']:
+#             print(data['recs'])
 
         vmin = -1.0 if data['died'] else -0.5
         diff_class_vectors = []
@@ -193,11 +193,11 @@ class OmniglotOptimizee(Optimizee):
             start_t = end_t - n_class * n_test * dt
             apc, ipc = analysis.spiking_per_class(labels, out_spikes, start_t, end_t, dt)
 
-            print("\n\n\napc")
-            print(apc)
+            # print("\n\n\napc")
+            # print(apc)
 
-            print("\nipc")
-            print(ipc)
+            # print("\nipc")
+            # print(ipc)
 
             diff_class_vectors = analysis.diff_class_vectors(apc, n_out)
             # punish inactivity on output cells,
@@ -260,6 +260,7 @@ class OmniglotOptimizee(Optimizee):
 
         }
 
+
         # overlap of output vectors, ideally should be 0, so we inverted the average
         woverlap = data['analysis']['aggregate_per_class']['weights']['overlap_dist']
         # spikes active per test presentation, ideally should be 1 per presentation, average
@@ -267,6 +268,7 @@ class OmniglotOptimizee(Optimizee):
         # cosine distance between output vectors, 1 is bad so we inverted the average
         wdiff = data['analysis']['aggregate_per_class']['weights']['fitness']
         # cosine distance between output vectors per class, 1 is bad so we inverted the average
+        data['analysis']['individual_per_class']['weights']['fitness'] = 1.0 - woverlap - wclass - wdiff
         wsame = data['analysis']['individual_per_class']['weights']['fitness']
 
         fit0 = woverlap * data['analysis']['aggregate_per_class']['overlap_dist'] + \

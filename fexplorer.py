@@ -26,7 +26,7 @@ OPTIMIZER = GENALG
 ON_JEWELS = bool(0)
 ON_TITAN = bool(1)
 USE_MPI = bool(0)
-MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0)) and (not config.DEBUG)
+MULTIPROCESSING = (ON_JEWELS or USE_MPI or bool(0)) and (not config.DEBUG or not ON_TITAN)
 NUM_SIMS = 1
 
 if config.DEBUG:
@@ -34,7 +34,7 @@ if config.DEBUG:
 elif ON_JEWELS:
     NUM_SIMS = 10
 elif ON_TITAN:
-    NUM_SIMS = 10
+    NUM_SIMS = 15
     
 def main():
 
@@ -227,7 +227,7 @@ def main():
             optimizee_bounding_func=optimizee.bounding_func)
     else:
         num_generations = 1000
-        population_size = 20
+        population_size = 5
         # population_size = 5
         p_hof = 0.2 if population_size < 100 else 0.1
         p_bob = 0.5
