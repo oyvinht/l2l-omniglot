@@ -36,6 +36,8 @@ elif ON_JEWELS:
 elif ON_TITAN:
     NUM_SIMS = 15
 
+    NUM_SIMS = 15
+
 def main():
 
     name = "L2L-OMNIGLOT"
