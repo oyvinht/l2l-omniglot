@@ -128,6 +128,27 @@ class Decoder(object):
 
 
         self._network['projections'] = projs
+        import pynn_genn_neuroml
+        pynn_genn_neuroml.export(
+            'omniglot.net.nml',
+            [
+                pops['input'][3],
+                pops['input'][2],
+                pops['input'][1],
+                pops['input'][0],
+                pops['mushroom'],
+                pops['inh_mushroom'],
+                pops['output'],
+                pops['inh_output']
+            ],
+            list(projs['input to mushroom'].values())
+            #projs['input to gabor'],
+            #projs['gabor to mushroom'],
+            #projs['wta_mushroom'],
+            + [projs['mushroom to output']]
+            + list(projs['wta_mushroom'].values())
+            + list(projs['wta_output'].values())
+        )
 
 
     def get_in_spikes(self, params):
