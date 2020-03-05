@@ -58,6 +58,7 @@ pip install scikit-learn
 pip install skutil
 pip install pyyaml
 pip install pynn
+pip install libneuroml
 
 git clone https://github.com/genn-team/genn $GENN
 cd $GENN
