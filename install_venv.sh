@@ -57,6 +57,7 @@ pip install setuptools
 pip install scikit-learn
 pip install skutil
 pip install pyyaml
+pip install pynn
 
 git clone https://github.com/genn-team/genn $GENN
 cd $GENN
@@ -66,8 +67,8 @@ make DYNAMIC=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
 #make DYNAMIC=True MPI_ENABLE=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
 #make MPI_ENABLE=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
 
-make CPU_ONLY=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
-make CPU_ONLY=True DYNAMIC=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
+#make CPU_ONLY=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
+#make CPU_ONLY=True DYNAMIC=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
 #make CPU_ONLY=True MPI_ENABLE=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
 #make CPU_ONLY=True DYNAMIC=True MPI_ENABLE=True LIBRARY_DIRECTORY=$GENN/pygenn/genn_wrapper/
 
